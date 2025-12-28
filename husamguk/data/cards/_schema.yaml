@@ -1,0 +1,336 @@
+# 강화 카드(Card) 데이터 스키마
+# 이 파일은 전투 중 사용하는 강화 카드의 구조를 정의합니다.
+
+_schema:
+  version: "1.0.0"
+  description: "강화 카드 데이터 스키마 정의"
+
+# 스키마 정의
+schema:
+  card:
+    id:
+      type: string
+      required: true
+      description: "고유 식별자 (영문, snake_case, 'card_' 접두사 권장)"
+      example: "card_aggressive_charge"
+    
+    name_key:
+      type: string
+      required: true
+      description: "로컬라이제이션 키"
+      example: "CARD_AGGRESSIVE_CHARGE"
+    
+    description_key:
+      type: string
+      required: true
+      description: "카드 설명 로컬라이제이션 키"
+    
+    rarity:
+      type: string
+      required: true
+      enum: ["common", "uncommon", "rare", "legendary"]
+      description: |
+        카드 등급
+        - common: 일반 (흰색)
+        - uncommon: 고급 (녹색)
+        - rare: 희귀 (파란색)
+        - legendary: 전설 (금색)
+    
+    icon:
+      type: string
+      required: false
+      default: null
+      description: "카드 아이콘 경로 (64x64 PNG)"
+    
+    effect:
+      type: object
+      required: true
+      description: "카드 효과 정의"
+      properties:
+        type:
+          type: string
+          enum: ["buff", "debuff", "damage", "heal", "special"]
+        target:
+          type: string
+          enum: ["single_ally", "all_allies", "single_enemy", "all_enemies", "self"]
+        stat:
+          type: string
+          enum: ["attack", "defense", "hp", "atb_speed", "all"]
+          description: "영향받는 스탯 (buff/debuff 타입일 때)"
+        value:
+          type: number
+          description: "효과 수치"
+        value_type:
+          type: string
+          enum: ["flat", "percent"]
+          description: "수치 타입 (고정값 또는 퍼센트)"
+        duration:
+          type: integer
+          description: "지속 시간 (글로벌 턴 수, 0이면 즉시 효과)"
+    
+    penalty:
+      type: object
+      required: false
+      default: null
+      description: "페널티 있는 강화의 부작용 정의"
+      properties:
+        type:
+          type: string
+          enum: ["debuff", "dot", "conditional", "delayed"]
+        target:
+          type: string
+        stat:
+          type: string
+        value:
+          type: number
+        value_type:
+          type: string
+        duration:
+          type: integer
+    
+    condition:
+      type: object
+      required: false
+      default: null
+      description: "카드 사용 조건 (없으면 항상 사용 가능)"
+      properties:
+        type:
+          type: string
+          enum: ["hp_threshold", "unit_count", "turn_number", "nation", "general"]
+        operator:
+          type: string
+          enum: ["eq", "ne", "lt", "le", "gt", "ge"]
+        value:
+          type: any
+
+# 효과 타입 상세
+effect_types:
+  buff:
+    description: "아군 스탯 증가"
+    example:
+      type: "buff"
+      target: "all_allies"
+      stat: "attack"
+      value: 20
+      value_type: "percent"
+      duration: 2
+  
+  debuff:
+    description: "적 스탯 감소"
+    example:
+      type: "debuff"
+      target: "single_enemy"
+      stat: "defense"
+      value: 30
+      value_type: "percent"
+      duration: 2
+  
+  damage:
+    description: "즉시 피해"
+    example:
+      type: "damage"
+      target: "all_enemies"
+      value: 50
+      value_type: "flat"
+  
+  heal:
+    description: "즉시 회복"
+    example:
+      type: "heal"
+      target: "single_ally"
+      value: 30
+      value_type: "percent"  # 최대 HP의 30%
+  
+  special:
+    description: "특수 효과 (별도 처리 필요)"
+    example:
+      type: "special"
+      special_id: "turn_order_swap"
+
+# 예시 데이터
+example:
+  cards:
+    # === 공격 카드 ===
+    - id: "card_aggressive_charge"
+      name_key: "CARD_AGGRESSIVE_CHARGE"
+      description_key: "CARD_AGGRESSIVE_CHARGE_DESC"
+      rarity: "common"
+      icon: "res://assets/ui/cards/aggressive_charge.png"
+      
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "attack"
+        value: 20
+        value_type: "percent"
+        duration: 2
+      
+      penalty: null
+
+    - id: "card_desperate_assault"
+      name_key: "CARD_DESPERATE_ASSAULT"
+      description_key: "CARD_DESPERATE_ASSAULT_DESC"
+      rarity: "rare"
+      icon: "res://assets/ui/cards/desperate_assault.png"
+      
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "attack"
+        value: 40
+        value_type: "percent"
+        duration: 3
+      
+      penalty:
+        type: "dot"
+        target: "all_allies"
+        stat: "hp"
+        value: 5
+        value_type: "percent"
+        duration: 3
+
+    # === 방어 카드 ===
+    - id: "card_iron_defense"
+      name_key: "CARD_IRON_DEFENSE"
+      description_key: "CARD_IRON_DEFENSE_DESC"
+      rarity: "common"
+      icon: "res://assets/ui/cards/iron_defense.png"
+      
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "defense"
+        value: 30
+        value_type: "percent"
+        duration: 2
+      
+      penalty: null
+
+    - id: "card_last_stand"
+      name_key: "CARD_LAST_STAND"
+      description_key: "CARD_LAST_STAND_DESC"
+      rarity: "rare"
+      icon: "res://assets/ui/cards/last_stand.png"
+      
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "defense"
+        value: 100
+        value_type: "percent"
+        duration: 1
+      
+      penalty:
+        type: "debuff"
+        target: "all_allies"
+        stat: "atb_speed"
+        value: 50
+        value_type: "percent"
+        duration: 2
+
+    # === 계략 카드 ===
+    - id: "card_intimidate"
+      name_key: "CARD_INTIMIDATE"
+      description_key: "CARD_INTIMIDATE_DESC"
+      rarity: "uncommon"
+      icon: "res://assets/ui/cards/intimidate.png"
+      
+      effect:
+        type: "debuff"
+        target: "all_enemies"
+        stat: "attack"
+        value: 25
+        value_type: "percent"
+        duration: 2
+      
+      penalty: null
+
+    - id: "card_sabotage"
+      name_key: "CARD_SABOTAGE"
+      description_key: "CARD_SABOTAGE_DESC"
+      rarity: "uncommon"
+      icon: "res://assets/ui/cards/sabotage.png"
+      
+      effect:
+        type: "debuff"
+        target: "all_enemies"
+        stat: "atb_speed"
+        value: 30
+        value_type: "percent"
+        duration: 2
+      
+      penalty: null
+
+    # === 회복 카드 ===
+    - id: "card_field_medic"
+      name_key: "CARD_FIELD_MEDIC"
+      description_key: "CARD_FIELD_MEDIC_DESC"
+      rarity: "common"
+      icon: "res://assets/ui/cards/field_medic.png"
+      
+      effect:
+        type: "heal"
+        target: "single_ally"
+        value: 40
+        value_type: "percent"
+      
+      penalty: null
+
+    - id: "card_rally"
+      name_key: "CARD_RALLY"
+      description_key: "CARD_RALLY_DESC"
+      rarity: "rare"
+      icon: "res://assets/ui/cards/rally.png"
+      
+      effect:
+        type: "heal"
+        target: "all_allies"
+        value: 25
+        value_type: "percent"
+      
+      penalty: null
+
+    # === 특수 카드 ===
+    - id: "card_ambush"
+      name_key: "CARD_AMBUSH"
+      description_key: "CARD_AMBUSH_DESC"
+      rarity: "legendary"
+      icon: "res://assets/ui/cards/ambush.png"
+      
+      effect:
+        type: "special"
+        special_id: "instant_atb_fill"
+        target: "all_allies"
+        description: "모든 아군의 ATB 게이지를 즉시 채운다"
+      
+      penalty:
+        type: "delayed"
+        delay_turns: 1
+        effect:
+          type: "debuff"
+          target: "all_allies"
+          stat: "defense"
+          value: 30
+          value_type: "percent"
+          duration: 1
+
+    - id: "card_defection"
+      name_key: "CARD_DEFECTION"
+      description_key: "CARD_DEFECTION_DESC"
+      rarity: "legendary"
+      icon: "res://assets/ui/cards/defection.png"
+      
+      effect:
+        type: "special"
+        special_id: "convert_enemy"
+        target: "single_enemy"
+        description: "적 유닛 하나를 아군으로 전향시킨다"
+      
+      penalty:
+        type: "conditional"
+        condition: "random_chance"
+        chance: 0.3
+        effect:
+          type: "special"
+          special_id: "betrayal"
+          description: "전향한 유닛이 다시 적으로 돌아갈 수 있음"

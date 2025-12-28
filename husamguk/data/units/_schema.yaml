@@ -1,0 +1,246 @@
+# 유닛/병종(Unit) 데이터 스키마
+# 이 파일은 전투 유닛 데이터의 구조를 정의합니다.
+
+_schema:
+  version: "1.0.0"
+  description: "유닛/병종 데이터 스키마 정의"
+
+# 스키마 정의
+schema:
+  unit:
+    id:
+      type: string
+      required: true
+      description: "고유 식별자 (영문, snake_case)"
+      example: "spearman"
+    
+    name_key:
+      type: string
+      required: true
+      description: "로컬라이제이션 키"
+      example: "UNIT_SPEARMAN"
+    
+    category:
+      type: string
+      required: true
+      enum: ["infantry", "cavalry", "archer", "special"]
+      description: |
+        병종 카테고리
+        - infantry: 보병
+        - cavalry: 기병
+        - archer: 궁병
+        - special: 특수 병종
+    
+    sprite_sheet:
+      type: string
+      required: false
+      default: null
+      description: "스프라이트 시트 경로 (64x64 PNG)"
+      example: "res://assets/sprites/units/spearman.png"
+    
+    base_stats:
+      type: object
+      required: true
+      properties:
+        hp:
+          type: integer
+          range: [1, 999]
+          description: "기본 체력"
+          default: 100
+        attack:
+          type: integer
+          range: [1, 999]
+          description: "기본 공격력"
+          default: 20
+        defense:
+          type: integer
+          range: [0, 999]
+          description: "기본 방어력"
+          default: 10
+        atb_speed:
+          type: number
+          range: [0.1, 3.0]
+          description: "ATB 게이지 충전 속도 (기준값 1.0)"
+          default: 1.0
+    
+    traits:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: "특성 고유 식별자"
+          description_key:
+            type: string
+            description: "특성 설명 로컬라이제이션 키"
+          effect:
+            type: object
+            description: "특성 효과"
+      description: "유닛 고유 특성 목록"
+    
+    formation_position:
+      type: string
+      required: true
+      enum: ["front", "back"]
+      description: |
+        기본 진형 위치
+        - front: 전열 (근접 공격, 피해 우선 대상)
+        - back: 후열 (원거리 공격, 보호받음)
+
+# 특성 효과 타입 정의
+trait_effect_types:
+  damage_bonus_vs:
+    description: "특정 병종에 대한 추가 피해"
+    example:
+      damage_bonus_vs: "cavalry"
+      bonus_percent: 50
+  
+  damage_reduction_vs:
+    description: "특정 병종으로부터 받는 피해 감소"
+    example:
+      damage_reduction_vs: "archer"
+      reduction_percent: 30
+  
+  passive_buff:
+    description: "상시 적용되는 스탯 버프"
+    example:
+      stat: "defense"
+      value: 10
+      value_type: "flat"  # flat | percent
+  
+  conditional_buff:
+    description: "조건부 버프"
+    example:
+      condition: "hp_below_30"
+      stat: "attack"
+      value: 50
+      value_type: "percent"
+
+# 예시 데이터
+example:
+  units:
+    # === 보병 ===
+    - id: "spearman"
+      name_key: "UNIT_SPEARMAN"
+      category: "infantry"
+      sprite_sheet: "res://assets/sprites/units/spearman.png"
+      
+      base_stats:
+        hp: 100
+        attack: 25
+        defense: 30
+        atb_speed: 1.0
+      
+      traits:
+        - id: "anti_cavalry"
+          description_key: "TRAIT_ANTI_CAVALRY"
+          effect:
+            damage_bonus_vs: "cavalry"
+            bonus_percent: 50
+      
+      formation_position: "front"
+
+    - id: "swordsman"
+      name_key: "UNIT_SWORDSMAN"
+      category: "infantry"
+      sprite_sheet: "res://assets/sprites/units/swordsman.png"
+      
+      base_stats:
+        hp: 120
+        attack: 35
+        defense: 20
+        atb_speed: 1.1
+      
+      traits:
+        - id: "berserker"
+          description_key: "TRAIT_BERSERKER"
+          effect:
+            condition: "hp_below_30"
+            stat: "attack"
+            value: 30
+            value_type: "percent"
+      
+      formation_position: "front"
+
+    # === 기병 ===
+    - id: "light_cavalry"
+      name_key: "UNIT_LIGHT_CAVALRY"
+      category: "cavalry"
+      sprite_sheet: "res://assets/sprites/units/light_cavalry.png"
+      
+      base_stats:
+        hp: 80
+        attack: 40
+        defense: 15
+        atb_speed: 1.4
+      
+      traits:
+        - id: "charge"
+          description_key: "TRAIT_CHARGE"
+          effect:
+            first_attack_bonus: 50
+            bonus_type: "percent"
+      
+      formation_position: "front"
+
+    - id: "heavy_cavalry"
+      name_key: "UNIT_HEAVY_CAVALRY"
+      category: "cavalry"
+      sprite_sheet: "res://assets/sprites/units/heavy_cavalry.png"
+      
+      base_stats:
+        hp: 130
+        attack: 45
+        defense: 25
+        atb_speed: 0.9
+      
+      traits:
+        - id: "armored"
+          description_key: "TRAIT_ARMORED"
+          effect:
+            damage_reduction_vs: "archer"
+            reduction_percent: 40
+      
+      formation_position: "front"
+
+    # === 궁병 ===
+    - id: "archer"
+      name_key: "UNIT_ARCHER"
+      category: "archer"
+      sprite_sheet: "res://assets/sprites/units/archer.png"
+      
+      base_stats:
+        hp: 60
+        attack: 35
+        defense: 10
+        atb_speed: 1.0
+      
+      traits:
+        - id: "ranged"
+          description_key: "TRAIT_RANGED"
+          effect:
+            can_attack_back_row: true
+            ignore_front_row: false
+      
+      formation_position: "back"
+
+    - id: "crossbowman"
+      name_key: "UNIT_CROSSBOWMAN"
+      category: "archer"
+      sprite_sheet: "res://assets/sprites/units/crossbowman.png"
+      
+      base_stats:
+        hp: 70
+        attack: 50
+        defense: 15
+        atb_speed: 0.7
+      
+      traits:
+        - id: "armor_piercing"
+          description_key: "TRAIT_ARMOR_PIERCING"
+          effect:
+            ignore_defense_percent: 50
+      
+      formation_position: "back"

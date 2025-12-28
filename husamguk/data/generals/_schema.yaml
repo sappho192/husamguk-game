@@ -1,0 +1,168 @@
+# 장수(General) 데이터 스키마
+# 이 파일은 장수 데이터의 구조를 정의합니다.
+# 실제 데이터는 같은 폴더 내의 다른 YAML 파일에 작성합니다.
+
+_schema:
+  version: "1.0.0"
+  description: "장수 데이터 스키마 정의"
+
+# 스키마 정의
+schema:
+  general:
+    id:
+      type: string
+      required: true
+      description: "고유 식별자 (영문, snake_case)"
+      example: "gyeonhwon"
+    
+    name_key:
+      type: string
+      required: true
+      description: "로컬라이제이션 키"
+      example: "GENERAL_GYEONHWON"
+    
+    nation:
+      type: string
+      required: true
+      enum: ["hubaekje", "taebong", "silla"]
+      description: "소속 국가"
+    
+    role:
+      type: string
+      required: true
+      enum: ["assault", "command", "special"]
+      description: |
+        역할군
+        - assault: 돌격형 (단일 대상 고데미지)
+        - command: 지휘형 (버프/디버프)
+        - special: 특수형 (상황 역전)
+    
+    portrait:
+      type: string
+      required: false
+      default: null
+      description: "초상화 이미지 경로 (256x256 PNG)"
+      example: "res://assets/sprites/portraits/gyeonhwon.png"
+    
+    base_stats:
+      type: object
+      required: true
+      properties:
+        leadership:
+          type: integer
+          range: [1, 100]
+          description: "통솔력 - 부대 지휘 능력"
+        combat:
+          type: integer
+          range: [1, 100]
+          description: "무력 - 전투 능력"
+        intelligence:
+          type: integer
+          range: [1, 100]
+          description: "지력 - 계략/전술 능력"
+        politics:
+          type: integer
+          range: [1, 100]
+          description: "정치력 - 내정 능력"
+    
+    skill:
+      type: object
+      required: true
+      properties:
+        id:
+          type: string
+          description: "스킬 고유 식별자"
+        name_key:
+          type: string
+          description: "스킬 이름 로컬라이제이션 키"
+        description_key:
+          type: string
+          description: "스킬 설명 로컬라이제이션 키"
+        cooldown:
+          type: integer
+          description: "스킬 쿨다운 (ATB 턴 기준)"
+        effect:
+          type: object
+          description: "스킬 효과 정의"
+          properties:
+            type:
+              type: string
+              enum: ["damage", "heal", "buff", "debuff", "special"]
+            target:
+              type: string
+              enum: ["single_enemy", "all_enemies", "single_ally", "all_allies", "self"]
+            multiplier:
+              type: number
+              description: "데미지/효과 배율"
+            bonus_condition:
+              type: object
+              required: false
+              description: "조건부 추가 효과"
+    
+    unique_events:
+      type: array
+      required: false
+      items:
+        type: string
+      description: "이 장수 전용 이벤트 ID 목록"
+
+# 예시 데이터
+example:
+  generals:
+    - id: "gyeonhwon"
+      name_key: "GENERAL_GYEONHWON"
+      nation: "hubaekje"
+      role: "assault"
+      portrait: "res://assets/sprites/portraits/gyeonhwon.png"
+      
+      base_stats:
+        leadership: 92
+        combat: 95
+        intelligence: 78
+        politics: 65
+      
+      skill:
+        id: "fury_of_baekje"
+        name_key: "SKILL_FURY_OF_BAEKJE"
+        description_key: "SKILL_FURY_OF_BAEKJE_DESC"
+        cooldown: 3
+        effect:
+          type: "damage"
+          target: "single_enemy"
+          multiplier: 2.5
+          bonus_condition:
+            trigger: "target_hp_above_50"
+            extra_multiplier: 0.5
+      
+      unique_events:
+        - "event_founding_hubaekje"
+        - "event_silla_invasion"
+
+    - id: "wanggeon"
+      name_key: "GENERAL_WANGGEON"
+      nation: "taebong"
+      role: "command"
+      portrait: "res://assets/sprites/portraits/wanggeon.png"
+      
+      base_stats:
+        leadership: 97
+        combat: 82
+        intelligence: 90
+        politics: 95
+      
+      skill:
+        id: "mandate_of_unity"
+        name_key: "SKILL_MANDATE_OF_UNITY"
+        description_key: "SKILL_MANDATE_OF_UNITY_DESC"
+        cooldown: 4
+        effect:
+          type: "buff"
+          target: "all_allies"
+          stat: "attack"
+          value: 30
+          value_type: "percent"
+          duration: 2
+      
+      unique_events:
+        - "event_founding_goryeo"
+        - "event_hojok_alliance"
