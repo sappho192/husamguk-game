@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://ctnugg3vhb1rj"]
+[gd_scene load_steps=3 format=3 uid="uid://ctnugg3vhb1rj"]
 
 [ext_resource type="Script" path="res://src/ui/battle/battle_ui.gd" id="1_battle_ui"]
+[ext_resource type="AudioStream" uid="uid://rwdsqfem6xa7" path="res://assets/audio/battle.ogg" id="2_battle_bgm"]
 
 [node name="Battle" type="Control"]
 layout_mode = 3
@@ -58,3 +59,7 @@ theme_override_font_sizes/font_size = 48
 text = "VICTORY!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BattleBGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_battle_bgm")
+autoplay = true

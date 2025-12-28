@@ -106,7 +106,9 @@ husamguk/
 │       └── en.yaml
 ├── addons/
 │   └── yaml/                  # ✅ godot-yaml parser addon (fimbul-works)
-├── assets/                    # 🔲 Placeholder system in use
+├── assets/
+│   ├── audio/                 # ✅ Battle BGM (looping)
+│   └── (sprites placeholder)  # 🔲 Using colored rectangles
 └── mods/                      # 🔲 MOD system not yet implemented
 ```
 
@@ -326,6 +328,7 @@ var name = "견훤"
 6. **Null Safety**: YAML optional fields checked with `data.get("field", null)` before assignment to typed properties
 7. **Skills ATB-Independent**: Skills do NOT require or reset ATB (Phase 2 design revision)
 8. **Buff Duration**: Ticks on global turns only (not ATB turns) for consistency
+9. **Audio Looping**: Set `stream.loop = true` in code for reliable looping (import file settings may not persist)
 
 ### 🔲 Not Yet Implemented (Phase 3+)
 

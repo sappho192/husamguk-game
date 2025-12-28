@@ -8,6 +8,7 @@ const Card = preload("res://src/core/card.gd")
 @onready var ally_container: HBoxContainer = $AllyContainer
 @onready var enemy_container: HBoxContainer = $EnemyContainer
 @onready var result_label: Label = $ResultLabel
+@onready var battle_bgm: AudioStreamPlayer = $BattleBGM
 
 var battle_manager: BattleManager
 
@@ -21,6 +22,10 @@ var deck: Array[Card] = []
 var discard_pile: Array[Card] = []
 
 func _ready() -> void:
+	# Setup BGM looping
+	if battle_bgm and battle_bgm.stream:
+		battle_bgm.stream.loop = true
+
 	# Create BattleManager
 	battle_manager = BattleManager.new()
 	add_child(battle_manager)
