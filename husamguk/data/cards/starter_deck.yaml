@@ -1,0 +1,86 @@
+# 시작 덱 (Starter Deck)
+# 게임 시작 시 사용하는 기본 카드들
+
+cards:
+  # === 공격 버프 카드 (3장) ===
+  - id: "card_aggressive_charge"
+    name_key: "CARD_AGGRESSIVE_CHARGE"
+    description_key: "CARD_AGGRESSIVE_CHARGE_DESC"
+    rarity: "common"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "attack"
+      value: 20
+      value_type: "percent"
+      duration: 2
+
+    penalty: null
+
+  # === 방어 버프 카드 (2장) ===
+  - id: "card_iron_defense"
+    name_key: "CARD_IRON_DEFENSE"
+    description_key: "CARD_IRON_DEFENSE_DESC"
+    rarity: "common"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "defense"
+      value: 30
+      value_type: "percent"
+      duration: 2
+
+    penalty: null
+
+  # === 회복 카드 (2장) ===
+  - id: "card_field_medic"
+    name_key: "CARD_FIELD_MEDIC"
+    description_key: "CARD_FIELD_MEDIC_DESC"
+    rarity: "common"
+    icon: null
+
+    effect:
+      type: "heal"
+      target: "single_ally"
+      value: 40
+      value_type: "percent"
+
+    penalty: null
+
+  # === 적 디버프 카드 (2장) ===
+  - id: "card_intimidate"
+    name_key: "CARD_INTIMIDATE"
+    description_key: "CARD_INTIMIDATE_DESC"
+    rarity: "uncommon"
+    icon: null
+
+    effect:
+      type: "debuff"
+      target: "all_enemies"
+      stat: "attack"
+      value: 25
+      value_type: "percent"
+      duration: 2
+
+    penalty: null
+
+  # === ATB 디버프 카드 (1장) ===
+  - id: "card_sabotage"
+    name_key: "CARD_SABOTAGE"
+    description_key: "CARD_SABOTAGE_DESC"
+    rarity: "uncommon"
+    icon: null
+
+    effect:
+      type: "debuff"
+      target: "all_enemies"
+      stat: "atb_speed"
+      value: 30
+      value_type: "percent"
+      duration: 2
+
+    penalty: null

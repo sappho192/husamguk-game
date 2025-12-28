@@ -9,6 +9,7 @@
 ### Prerequisites
 - Godot 4.5+ installed
 - Windows 10/11 (primary development platform)
+- GitGuardian installed (check [here](https://docs.gitguardian.com/ggshield-docs/integrations/git-hooks/pre-commit))
 
 ### Opening the Project
 ```bash
@@ -24,27 +25,38 @@ godot project.godot
 - Press **F5** in Godot Editor to run
 - Main scene: `scenes/battle.tscn` (Phase 1 demo)
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 2 Complete ✅
 
-**Phase 1 (Battle Core)** has been implemented:
+**Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
 - ✅ Data-driven architecture using YAML files
 - ✅ 6 base unit types (Infantry, Cavalry, Archer)
 - ✅ 9 generals (3 nations × 3 roles)
 - ✅ Trait system (anti-cavalry, berserker, charge, etc.)
-- ✅ Auto-combat AI for testing
 - ✅ Korean/English localization
-- ✅ Placeholder graphics (colored rectangles)
+
+**Phase 2 (Combat Expansion)** - Complete:
+- ✅ General unique skills (9 skills with damage/buff/debuff/heal effects)
+- ✅ Skill cooldown system (independent of ATB)
+- ✅ Global turn timer (10-second intervals)
+- ✅ Card system (13 cards: starter deck + advanced cards)
+- ✅ Buff/debuff system with duration tracking
+- ✅ Player skill activation (click to use, ATB-independent)
+- ✅ Skill bar UI (left side, shows unit status and cooldowns)
+- ✅ Card hand UI (bottom, 3-5 cards with draw mechanics)
+- ✅ Dual-layer timing (individual ATB + global turn pauses)
 
 **What's Playable:**
-- 3v3 auto-battle demo showing ATB system and trait bonuses
-- Units: Spearman, Swordsman, Archer, Light Cavalry, Heavy Cavalry, Crossbowman
+- 3v3 battle with general skills and strategic cards
+- Click skills on left sidebar anytime (cooldown-based)
+- Play cards when global turn timer reaches 10 seconds
+- Auto-attack system continues independently
 
-**Next: Phase 2 (Combat Expansion)**
-- General unique skills with cooldowns
-- Global turn card system
-- Player action choices (skill vs auto-attack)
-- Formation selection UI
+**Next: Phase 3 (Internal Affairs)**
+- Governance system (choice-based events between battles)
+- Stage progression (3 stages per run)
+- Enhancement selection screen
+- Event system implementation
 
 ## Documentation
 
@@ -63,14 +75,15 @@ godot project.godot
 husamguk/
 ├── src/
 │   ├── autoload/          # Global singletons (DataManager)
-│   ├── core/              # Data classes (Unit, General)
-│   ├── systems/battle/    # BattleManager
-│   └── ui/battle/         # Battle UI components
-├── scenes/                # .tscn files
+│   ├── core/              # Data classes (Unit, General, Card, Buff)
+│   ├── systems/battle/    # BattleManager with dual-layer timing
+│   └── ui/battle/         # Battle UI (SkillBar, CardHand, UnitDisplay)
+├── scenes/                # .tscn files (battle.tscn)
 ├── data/
-│   ├── generals/          # 9 generals YAML data
-│   ├── units/             # 6 unit types YAML data
-│   └── localization/      # ko.yaml, en.yaml
+│   ├── generals/          # 9 generals YAML (3 nations × 3 roles)
+│   ├── units/             # 6 unit types YAML
+│   ├── cards/             # 13 cards YAML (starter + advanced)
+│   └── localization/      # ko.yaml, en.yaml (99 strings each)
 ├── addons/yaml/           # godot-yaml parser addon
 └── docs/                  # Design documents
 ```

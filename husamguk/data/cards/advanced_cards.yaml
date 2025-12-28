@@ -1,0 +1,153 @@
+# 고급 카드 (Advanced Cards)
+# 이벤트 보상 및 업그레이드로 획득 가능한 희귀 카드들
+
+cards:
+  # === 페널티가 있는 강력한 버프 ===
+  - id: "card_desperate_assault"
+    name_key: "CARD_DESPERATE_ASSAULT"
+    description_key: "CARD_DESPERATE_ASSAULT_DESC"
+    rarity: "rare"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "attack"
+      value: 40
+      value_type: "percent"
+      duration: 3
+
+    penalty:
+      type: "dot"
+      target: "all_allies"
+      stat: "hp"
+      value: 5
+      value_type: "percent"
+      duration: 3
+
+  - id: "card_last_stand"
+    name_key: "CARD_LAST_STAND"
+    description_key: "CARD_LAST_STAND_DESC"
+    rarity: "rare"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "defense"
+      value: 100
+      value_type: "percent"
+      duration: 1
+
+    penalty:
+      type: "debuff"
+      target: "all_allies"
+      stat: "atb_speed"
+      value: 50
+      value_type: "percent"
+      duration: 2
+
+  # === 강력한 회복 ===
+  - id: "card_rally"
+    name_key: "CARD_RALLY"
+    description_key: "CARD_RALLY_DESC"
+    rarity: "rare"
+    icon: null
+
+    effect:
+      type: "heal"
+      target: "all_allies"
+      value: 25
+      value_type: "percent"
+
+    penalty: null
+
+  # === 즉시 피해 카드 ===
+  - id: "card_barrage"
+    name_key: "CARD_BARRAGE"
+    description_key: "CARD_BARRAGE_DESC"
+    rarity: "rare"
+    icon: null
+
+    effect:
+      type: "damage"
+      target: "all_enemies"
+      value: 50
+      value_type: "flat"
+
+    penalty: null
+
+  # === ATB 가속 ===
+  - id: "card_forced_march"
+    name_key: "CARD_FORCED_MARCH"
+    description_key: "CARD_FORCED_MARCH_DESC"
+    rarity: "rare"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "atb_speed"
+      value: 50
+      value_type: "percent"
+      duration: 2
+
+    penalty: null
+
+  # === 특수 카드 (Phase 3에서 구현) ===
+  - id: "card_ambush"
+    name_key: "CARD_AMBUSH"
+    description_key: "CARD_AMBUSH_DESC"
+    rarity: "legendary"
+    icon: null
+
+    effect:
+      type: "special"
+      special_id: "instant_atb_fill"
+      target: "all_allies"
+
+    penalty:
+      type: "delayed"
+      delay_turns: 1
+      effect:
+        type: "debuff"
+        target: "all_allies"
+        stat: "defense"
+        value: 30
+        value_type: "percent"
+        duration: 1
+
+  - id: "card_tactical_retreat"
+    name_key: "CARD_TACTICAL_RETREAT"
+    description_key: "CARD_TACTICAL_RETREAT_DESC"
+    rarity: "legendary"
+    icon: null
+
+    effect:
+      type: "special"
+      special_id: "reset_cooldowns"
+      target: "all_allies"
+
+    penalty: null
+
+  - id: "card_overwhelming_force"
+    name_key: "CARD_OVERWHELMING_FORCE"
+    description_key: "CARD_OVERWHELMING_FORCE_DESC"
+    rarity: "legendary"
+    icon: null
+
+    effect:
+      type: "buff"
+      target: "all_allies"
+      stat: "all"
+      value: 30
+      value_type: "percent"
+      duration: 2
+
+    penalty:
+      type: "debuff"
+      target: "all_allies"
+      stat: "all"
+      value: 15
+      value_type: "percent"
+      duration: 3

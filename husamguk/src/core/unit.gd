@@ -1,6 +1,9 @@
 class_name Unit
 extends RefCounted
 
+# Preload dependencies
+const Buff = preload("res://src/core/buff.gd")
+
 # Signals
 signal atb_filled(unit: Unit)
 signal took_damage(amount: int, current_hp: int)
@@ -22,8 +25,12 @@ var atb_speed: float
 var atb_current: float = 0.0
 var atb_max: float = 100.0
 
-# Traits & Buffs (Phase 1: simplified, no buffs)
+# Traits & Buffs
 var traits: Array = []
+var active_buffs: Array[Buff] = []  # Phase 2: Buff/debuff system
+
+# General reference (Phase 2: For skill execution)
+var general: General = null
 
 # Battle state
 var is_ally: bool = true
@@ -51,7 +58,8 @@ func tick_atb(delta: float) -> void:
 	if not is_alive:
 		return
 
-	atb_current += atb_speed * delta * 10.0  # Scale factor for faster testing
+	# Use effective ATB speed (includes buffs)
+	atb_current += get_effective_atb_speed() * delta * 10.0  # Scale factor for faster testing
 
 	if atb_current >= atb_max:
 		atb_current = atb_max
@@ -63,7 +71,8 @@ func reset_atb() -> void:
 
 # Combat
 func take_damage(amount: int) -> void:
-	var mitigated = maxi(1, amount - defense)  # Min 1 damage
+	# Use effective defense (includes buffs)
+	var mitigated = maxi(1, amount - get_effective_defense())  # Min 1 damage
 	current_hp = maxi(0, current_hp - mitigated)
 	took_damage.emit(mitigated, current_hp)
 
@@ -72,7 +81,9 @@ func take_damage(amount: int) -> void:
 		died.emit()
 
 func calculate_attack_damage(target: Unit) -> int:
-	var damage = attack
+	# Use effective attack (includes buffs)
+	var damage = get_effective_attack()
+
 	# Apply trait bonuses (e.g., anti-cavalry)
 	for trait_data in traits:
 		var effect = trait_data.get("effect", {})
@@ -85,3 +96,43 @@ func calculate_attack_damage(target: Unit) -> int:
 func attack_target(target: Unit) -> void:
 	var damage = calculate_attack_damage(target)
 	target.take_damage(damage)
+
+# Buff management (Phase 2)
+func add_buff(buff: Buff) -> void:
+	active_buffs.append(buff)
+	buff.duration_expired.connect(_on_buff_expired)
+	print(display_name, " gained buff: ", buff.get_display_name(), " (", buff.duration, " turns)")
+
+func remove_buff(buff: Buff) -> void:
+	active_buffs.erase(buff)
+	print(display_name, " lost buff: ", buff.get_display_name())
+
+func _on_buff_expired(buff: Buff) -> void:
+	remove_buff(buff)
+
+func tick_buff_durations() -> void:
+	# Called once per global turn
+	for buff in active_buffs.duplicate():  # Duplicate to avoid modification during iteration
+		buff.tick_duration()
+
+# Effective stat calculation (includes buffs)
+func get_effective_attack() -> int:
+	var total = float(attack)
+	for buff in active_buffs:
+		if buff.stat == Buff.Stat.ATTACK:
+			total += buff.calculate_modifier(attack)
+	return int(total)
+
+func get_effective_defense() -> int:
+	var total = float(defense)
+	for buff in active_buffs:
+		if buff.stat == Buff.Stat.DEFENSE:
+			total += buff.calculate_modifier(defense)
+	return maxi(0, int(total))  # Defense can't go negative
+
+func get_effective_atb_speed() -> float:
+	var total = atb_speed
+	for buff in active_buffs:
+		if buff.stat == Buff.Stat.ATB_SPEED:
+			total += buff.calculate_modifier(atb_speed)
+	return maxf(0.1, total)  # Minimum speed to prevent freezing

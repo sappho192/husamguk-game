@@ -57,6 +57,73 @@ strings:
   SKILL_ROYAL_DECREE: "Royal Decree"
   SKILL_ROYAL_DECREE_DESC: "Heal all allies 30% HP"
 
+  # Cards - Starter Deck
+  CARD_AGGRESSIVE_CHARGE: "Aggressive Charge"
+  CARD_AGGRESSIVE_CHARGE_DESC: "All allies +20% ATK (2 turns)"
+  CARD_IRON_DEFENSE: "Iron Defense"
+  CARD_IRON_DEFENSE_DESC: "All allies +30% DEF (2 turns)"
+  CARD_FIELD_MEDIC: "Field Medic"
+  CARD_FIELD_MEDIC_DESC: "Heal 1 ally 40% HP"
+  CARD_INTIMIDATE: "Intimidate"
+  CARD_INTIMIDATE_DESC: "All enemies -25% ATK (2 turns)"
+  CARD_SABOTAGE: "Sabotage"
+  CARD_SABOTAGE_DESC: "All enemies -30% ATB Speed (2 turns)"
+
+  # Cards - Advanced
+  CARD_DESPERATE_ASSAULT: "Desperate Assault"
+  CARD_DESPERATE_ASSAULT_DESC: "All allies +40% ATK (3 turns), lose 5% HP per turn"
+  CARD_LAST_STAND: "Last Stand"
+  CARD_LAST_STAND_DESC: "All allies +100% DEF (1 turn), -50% ATB Speed (2 turns)"
+  CARD_RALLY: "Rally"
+  CARD_RALLY_DESC: "Heal all allies 25% HP"
+  CARD_BARRAGE: "Barrage"
+  CARD_BARRAGE_DESC: "Deal 50 damage to all enemies"
+  CARD_FORCED_MARCH: "Forced March"
+  CARD_FORCED_MARCH_DESC: "All allies +50% ATB Speed (2 turns)"
+  CARD_AMBUSH: "Ambush"
+  CARD_AMBUSH_DESC: "Instantly fill all allies' ATB (special)"
+  CARD_TACTICAL_RETREAT: "Tactical Retreat"
+  CARD_TACTICAL_RETREAT_DESC: "Reset all skill cooldowns (special)"
+  CARD_OVERWHELMING_FORCE: "Overwhelming Force"
+  CARD_OVERWHELMING_FORCE_DESC: "All allies +30% all stats (2 turns), then -15% (3 turns)"
+
+  # UI - Battle Actions
+  UI_SKILL_READY: "Skill Ready"
+  UI_AUTO_ATTACK: "Auto Attack"
+  UI_USE_SKILL: "Use Skill"
+  UI_COOLDOWN: "Cooldown:"
+  UI_SKILL_ON_COOLDOWN: "On Cooldown"
+  UI_NO_SKILL: "No Skill"
+
+  # UI - Global Turn & Cards
+  UI_GLOBAL_TURN: "Strategic Card"
+  UI_HAND: "Hand"
+  UI_DRAW_CARD: "Draw Card"
+  UI_NO_CARDS: "No Cards Available"
+  UI_SELECT_CARD: "Select a Card"
+  UI_CARD_PLAYED: "Card Played"
+
+  # UI - Formation
+  UI_FORMATION_SELECT: "Formation Setup"
+  UI_FRONT_ROW: "Front Row"
+  UI_BACK_ROW: "Back Row"
+  UI_START_BATTLE: "Start Battle"
+  UI_AVAILABLE_UNITS: "Available Units"
+  UI_CLICK_TO_PLACE: "Click to Place"
+  UI_DRAG_TO_REORDER: "Drag to Reorder"
+
+  # Buff/Debuff Types
+  BUFF_ATTACK: "ATK Up"
+  BUFF_DEFENSE: "DEF Up"
+  BUFF_ATB_SPEED: "Speed Up"
+  BUFF_HP: "HP Regen"
+  DEBUFF_ATTACK: "ATK Down"
+  DEBUFF_DEFENSE: "DEF Down"
+  DEBUFF_ATB_SPEED: "Speed Down"
+  DEBUFF_HP: "HP Loss"
+  BUFF_ALL: "All Stats Up"
+  DEBUFF_ALL: "All Stats Down"
+
   # UI
   UI_BATTLE_VICTORY: "VICTORY!"
   UI_BATTLE_DEFEAT: "DEFEAT!"

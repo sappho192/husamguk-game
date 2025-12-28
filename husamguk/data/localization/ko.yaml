@@ -57,6 +57,73 @@ strings:
   SKILL_ROYAL_DECREE: "왕명"
   SKILL_ROYAL_DECREE_DESC: "아군 전체 HP 30% 회복"
 
+  # Cards - Starter Deck
+  CARD_AGGRESSIVE_CHARGE: "공격적 돌격"
+  CARD_AGGRESSIVE_CHARGE_DESC: "아군 전체 공격력 +20% (2턴)"
+  CARD_IRON_DEFENSE: "철벽 방어"
+  CARD_IRON_DEFENSE_DESC: "아군 전체 방어력 +30% (2턴)"
+  CARD_FIELD_MEDIC: "야전 치료"
+  CARD_FIELD_MEDIC_DESC: "아군 1명 HP 40% 회복"
+  CARD_INTIMIDATE: "위협"
+  CARD_INTIMIDATE_DESC: "적 전체 공격력 -25% (2턴)"
+  CARD_SABOTAGE: "방해 공작"
+  CARD_SABOTAGE_DESC: "적 전체 ATB 속도 -30% (2턴)"
+
+  # Cards - Advanced
+  CARD_DESPERATE_ASSAULT: "필사적 공세"
+  CARD_DESPERATE_ASSAULT_DESC: "아군 전체 공격력 +40% (3턴), 매턴 HP 5% 소실"
+  CARD_LAST_STAND: "최후의 방어"
+  CARD_LAST_STAND_DESC: "아군 전체 방어력 +100% (1턴), ATB 속도 -50% (2턴)"
+  CARD_RALLY: "재집결"
+  CARD_RALLY_DESC: "아군 전체 HP 25% 회복"
+  CARD_BARRAGE: "집중 사격"
+  CARD_BARRAGE_DESC: "적 전체에게 50 피해"
+  CARD_FORCED_MARCH: "강행군"
+  CARD_FORCED_MARCH_DESC: "아군 전체 ATB 속도 +50% (2턴)"
+  CARD_AMBUSH: "기습"
+  CARD_AMBUSH_DESC: "아군 전체 ATB 즉시 충전 (특수)"
+  CARD_TACTICAL_RETREAT: "전술적 철수"
+  CARD_TACTICAL_RETREAT_DESC: "모든 스킬 재사용 대기 초기화 (특수)"
+  CARD_OVERWHELMING_FORCE: "압도적 병력"
+  CARD_OVERWHELMING_FORCE_DESC: "아군 전체 모든 스탯 +30% (2턴), 이후 -15% (3턴)"
+
+  # UI - Battle Actions
+  UI_SKILL_READY: "스킬 사용 가능"
+  UI_AUTO_ATTACK: "자동 공격"
+  UI_USE_SKILL: "스킬 사용"
+  UI_COOLDOWN: "재사용 대기:"
+  UI_SKILL_ON_COOLDOWN: "재사용 대기 중"
+  UI_NO_SKILL: "스킬 없음"
+
+  # UI - Global Turn & Cards
+  UI_GLOBAL_TURN: "전략 카드 선택"
+  UI_HAND: "수중 카드"
+  UI_DRAW_CARD: "카드 뽑기"
+  UI_NO_CARDS: "사용 가능한 카드 없음"
+  UI_SELECT_CARD: "카드를 선택하세요"
+  UI_CARD_PLAYED: "카드 사용됨"
+
+  # UI - Formation
+  UI_FORMATION_SELECT: "진형 편성"
+  UI_FRONT_ROW: "전열"
+  UI_BACK_ROW: "후열"
+  UI_START_BATTLE: "전투 시작"
+  UI_AVAILABLE_UNITS: "사용 가능 부대"
+  UI_CLICK_TO_PLACE: "클릭하여 배치"
+  UI_DRAG_TO_REORDER: "드래그하여 순서 변경"
+
+  # Buff/Debuff Types
+  BUFF_ATTACK: "공격력 증가"
+  BUFF_DEFENSE: "방어력 증가"
+  BUFF_ATB_SPEED: "속도 증가"
+  BUFF_HP: "체력 회복"
+  DEBUFF_ATTACK: "공격력 감소"
+  DEBUFF_DEFENSE: "방어력 감소"
+  DEBUFF_ATB_SPEED: "속도 감소"
+  DEBUFF_HP: "체력 감소"
+  BUFF_ALL: "모든 스탯 증가"
+  DEBUFF_ALL: "모든 스탯 감소"
+
   # UI
   UI_BATTLE_VICTORY: "승리!"
   UI_BATTLE_DEFEAT: "패배!"

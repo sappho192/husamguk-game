@@ -70,29 +70,38 @@ husamguk/
 │   ├── autoload/              # Global singletons
 │   │   └── data_manager.gd    # ✅ YAML loading, localization, factory methods
 │   ├── core/                  # Data classes
-│   │   ├── unit.gd            # ✅ ATB system, combat logic, trait bonuses
-│   │   └── general.gd         # ✅ Data holder (skills deferred to Phase 2)
+│   │   ├── unit.gd            # ✅ ATB system, buff management, effective stats
+│   │   ├── general.gd         # ✅ Skill execution, cooldown tracking
+│   │   ├── buff.gd            # ✅ Stat modification system
+│   │   └── card.gd            # ✅ Card effects and targeting
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd  # ✅ Battle orchestration, auto-combat
+│   │   │   └── battle_manager.gd  # ✅ Dual-layer timing, state machine
 │   │   ├── internal_affairs/  # 🔲 Not yet implemented (Phase 3)
 │   │   └── roguelite/         # 🔲 Not yet implemented (Phase 3)
 │   └── ui/
 │       └── battle/
-│           ├── battle_ui.gd        # ✅ Main battle controller
+│           ├── battle_ui.gd        # ✅ Main battle controller with deck management
 │           ├── unit_display.gd    # ✅ Unit UI component with HP/ATB bars
+│           ├── skill_bar.gd       # ✅ Left sidebar skill buttons
+│           ├── skill_button.gd    # ✅ Individual skill button UI
+│           ├── card_hand.gd       # ✅ Bottom card display container
+│           ├── card_display.gd    # ✅ Individual card UI
 │           └── placeholder_sprite.gd  # ✅ Colored rectangle fallback
 │
 ├── scenes/
-│   └── battle.tscn            # ✅ Main battle scene (Phase 1 demo)
+│   └── battle.tscn            # ✅ Main battle scene (Phase 2 complete)
 ├── data/
-│   ├── generals/              # ✅ 9 generals YAML data
+│   ├── generals/              # ✅ 9 generals YAML data with skills
 │   │   ├── hubaekje.yaml
 │   │   ├── taebong.yaml
 │   │   └── silla.yaml
 │   ├── units/
 │   │   └── base_units.yaml    # ✅ 6 unit types YAML data
-│   └── localization/          # ✅ Korean/English strings
+│   ├── cards/                 # ✅ Card system
+│   │   ├── starter_deck.yaml  # ✅ 5 common cards (10 total)
+│   │   └── advanced_cards.yaml # ✅ 8 rare/legendary cards
+│   └── localization/          # ✅ Korean/English strings (99 each)
 │       ├── ko.yaml
 │       └── en.yaml
 ├── addons/
@@ -102,7 +111,7 @@ husamguk/
 ```
 
 **Legend:**
-- ✅ Implemented (Phase 1 complete)
+- ✅ Implemented (Phase 2 complete)
 - 🔲 Not yet implemented (future phases)
 
 ### MOD System Architecture
@@ -135,21 +144,28 @@ The combat system has **two independent timing layers**, which is unusual and re
 ### Layer 1: Individual Unit ATB
 - Each unit has an ATB gauge (0-100)
 - Fills at unit's ATB speed (multiplier, base 1.0)
-- Gauge reaches 100 → unit ready for action
-- Player chooses: skill (with cooldown) or auto-attack
+- Gauge reaches 100 → unit executes auto-attack, ATB resets
 - **Continuous**: No global pause, units act as they become ready
 
 ### Layer 2: Global Turn System
-- Separate tick every ~10 seconds
-- **Pauses individual ATB** during card selection
+- Separate tick every 10 seconds (GLOBAL_TURN_INTERVAL)
+- **Pauses ATB** during card selection (PAUSED_FOR_CARD state)
 - Player uses 1 card from deck (max 1 card/global turn)
-- Resumes individual ATB after card resolution
+- Resumes ATB after card resolution
+- Ticks buff durations and skill cooldowns
+
+### Skills: Independent of ATB
+- **Critical Design Decision**: Skills are ATB-independent (Phase 2 revision)
+- Skills activate via click on SkillBar UI (left sidebar)
+- Ready when cooldown = 0 (no ATB requirement)
+- Using skill does NOT reset ATB
+- Cooldown decrements on global turns only
 
 **Why This Matters:** State management must handle:
-- ATB progression while global turn is inactive
-- Pause/resume during card usage
-- Skill cooldowns vs global turn count
-- Card effects that modify ATB speeds
+- Two pause states: RUNNING, PAUSED_FOR_CARD
+- ATB continues during normal combat
+- Skills usable anytime (cooldown-based)
+- Card effects that modify buffs/ATB speeds
 
 ## Data Schema System
 
@@ -248,15 +264,17 @@ var name = "견훤"
 - ✅ Korean/English localization
 - ✅ Placeholder graphics system
 
-**Phase 2 (Combat Expansion)** 🔲 NEXT
-- 🔲 General unique skills with cooldowns
-- 🔲 Global turn card system (pause/resume ATB)
-- 🔲 Card deck and drawing mechanics
-- 🔲 Formation selection UI
-- 🔲 Player input (skill vs auto-attack choice)
-- 🔲 Visual feedback improvements
+**Phase 2 (Combat Expansion)** ✅ COMPLETE
+- ✅ General unique skills with cooldowns (9 skills)
+- ✅ Global turn card system (10-second intervals, pause/resume ATB)
+- ✅ Card deck and drawing mechanics (13 cards, starter + advanced)
+- ✅ Buff/debuff system with duration tracking
+- ✅ Player skill activation (SkillBar UI on left)
+- ✅ Card hand UI (bottom, 3-5 cards)
+- ✅ Dual-layer timing system (ATB + global turns)
+- ✅ Skills independent of ATB (cooldown-based only)
 
-**Phase 3 (Internal Affairs Connection)** 🔲 PLANNED
+**Phase 3 (Internal Affairs Connection)** 🔲 NEXT
 - 🔲 Governance UI (3 choice display)
 - 🔲 Stage progression flow
 - 🔲 Enhancement selection screen
@@ -271,57 +289,61 @@ var name = "견훤"
 
 ## Implementation Status
 
-### ✅ Completed Components
+### ✅ Completed Components (Phase 2)
 
 **Core Classes:**
-- `src/core/unit.gd` - Full ATB system, damage calculation, trait bonuses
-- `src/core/general.gd` - Data holder (skill system deferred to Phase 2)
+- `src/core/unit.gd` - ATB system, buff management, effective stat calculation
+- `src/core/general.gd` - Skill execution, cooldown tracking
+- `src/core/buff.gd` - Stat modification (buffs/debuffs) with duration tracking
+- `src/core/card.gd` - Card effect execution, targeting, penalty system
 
 **Systems:**
-- `src/systems/battle/battle_manager.gd` - Battle orchestration, auto-combat AI, victory detection
+- `src/systems/battle/battle_manager.gd` - Dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD), skill execution
 
 **UI Components:**
-- `src/ui/battle/battle_ui.gd` - Main battle controller
+- `src/ui/battle/battle_ui.gd` - Main battle controller with deck management
 - `src/ui/battle/unit_display.gd` - HP/ATB bars, visual feedback
+- `src/ui/battle/skill_bar.gd` - Left sidebar container for skill buttons
+- `src/ui/battle/skill_button.gd` - Individual skill button (shows cooldown/ready state)
+- `src/ui/battle/card_hand.gd` - Bottom card display container
+- `src/ui/battle/card_display.gd` - Individual card UI with rarity colors
 - `src/ui/battle/placeholder_sprite.gd` - Category-based colored rectangles
 
 **Data Layer:**
-- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods
-- All YAML data files (9 generals, 6 units, 44 localization strings each language)
+- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods for cards
+- All YAML data files:
+  - 9 generals with skills (hubaekje.yaml, taebong.yaml, silla.yaml)
+  - 6 unit types (base_units.yaml)
+  - 13 cards (starter_deck.yaml, advanced_cards.yaml)
+  - 99 localization strings each language (ko.yaml, en.yaml)
 
 **Critical Implementation Notes:**
 1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)
 2. **Keyword Conflict**: Avoid using "trait" as variable name (reserved keyword) - use "trait_data" instead
-3. **RefCounted Classes**: Unit and General extend RefCounted (not Node)
-4. **UI Timing**: UnitDisplay creates UI in `_init()` not `_ready()` to avoid null reference errors
-5. **Class Preloading**: DataManager preloads Unit and General classes using `const`
+3. **RefCounted Classes**: Unit, General, Card, Buff all extend RefCounted (not Node)
+4. **UI Timing**: All UI components create children in `_init()` not `_ready()` to avoid null reference errors
+5. **Class Preloading**: All files preload dependencies using `const` (e.g., `const Buff = preload("...")`)
+6. **Null Safety**: YAML optional fields checked with `data.get("field", null)` before assignment to typed properties
+7. **Skills ATB-Independent**: Skills do NOT require or reset ATB (Phase 2 design revision)
+8. **Buff Duration**: Ticks on global turns only (not ATB turns) for consistency
 
-### 🔲 Not Yet Implemented
+### 🔲 Not Yet Implemented (Phase 3+)
 
-**General Skills System:**
-- Skill activation logic
-- Cooldown tracking
-- Skill effects (damage multipliers, buffs, debuffs)
-- Conditional bonuses
-
-**Global Turn System:**
-- Turn timer (10-second intervals)
-- Pause/resume ATB during card selection
-- Card usage UI
-- Turn counter
-
-**Card System:**
-- Card class definition
-- Deck management
-- Card drawing/hand management
-- Card effect application
-- Penalty card mechanics
+**Formation System:**
+- Pre-battle formation selection UI
+- Front/back positioning logic (currently hardcoded in unit data)
 
 **MOD System:**
 - MOD loading from `mods/` directory
 - Deep merge strategy
 - load_order priority handling
 - Asset override support
+
+**Internal Affairs:**
+- Governance UI (3 choice display)
+- Event system
+- Stage progression
+- Enhancement selection
 
 ## Asset Placeholder Strategy
 
