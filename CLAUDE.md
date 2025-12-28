@@ -62,24 +62,48 @@ The game uses Godot's autoload pattern for global managers:
 
 **Critical:** Never access data files directly. Always query through `DataManager`.
 
-### Project Structure (Planned)
+### Project Structure (Current)
 
 ```
 husamguk/
 ├── src/
 │   ├── autoload/              # Global singletons
-│   ├── core/                  # Data classes (general.gd, unit.gd, card.gd, etc.)
+│   │   └── data_manager.gd    # ✅ YAML loading, localization, factory methods
+│   ├── core/                  # Data classes
+│   │   ├── unit.gd            # ✅ ATB system, combat logic, trait bonuses
+│   │   └── general.gd         # ✅ Data holder (skills deferred to Phase 2)
 │   ├── systems/
-│   │   ├── internal_affairs/  # Governance choice system
-│   │   ├── battle/            # ATB combat + global turns
-│   │   └── roguelite/         # Enhancement/meta-progression
-│   └── ui/                    # UI components by scene
+│   │   ├── battle/
+│   │   │   └── battle_manager.gd  # ✅ Battle orchestration, auto-combat
+│   │   ├── internal_affairs/  # 🔲 Not yet implemented (Phase 3)
+│   │   └── roguelite/         # 🔲 Not yet implemented (Phase 3)
+│   └── ui/
+│       └── battle/
+│           ├── battle_ui.gd        # ✅ Main battle controller
+│           ├── unit_display.gd    # ✅ Unit UI component with HP/ATB bars
+│           └── placeholder_sprite.gd  # ✅ Colored rectangle fallback
 │
-├── scenes/                    # .tscn files
-├── data/                      # Base YAML data (generals, units, cards, events, localization)
-├── assets/                    # Sprites, audio, fonts
-└── mods/                      # User MOD extensions
+├── scenes/
+│   └── battle.tscn            # ✅ Main battle scene (Phase 1 demo)
+├── data/
+│   ├── generals/              # ✅ 9 generals YAML data
+│   │   ├── hubaekje.yaml
+│   │   ├── taebong.yaml
+│   │   └── silla.yaml
+│   ├── units/
+│   │   └── base_units.yaml    # ✅ 6 unit types YAML data
+│   └── localization/          # ✅ Korean/English strings
+│       ├── ko.yaml
+│       └── en.yaml
+├── addons/
+│   └── yaml/                  # ✅ godot-yaml parser addon (fimbul-works)
+├── assets/                    # 🔲 Placeholder system in use
+└── mods/                      # 🔲 MOD system not yet implemented
 ```
+
+**Legend:**
+- ✅ Implemented (Phase 1 complete)
+- 🔲 Not yet implemented (future phases)
 
 ### MOD System Architecture
 
@@ -213,28 +237,91 @@ var name = "견훤"
 
 ## Development Phase Roadmap
 
-**Phase 1 (Priority):** Battle Core
-- YAML parser integration (addon needed)
-- Unit class with ATB system
-- Basic attack mechanics, combat UI
-- Battle end conditions
+**Phase 1 (Battle Core)** ✅ COMPLETE
+- ✅ YAML parser integration (godot-yaml from fimbul-works)
+- ✅ Unit class with ATB system
+- ✅ Basic attack mechanics, combat UI
+- ✅ Battle end conditions
+- ✅ DataManager with factory pattern
+- ✅ Trait system implementation
+- ✅ 6 unit types, 9 generals data
+- ✅ Korean/English localization
+- ✅ Placeholder graphics system
 
-**Phase 2:** Combat Expansion
-- General unique skills
-- Global turn card system
-- Card deck and drawing
-- Formation selection
+**Phase 2 (Combat Expansion)** 🔲 NEXT
+- 🔲 General unique skills with cooldowns
+- 🔲 Global turn card system (pause/resume ATB)
+- 🔲 Card deck and drawing mechanics
+- 🔲 Formation selection UI
+- 🔲 Player input (skill vs auto-attack choice)
+- 🔲 Visual feedback improvements
 
-**Phase 3:** Internal Affairs Connection
-- Governance UI (3 choice display)
-- Stage progression flow
-- Enhancement selection screen
+**Phase 3 (Internal Affairs Connection)** 🔲 PLANNED
+- 🔲 Governance UI (3 choice display)
+- 🔲 Stage progression flow
+- 🔲 Enhancement selection screen
+- 🔲 Event system implementation
 
-**Phase 4:** Full Loop
-- 3-stage connection
-- Game over/clear conditions
-- Main menu integration
-- SaveManager persistence
+**Phase 4 (Full Loop)** 🔲 PLANNED
+- 🔲 3-stage connection
+- 🔲 Game over/clear conditions
+- 🔲 Main menu integration
+- 🔲 SaveManager persistence
+- 🔲 Meta-progression system
+
+## Implementation Status
+
+### ✅ Completed Components
+
+**Core Classes:**
+- `src/core/unit.gd` - Full ATB system, damage calculation, trait bonuses
+- `src/core/general.gd` - Data holder (skill system deferred to Phase 2)
+
+**Systems:**
+- `src/systems/battle/battle_manager.gd` - Battle orchestration, auto-combat AI, victory detection
+
+**UI Components:**
+- `src/ui/battle/battle_ui.gd` - Main battle controller
+- `src/ui/battle/unit_display.gd` - HP/ATB bars, visual feedback
+- `src/ui/battle/placeholder_sprite.gd` - Category-based colored rectangles
+
+**Data Layer:**
+- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods
+- All YAML data files (9 generals, 6 units, 44 localization strings each language)
+
+**Critical Implementation Notes:**
+1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)
+2. **Keyword Conflict**: Avoid using "trait" as variable name (reserved keyword) - use "trait_data" instead
+3. **RefCounted Classes**: Unit and General extend RefCounted (not Node)
+4. **UI Timing**: UnitDisplay creates UI in `_init()` not `_ready()` to avoid null reference errors
+5. **Class Preloading**: DataManager preloads Unit and General classes using `const`
+
+### 🔲 Not Yet Implemented
+
+**General Skills System:**
+- Skill activation logic
+- Cooldown tracking
+- Skill effects (damage multipliers, buffs, debuffs)
+- Conditional bonuses
+
+**Global Turn System:**
+- Turn timer (10-second intervals)
+- Pause/resume ATB during card selection
+- Card usage UI
+- Turn counter
+
+**Card System:**
+- Card class definition
+- Deck management
+- Card drawing/hand management
+- Card effect application
+- Penalty card mechanics
+
+**MOD System:**
+- MOD loading from `mods/` directory
+- Deep merge strategy
+- load_order priority handling
+- Asset override support
 
 ## Asset Placeholder Strategy
 

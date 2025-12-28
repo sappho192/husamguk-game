@@ -14,66 +14,114 @@
 
 ## 2. 프로젝트 구조
 
+### 2.1 Phase 1 구현 상태 (2025-01)
+
+```
+husamguk/                         # Godot 프로젝트 루트
+├── project.godot                 # ✅ DataManager autoload 등록
+│
+├── addons/
+│   └── yaml/                     # ✅ godot-yaml (fimbul-works)
+│
+├── src/                          # 게임 코드
+│   ├── autoload/                 # 싱글톤
+│   │   └── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리
+│   │
+│   ├── core/                     # 핵심 데이터 클래스
+│   │   ├── general.gd            # ✅ 장수 (스킬은 Phase 2)
+│   │   └── unit.gd               # ✅ ATB, 전투 로직, 특성 보너스
+│   │
+│   ├── systems/
+│   │   └── battle/
+│   │       └── battle_manager.gd # ✅ 전투 오케스트레이션
+│   │
+│   └── ui/
+│       └── battle/
+│           ├── battle_ui.gd      # ✅ 메인 전투 컨트롤러
+│           ├── unit_display.gd   # ✅ HP/ATB 바, 시각 피드백
+│           └── placeholder_sprite.gd  # ✅ 플레이스홀더 그래픽
+│
+├── scenes/
+│   └── battle.tscn               # ✅ Phase 1 데모 씬
+│
+├── data/                         # YAML 데이터
+│   ├── generals/
+│   │   ├── _schema.yaml          # ✅ 스키마 정의
+│   │   ├── hubaekje.yaml         # ✅ 견훤, 신검, 진홍애
+│   │   ├── taebong.yaml          # ✅ 왕건, 홍유, 복지겸일
+│   │   └── silla.yaml            # ✅ 신라 3장수
+│   ├── units/
+│   │   ├── _schema.yaml          # ✅ 스키마 정의
+│   │   └── base_units.yaml       # ✅ 6종 병종
+│   ├── cards/
+│   │   └── _schema.yaml          # ✅ 스키마만 (구현 Phase 2)
+│   └── localization/
+│       ├── ko.yaml               # ✅ 한국어 (44 스트링)
+│       └── en.yaml               # ✅ 영어 (44 스트링)
+│
+└── assets/                       # 플레이스홀더 시스템 사용중
+
+**범례:**
+- ✅ Phase 1 구현 완료
+- 🔲 향후 Phase 구현 예정
+```
+
+### 2.2 전체 구조 (계획)
+
 ```
 project_root/
 ├── project.godot
 ├── addons/
-│   └── yaml_parser/              # YAML 파싱 플러그인
+│   └── yaml/                     # YAML 파싱 플러그인
 │
 ├── src/                          # 게임 코드
 │   ├── autoload/                 # 싱글톤 (전역 매니저)
-│   │   ├── game_manager.gd
-│   │   ├── data_manager.gd       # YAML 로딩/MOD 병합
-│   │   ├── save_manager.gd       # 메타 프로그레션 저장
-│   │   └── audio_manager.gd
+│   │   ├── game_manager.gd       # 🔲 Phase 4
+│   │   ├── data_manager.gd       # ✅ Phase 1
+│   │   ├── save_manager.gd       # 🔲 Phase 4
+│   │   └── audio_manager.gd      # 🔲 Phase 4
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
-│   │   ├── general.gd            # 장수
-│   │   ├── unit.gd               # 전투 유닛
-│   │   ├── nation.gd             # 국가
-│   │   ├── card.gd               # 강화 카드
-│   │   └── event.gd              # 이벤트
+│   │   ├── general.gd            # ✅ Phase 1 (스킬 Phase 2)
+│   │   ├── unit.gd               # ✅ Phase 1
+│   │   ├── nation.gd             # 🔲 Phase 3
+│   │   ├── card.gd               # 🔲 Phase 2
+│   │   └── event.gd              # 🔲 Phase 3
 │   │
 │   ├── systems/                  # 게임 시스템
-│   │   ├── internal_affairs/     # 내정 시스템
-│   │   ├── battle/               # 전투 시스템
-│   │   └── roguelite/            # 강화/메타 프로그레션
+│   │   ├── internal_affairs/     # 🔲 Phase 3
+│   │   ├── battle/               # ✅ Phase 1
+│   │   └── roguelite/            # 🔲 Phase 3
 │   │
 │   └── ui/                       # UI 컴포넌트
-│       ├── common/
-│       ├── main_menu/
-│       ├── internal_affairs/
-│       └── battle/
+│       ├── common/               # 🔲 Phase 4
+│       ├── main_menu/            # 🔲 Phase 4
+│       ├── internal_affairs/     # 🔲 Phase 3
+│       └── battle/               # ✅ Phase 1
 │
 ├── scenes/                       # 씬 파일 (.tscn)
-│   ├── main.tscn
-│   ├── main_menu.tscn
-│   ├── internal_affairs.tscn
-│   └── battle.tscn
+│   ├── main.tscn                 # 🔲 Phase 4
+│   ├── main_menu.tscn            # 🔲 Phase 4
+│   ├── internal_affairs.tscn     # 🔲 Phase 3
+│   └── battle.tscn               # ✅ Phase 1
 │
 ├── data/                         # 기본 게임 데이터 (YAML)
-│   ├── generals/
-│   │   ├── _schema.yaml          # 스키마 정의
-│   │   ├── hubaekje.yaml
-│   │   ├── taebong.yaml
-│   │   └── silla.yaml
-│   ├── units/
-│   ├── nations/
-│   ├── cards/
-│   ├── events/
-│   └── localization/
-│       ├── ko.yaml
-│       └── en.yaml
+│   ├── generals/                 # ✅ Phase 1 (9명)
+│   ├── units/                    # ✅ Phase 1 (6종)
+│   ├── nations/                  # 🔲 Phase 3
+│   ├── cards/                    # 🔲 Phase 2 (스키마만 Phase 1)
+│   ├── events/                   # 🔲 Phase 3
+│   └── localization/             # ✅ Phase 1 (ko, en)
 │
 ├── assets/                       # 기본 에셋
-│   ├── sprites/
-│   ├── ui/
-│   ├── audio/
-│   └── fonts/
+│   ├── sprites/                  # 🔲 플레이스홀더 사용중
+│   ├── ui/                       # 🔲 플레이스홀더 사용중
+│   ├── audio/                    # 🔲 미구현
+│   └── fonts/                    # 🔲 미구현
 │
-└── mods/                         # MOD 폴더 (사용자 확장)
+└── mods/                         # 🔲 MOD 시스템 Phase 4
     └── example_mod/
-        ├── mod.yaml              # MOD 메타정보
+        ├── mod.yaml
         ├── data/
         └── assets/
 ```
@@ -735,4 +783,10 @@ func _end_battle(result: Dictionary) -> void:
 
 | 날짜 | 내용 |
 |------|------|
-| 2025-01-XX | 초안 작성 |
+| 2025-12-29 | 초안 작성 |
+| 2025-12-29 | Phase 1 구현 상태 반영 |
+| 2025-12-29 | YAML 데이터 구조 및 로딩 시스템 추가 |
+| 2025-12-29 | 전투 시스템 구조 및 ATB 로직 추가 |
+| 2025-12-29 | UI 컴포넌트 구조 추가 (BattleUI, UnitDisplay, PlaceholderSprite) |
+| 2025-12-29 | 전투 시스템 구현 완료 (ATB, 턴제, 전투 로직) |
+| 2025-12-29 | 전투 씬 및 데모 구현 완료 |
