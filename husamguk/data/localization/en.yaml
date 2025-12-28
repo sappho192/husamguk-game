@@ -1,0 +1,62 @@
+locale: "en"
+
+strings:
+  # Nations
+  NATION_HUBAEKJE: "Hubaekje"
+  NATION_TAEBONG: "Taebong"
+  NATION_SILLA: "Silla"
+
+  # Generals - Hubaekje
+  GENERAL_GYEONHWON: "Gyeonhwon"
+  GENERAL_SINGEOM: "Singeom"
+  GENERAL_JIN_HONGAE: "Jin Hongae"
+
+  # Generals - Taebong
+  GENERAL_WANGGEON: "Wang Geon"
+  GENERAL_HONGYU: "Hong Yu"
+  GENERAL_BOKJI_GYEOMIL: "Bokji Gyeomil"
+
+  # Generals - Silla
+  GENERAL_KYUNHWON_RESISTANCE: "Silla Resistance"
+  GENERAL_JINSEONG_YEOWANG: "Queen Jinseong"
+  GENERAL_GYEONGAE_WANG: "King Gyeongae"
+
+  # Units
+  UNIT_SPEARMAN: "Spearman"
+  UNIT_SWORDSMAN: "Swordsman"
+  UNIT_LIGHT_CAVALRY: "Light Cavalry"
+  UNIT_HEAVY_CAVALRY: "Heavy Cavalry"
+  UNIT_ARCHER: "Archer"
+  UNIT_CROSSBOWMAN: "Crossbowman"
+
+  # Traits
+  TRAIT_ANTI_CAVALRY: "Anti-Cavalry: +50% vs Cavalry"
+  TRAIT_BERSERKER: "Berserker: +30% ATK when HP < 30%"
+  TRAIT_CHARGE: "Charge: +50% first attack"
+  TRAIT_ARMORED: "Armored: -40% damage from Archers"
+  TRAIT_RANGED: "Ranged: Can attack back row"
+  TRAIT_ARMOR_PIERCING: "Armor Piercing: Ignore 50% defense"
+
+  # Skills
+  SKILL_FURY_OF_BAEKJE: "Fury of Baekje"
+  SKILL_FURY_OF_BAEKJE_DESC: "Deal 250% damage to single enemy"
+  SKILL_RALLYING_CRY: "Rallying Cry"
+  SKILL_RALLYING_CRY_DESC: "All allies +25% ATK"
+  SKILL_SECOND_WIND: "Second Wind"
+  SKILL_SECOND_WIND_DESC: "Heal self 50% HP"
+  SKILL_MANDATE_OF_UNITY: "Mandate of Unity"
+  SKILL_MANDATE_OF_UNITY_DESC: "All allies +30% ATK"
+  SKILL_CRUSHING_BLOW: "Crushing Blow"
+  SKILL_CRUSHING_BLOW_DESC: "Deal 280% damage to single enemy"
+  SKILL_TACTICAL_RETREAT: "Tactical Retreat"
+  SKILL_TACTICAL_RETREAT_DESC: "All allies +50% DEF"
+  SKILL_LAST_STAND_BUFF: "Last Stand"
+  SKILL_LAST_STAND_BUFF_DESC: "All allies +40% DEF"
+  SKILL_DESPERATE_STRIKE: "Desperate Strike"
+  SKILL_DESPERATE_STRIKE_DESC: "Deal 220% damage to single enemy"
+  SKILL_ROYAL_DECREE: "Royal Decree"
+  SKILL_ROYAL_DECREE_DESC: "Heal all allies 30% HP"
+
+  # UI
+  UI_BATTLE_VICTORY: "VICTORY!"
+  UI_BATTLE_DEFEAT: "DEFEAT!"

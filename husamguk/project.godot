@@ -11,8 +11,17 @@ config_version=5
 [application]
 
 config/name="husamguk"
+run/main_scene="res://scenes/battle.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+DataManager="*res://src/autoload/data_manager.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/yaml/plugin.cfg")
 
 [rendering]
 

@@ -1,0 +1,61 @@
+generals:
+  - id: "kyunhwon_resistance"
+    name_key: "GENERAL_KYUNHWON_RESISTANCE"
+    nation: "silla"
+    role: "command"
+    portrait: null
+    base_stats:
+      leadership: 88
+      combat: 70
+      intelligence: 85
+      politics: 90
+    skill:
+      id: "last_stand_buff"
+      name_key: "SKILL_LAST_STAND_BUFF"
+      description_key: "SKILL_LAST_STAND_BUFF_DESC"
+      cooldown: 4
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "defense"
+        value: 40
+
+  - id: "jinseong_yeowang"
+    name_key: "GENERAL_JINSEONG_YEOWANG"
+    nation: "silla"
+    role: "assault"
+    portrait: null
+    base_stats:
+      leadership: 65
+      combat: 88
+      intelligence: 75
+      politics: 80
+    skill:
+      id: "desperate_strike"
+      name_key: "SKILL_DESPERATE_STRIKE"
+      description_key: "SKILL_DESPERATE_STRIKE_DESC"
+      cooldown: 3
+      effect:
+        type: "damage"
+        target: "single_enemy"
+        multiplier: 2.2
+
+  - id: "gyeongae_wang"
+    name_key: "GENERAL_GYEONGAE_WANG"
+    nation: "silla"
+    role: "special"
+    portrait: null
+    base_stats:
+      leadership: 60
+      combat: 65
+      intelligence: 70
+      politics: 85
+    skill:
+      id: "royal_decree"
+      name_key: "SKILL_ROYAL_DECREE"
+      description_key: "SKILL_ROYAL_DECREE_DESC"
+      cooldown: 6
+      effect:
+        type: "heal"
+        target: "all_allies"
+        value: 30

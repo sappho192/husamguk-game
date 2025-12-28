@@ -1,0 +1,62 @@
+generals:
+  - id: "wanggeon"
+    name_key: "GENERAL_WANGGEON"
+    nation: "taebong"
+    role: "command"
+    portrait: null
+    base_stats:
+      leadership: 97
+      combat: 82
+      intelligence: 90
+      politics: 95
+    skill:
+      id: "mandate_of_unity"
+      name_key: "SKILL_MANDATE_OF_UNITY"
+      description_key: "SKILL_MANDATE_OF_UNITY_DESC"
+      cooldown: 4
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "attack"
+        value: 30
+
+  - id: "hongyu"
+    name_key: "GENERAL_HONGYU"
+    nation: "taebong"
+    role: "assault"
+    portrait: null
+    base_stats:
+      leadership: 80
+      combat: 90
+      intelligence: 70
+      politics: 60
+    skill:
+      id: "crushing_blow"
+      name_key: "SKILL_CRUSHING_BLOW"
+      description_key: "SKILL_CRUSHING_BLOW_DESC"
+      cooldown: 3
+      effect:
+        type: "damage"
+        target: "single_enemy"
+        multiplier: 2.8
+
+  - id: "bokji_gyeomil"
+    name_key: "GENERAL_BOKJI_GYEOMIL"
+    nation: "taebong"
+    role: "special"
+    portrait: null
+    base_stats:
+      leadership: 85
+      combat: 75
+      intelligence: 88
+      politics: 70
+    skill:
+      id: "tactical_retreat"
+      name_key: "SKILL_TACTICAL_RETREAT"
+      description_key: "SKILL_TACTICAL_RETREAT_DESC"
+      cooldown: 5
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "defense"
+        value: 50

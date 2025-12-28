@@ -1,0 +1,61 @@
+generals:
+  - id: "gyeonhwon"
+    name_key: "GENERAL_GYEONHWON"
+    nation: "hubaekje"
+    role: "assault"
+    portrait: null
+    base_stats:
+      leadership: 92
+      combat: 95
+      intelligence: 78
+      politics: 65
+    skill:
+      id: "fury_of_baekje"
+      name_key: "SKILL_FURY_OF_BAEKJE"
+      description_key: "SKILL_FURY_OF_BAEKJE_DESC"
+      cooldown: 3
+      effect:
+        type: "damage"
+        target: "single_enemy"
+        multiplier: 2.5
+
+  - id: "singeom"
+    name_key: "GENERAL_SINGEOM"
+    nation: "hubaekje"
+    role: "command"
+    portrait: null
+    base_stats:
+      leadership: 75
+      combat: 80
+      intelligence: 60
+      politics: 55
+    skill:
+      id: "rallying_cry"
+      name_key: "SKILL_RALLYING_CRY"
+      description_key: "SKILL_RALLYING_CRY_DESC"
+      cooldown: 4
+      effect:
+        type: "buff"
+        target: "all_allies"
+        stat: "attack"
+        value: 25
+
+  - id: "jin_hongae"
+    name_key: "GENERAL_JIN_HONGAE"
+    nation: "hubaekje"
+    role: "special"
+    portrait: null
+    base_stats:
+      leadership: 70
+      combat: 85
+      intelligence: 72
+      politics: 50
+    skill:
+      id: "second_wind"
+      name_key: "SKILL_SECOND_WIND"
+      description_key: "SKILL_SECOND_WIND_DESC"
+      cooldown: 5
+      effect:
+        type: "heal"
+        target: "self"
+        value: 50

@@ -1,0 +1,62 @@
+locale: "ko"
+
+strings:
+  # Nations
+  NATION_HUBAEKJE: "후백제"
+  NATION_TAEBONG: "태봉"
+  NATION_SILLA: "신라"
+
+  # Generals - Hubaekje
+  GENERAL_GYEONHWON: "견훤"
+  GENERAL_SINGEOM: "신검"
+  GENERAL_JIN_HONGAE: "진홍애"
+
+  # Generals - Taebong
+  GENERAL_WANGGEON: "왕건"
+  GENERAL_HONGYU: "홍유"
+  GENERAL_BOKJI_GYEOMIL: "복지겸일"
+
+  # Generals - Silla
+  GENERAL_KYUNHWON_RESISTANCE: "신라 저항군"
+  GENERAL_JINSEONG_YEOWANG: "진성여왕"
+  GENERAL_GYEONGAE_WANG: "경애왕"
+
+  # Units
+  UNIT_SPEARMAN: "창병"
+  UNIT_SWORDSMAN: "검병"
+  UNIT_LIGHT_CAVALRY: "경기병"
+  UNIT_HEAVY_CAVALRY: "중기병"
+  UNIT_ARCHER: "궁병"
+  UNIT_CROSSBOWMAN: "노병"
+
+  # Traits
+  TRAIT_ANTI_CAVALRY: "대기병: 기병에게 50% 추가 피해"
+  TRAIT_BERSERKER: "광전사: HP 30% 이하일 때 공격력 30% 증가"
+  TRAIT_CHARGE: "돌격: 첫 공격 시 50% 추가 피해"
+  TRAIT_ARMORED: "중무장: 궁병으로부터 받는 피해 40% 감소"
+  TRAIT_RANGED: "원거리: 후열 공격 가능"
+  TRAIT_ARMOR_PIERCING: "관통: 방어력 50% 무시"
+
+  # Skills (Phase 2, but define now)
+  SKILL_FURY_OF_BAEKJE: "백제의 분노"
+  SKILL_FURY_OF_BAEKJE_DESC: "단일 적에게 250% 피해"
+  SKILL_RALLYING_CRY: "격려의 함성"
+  SKILL_RALLYING_CRY_DESC: "아군 전체 공격력 25% 증가"
+  SKILL_SECOND_WIND: "재기"
+  SKILL_SECOND_WIND_DESC: "자신의 HP 50% 회복"
+  SKILL_MANDATE_OF_UNITY: "통일의 대의"
+  SKILL_MANDATE_OF_UNITY_DESC: "아군 전체 공격력 30% 증가"
+  SKILL_CRUSHING_BLOW: "분쇄타"
+  SKILL_CRUSHING_BLOW_DESC: "단일 적에게 280% 피해"
+  SKILL_TACTICAL_RETREAT: "전술적 후퇴"
+  SKILL_TACTICAL_RETREAT_DESC: "아군 전체 방어력 50% 증가"
+  SKILL_LAST_STAND_BUFF: "최후의 저항"
+  SKILL_LAST_STAND_BUFF_DESC: "아군 전체 방어력 40% 증가"
+  SKILL_DESPERATE_STRIKE: "필사의 일격"
+  SKILL_DESPERATE_STRIKE_DESC: "단일 적에게 220% 피해"
+  SKILL_ROYAL_DECREE: "왕명"
+  SKILL_ROYAL_DECREE_DESC: "아군 전체 HP 30% 회복"
+
+  # UI
+  UI_BATTLE_VICTORY: "승리!"
+  UI_BATTLE_DEFEAT: "패배!"
