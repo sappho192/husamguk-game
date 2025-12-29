@@ -1,0 +1,79 @@
+# 내정 이벤트 데이터 스키마
+# 스테이지 간 선택형 이벤트 정의
+
+_schema:
+  version: "1.0.0"
+  description: "내정 이벤트 데이터 스키마 - Phase 3"
+
+schema:
+  event:
+    id:
+      type: string
+      required: true
+      description: "고유 식별자 (event_ 접두사)"
+      example: "event_military_drill"
+
+    name_key:
+      type: string
+      required: true
+      description: "이벤트 제목 로컬라이제이션 키"
+
+    description_key:
+      type: string
+      required: true
+      description: "이벤트 설명 로컬라이제이션 키"
+
+    category:
+      type: string
+      required: true
+      enum: ["military", "economic", "diplomatic", "personnel"]
+      description: |
+        이벤트 카테고리
+        - military: 군사 (전투력 강화)
+        - economic: 경제 (자원, 회복)
+        - diplomatic: 외교 (카드 획득, 이벤트 플래그)
+        - personnel: 인사 (장수 강화)
+
+    effects:
+      type: array
+      required: true
+      description: "이벤트 효과 목록"
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            enum: ["stat_boost", "hp_restore", "add_card", "set_flag", "buff", "penalty"]
+          target:
+            type: string
+            enum: ["all_units", "single_unit", "random_unit", "run_state"]
+          stat:
+            type: string
+          value:
+            type: number
+          value_type:
+            type: string
+            enum: ["flat", "percent"]
+          duration:
+            type: integer
+          card_id:
+            type: string
+          flag_id:
+            type: string
+          flag_value:
+            type: any
+
+# 효과 타입 설명
+effect_types:
+  stat_boost:
+    description: "영구 스탯 증가 (런 종료까지)"
+  hp_restore:
+    description: "HP 회복"
+  add_card:
+    description: "덱에 카드 추가"
+  set_flag:
+    description: "이벤트 플래그 설정 (분기용)"
+  buff:
+    description: "버프 부여 (다음 전투 시작 시)"
+  penalty:
+    description: "페널티 (위험한 선택)"

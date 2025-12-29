@@ -1,0 +1,126 @@
+# 강화 데이터 스키마
+# 스테이지 간 선택 가능한 런 레벨 강화
+
+_schema:
+  version: "1.0.0"
+  description: "강화 데이터 스키마 - Phase 3C"
+
+schema:
+  enhancement:
+    id:
+      type: string
+      required: true
+      description: "고유 식별자 (enh_ 접두사)"
+      example: "enh_veteran_warriors"
+
+    name_key:
+      type: string
+      required: true
+      description: "강화 이름 로컬라이제이션 키"
+
+    description_key:
+      type: string
+      required: true
+      description: "강화 설명 로컬라이제이션 키"
+
+    rarity:
+      type: string
+      required: true
+      enum: ["common", "rare", "legendary"]
+      description: |
+        강화 등급
+        - common: 일반 (작은 보너스)
+        - rare: 희귀 (큰 보너스, 일부 페널티)
+        - legendary: 전설 (게임 체인징 효과, 위험 포함)
+
+    effect_type:
+      type: string
+      required: true
+      enum: ["stat_boost", "buff", "card_add", "special"]
+      description: |
+        효과 타입
+        - stat_boost: 영구 스탯 증가
+        - buff: 전투 시작 시 버프
+        - card_add: 덱에 카드 추가
+        - special: 특수 효과 (미구현)
+
+    effect:
+      type: object
+      required: true
+      description: "효과 상세"
+      properties:
+        target:
+          type: string
+          enum: ["all_units", "random_unit"]
+        stat:
+          type: string
+        value:
+          type: number
+        value_type:
+          type: string
+          enum: ["flat", "percent"]
+        duration:
+          type: integer
+        card_id:
+          type: string
+
+    penalty:
+      type: object
+      required: false
+      description: "페널티 (리스크/보상)"
+      properties:
+        type:
+          type: string
+          enum: ["stat_reduction", "debuff"]
+        target:
+          type: string
+        stat:
+          type: string
+        value:
+          type: number
+        value_type:
+          type: string
+        duration:
+          type: integer
+
+# 예시 데이터
+example:
+  enhancements:
+    # === Common (일반) ===
+    - id: "enh_veteran_warriors"
+      name_key: "ENH_VETERAN_WARRIORS"
+      description_key: "ENH_VETERAN_WARRIORS_DESC"
+      rarity: "common"
+      effect_type: "stat_boost"
+      effect:
+        target: "all_units"
+        stat: "attack"
+        value: 10
+        value_type: "percent"
+
+    # === Rare (희귀, 페널티 있음) ===
+    - id: "enh_berserker_rage"
+      name_key: "ENH_BERSERKER_RAGE"
+      description_key: "ENH_BERSERKER_RAGE_DESC"
+      rarity: "rare"
+      effect_type: "stat_boost"
+      effect:
+        target: "all_units"
+        stat: "attack"
+        value: 40
+        value_type: "percent"
+      penalty:
+        type: "stat_reduction"
+        target: "all_units"
+        stat: "defense"
+        value: 15
+        value_type: "percent"
+
+    # === Legendary (전설) ===
+    - id: "enh_divine_intervention"
+      name_key: "ENH_DIVINE_INTERVENTION"
+      description_key: "ENH_DIVINE_INTERVENTION_DESC"
+      rarity: "legendary"
+      effect_type: "special"
+      effect:
+        special_id: "full_atb_start"

@@ -1,0 +1,71 @@
+events:
+  - id: "event_veteran_recruitment"
+    name_key: "EVENT_VETERAN_RECRUITMENT"
+    description_key: "EVENT_VETERAN_RECRUITMENT_DESC"
+    category: "personnel"
+    effects:
+      - type: "stat_boost"
+        target: "random_unit"
+        stat: "attack"
+        value: 10
+        value_type: "flat"
+      - type: "stat_boost"
+        target: "random_unit"
+        stat: "defense"
+        value: 5
+        value_type: "flat"
+
+  - id: "event_general_training"
+    name_key: "EVENT_GENERAL_TRAINING"
+    description_key: "EVENT_GENERAL_TRAINING_DESC"
+    category: "personnel"
+    effects:
+      - type: "buff"
+        target: "all_units"
+        stat: "atb_speed"
+        value: 10
+        value_type: "percent"
+        duration: 999
+
+  - id: "event_morale_boost"
+    name_key: "EVENT_MORALE_BOOST"
+    description_key: "EVENT_MORALE_BOOST_DESC"
+    category: "personnel"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "attack"
+        value: 5
+        value_type: "percent"
+
+  - id: "event_discipline_enforcement"
+    name_key: "EVENT_DISCIPLINE_ENFORCEMENT"
+    description_key: "EVENT_DISCIPLINE_ENFORCEMENT_DESC"
+    category: "personnel"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "defense"
+        value: 10
+        value_type: "percent"
+      - type: "penalty"
+        target: "random_unit"
+        stat: "hp"
+        value: 20
+        value_type: "percent"
+
+  - id: "event_elite_training"
+    name_key: "EVENT_ELITE_TRAINING"
+    description_key: "EVENT_ELITE_TRAINING_DESC"
+    category: "personnel"
+    effects:
+      - type: "stat_boost"
+        target: "random_unit"
+        stat: "attack"
+        value: 20
+        value_type: "percent"
+      - type: "stat_boost"
+        target: "random_unit"
+        stat: "atb_speed"
+        value: 0.2
+        value_type: "flat"

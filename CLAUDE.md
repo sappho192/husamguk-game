@@ -62,59 +62,90 @@ The game uses Godot's autoload pattern for global managers:
 
 **Critical:** Never access data files directly. Always query through `DataManager`.
 
-### Project Structure (Current)
+### Complete Game Flow (Phase 3)
+
+```
+Main Menu (scenes/main_menu.tscn)
+  ↓ [Start New Run]
+  ↓ GameManager.start_new_run() → creates RunState, loads Battle 1
+  ↓
+Battle Stage 1 (scenes/battle.tscn)
+  ↓ [Victory] GameManager.on_battle_ended() → saves unit states to RunState
+  ↓
+Internal Affairs (scenes/internal_affairs.tscn)
+  ↓ 3 governance choices from 4 categories (Military/Economic/Diplomatic/Personnel)
+  ↓ InternalAffairsManager.execute_event() → modifies RunState (stats, deck, flags)
+  ↓
+Enhancement Selection (scenes/enhancement_selection.tscn)
+  ↓ Choose 1 of 3 enhancements (1 common, 1 rare, 1 legendary)
+  ↓ GameManager.on_enhancement_selected() → adds to RunState.active_enhancements
+  ↓ RunState.current_stage += 1
+  ↓
+Battle Stage 2
+  ↓ Units restored from RunState (HP, stats, buffs carry forward)
+  ↓ Enhancements applied
+  ↓ [Victory] → Internal Affairs → Enhancement
+  ↓
+Battle Stage 3
+  ↓ [Victory or Defeat]
+  ↓
+Victory/Defeat Screen (scenes/victory_screen.tscn or defeat_screen.tscn)
+  ↓ Display run statistics (stages cleared, battles won, choices made, enhancements)
+  ↓ [Return to Main Menu] GameManager.clear_run() → RunState = null
+  ↓
+Main Menu
+```
+
+### Project Structure (Phase 3 Complete)
 
 ```
 husamguk/
 ├── src/
-│   ├── autoload/              # Global singletons
-│   │   └── data_manager.gd    # ✅ YAML loading, localization, factory methods
-│   ├── core/                  # Data classes
-│   │   ├── unit.gd            # ✅ ATB system, buff management, effective stats
-│   │   ├── general.gd         # ✅ Skill execution, cooldown tracking
-│   │   ├── buff.gd            # ✅ Stat modification system
-│   │   └── card.gd            # ✅ Card effects and targeting
+│   ├── autoload/                    # Global singletons
+│   │   ├── data_manager.gd          # ✅ YAML loading, localization, factory methods
+│   │   ├── game_manager.gd          # ✅ Run orchestration, scene transitions
+│   │   └── save_manager.gd          # ✅ Stub for Phase 4
+│   ├── core/                        # Data classes
+│   │   ├── unit.gd                  # ✅ ATB system, buff management
+│   │   ├── general.gd               # ✅ Skill execution, cooldown tracking
+│   │   ├── buff.gd                  # ✅ Stat modification system
+│   │   ├── card.gd                  # ✅ Card effects and targeting
+│   │   └── run_state.gd             # ✅ Run-level state persistence
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd  # ✅ Dual-layer timing, state machine
-│   │   ├── internal_affairs/  # 🔲 Not yet implemented (Phase 3)
-│   │   └── roguelite/         # 🔲 Not yet implemented (Phase 3)
+│   │   │   └── battle_manager.gd    # ✅ Dual-layer timing, state machine
+│   │   └── internal_affairs/
+│   │       └── internal_affairs_manager.gd  # ✅ Event system
 │   └── ui/
-│       └── battle/
-│           ├── battle_ui.gd        # ✅ Main battle controller with deck management
-│           ├── unit_display.gd    # ✅ Unit UI component with HP/ATB bars
-│           ├── skill_bar.gd       # ✅ Left sidebar skill buttons
-│           ├── skill_button.gd    # ✅ Individual skill button UI
-│           ├── card_hand.gd       # ✅ Bottom card display container
-│           ├── card_display.gd    # ✅ Individual card UI
-│           └── placeholder_sprite.gd  # ✅ Colored rectangle fallback
+│       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, etc.
+│       ├── internal_affairs/        # ✅ ChoiceButton, InternalAffairsUI
+│       ├── enhancement/             # ✅ EnhancementCard, EnhancementSelectionUI
+│       ├── main_menu_ui.gd          # ✅ Main menu
+│       ├── victory_ui.gd            # ✅ Victory screen
+│       └── defeat_ui.gd             # ✅ Defeat screen
 │
 ├── scenes/
-│   └── battle.tscn            # ✅ Main battle scene (Phase 2 complete)
+│   ├── main_menu.tscn               # ✅ Entry point
+│   ├── battle.tscn                  # ✅ Battle scene
+│   ├── internal_affairs.tscn        # ✅ Governance choices
+│   ├── enhancement_selection.tscn   # ✅ Enhancement selection
+│   ├── victory_screen.tscn          # ✅ Victory screen
+│   └── defeat_screen.tscn           # ✅ Defeat screen
 ├── data/
-│   ├── generals/              # ✅ 9 generals YAML data with skills
-│   │   ├── hubaekje.yaml
-│   │   ├── taebong.yaml
-│   │   └── silla.yaml
-│   ├── units/
-│   │   └── base_units.yaml    # ✅ 6 unit types YAML data
-│   ├── cards/                 # ✅ Card system
-│   │   ├── starter_deck.yaml  # ✅ 5 common cards (10 total)
-│   │   └── advanced_cards.yaml # ✅ 8 rare/legendary cards
-│   └── localization/          # ✅ Korean/English strings (99 each)
-│       ├── ko.yaml
-│       └── en.yaml
-├── addons/
-│   └── yaml/                  # ✅ godot-yaml parser addon (fimbul-works)
-├── assets/
-│   ├── audio/                 # ✅ Battle BGM (looping)
-│   └── (sprites placeholder)  # 🔲 Using colored rectangles
-└── mods/                      # 🔲 MOD system not yet implemented
+│   ├── generals/                    # ✅ 9 generals YAML
+│   ├── units/                       # ✅ 6 unit types YAML
+│   ├── cards/                       # ✅ 13 cards YAML
+│   ├── events/                      # ✅ 20 events YAML (4 categories)
+│   ├── enhancements/                # ✅ 14 enhancements YAML
+│   └── localization/                # ✅ Korean/English (189 strings each)
+├── addons/yaml/                     # ✅ godot-yaml parser addon
+├── assets/audio/                    # ✅ Battle BGM (looping)
+└── mods/                            # 🔲 MOD system (Phase 4+)
 ```
 
 **Legend:**
-- ✅ Implemented (Phase 2 complete)
-- 🔲 Not yet implemented (future phases)
+- ✅ Implemented (Phase 3 complete)
+- 🔲 Not yet implemented (Phase 4+)
 
 ### MOD System Architecture
 
@@ -246,12 +277,18 @@ var name = "견훤"
 
 **Choice-based governance** between battle stages:
 
-- 2-3 turns per stage
+- **3 turns per internal affairs phase** (fixed, confirmed requirement)
 - Each turn: 3 options from categories (Military, Economic, Diplomatic, Personnel)
-- Each choice triggers a random event from that category
+- Each choice triggers a specific event from that category
 - Effects: Stat changes, card acquisition, event flags, penalties
+- **20 total events**: 5 Military, 5 Economic, 5 Diplomatic, 5 Personnel
 
-**Architecture Note:** Event flags enable branching choices in later turns/stages. The flag system must persist within a run but reset between runs.
+**Architecture Note:** Event flags enable branching choices in later turns/stages. The flag system persists within a run but resets between runs.
+
+**Implementation (Phase 3):**
+- `InternalAffairsManager`: Event selection, condition checking, effect execution
+- `InternalAffairsUI`: 3 sequential choice displays with category-based styling
+- `ChoiceButton`: Individual event option with color-coded categories
 
 ## Development Phase Roadmap
 
@@ -276,61 +313,73 @@ var name = "견훤"
 - ✅ Dual-layer timing system (ATB + global turns)
 - ✅ Skills independent of ATB (cooldown-based only)
 
-**Phase 3 (Internal Affairs Connection)** 🔲 NEXT
-- 🔲 Governance UI (3 choice display)
-- 🔲 Stage progression flow
-- 🔲 Enhancement selection screen
-- 🔲 Event system implementation
+**Phase 3 (Internal Affairs Connection)** ✅ COMPLETE
+- ✅ GameManager autoload (run orchestration, scene transitions)
+- ✅ RunState class (full unit state persistence: HP, stats, buffs, general cooldowns)
+- ✅ Internal Affairs system (20 events, 4 categories, InternalAffairsManager)
+- ✅ Enhancement system (14 enhancements: 5 common, 5 rare, 4 legendary)
+- ✅ Main menu, victory/defeat screens with statistics
+- ✅ Complete 3-stage run loop
+- ✅ Event flag system for branching choices
+- ✅ 189 localization strings (Korean + English)
 
-**Phase 4 (Full Loop)** 🔲 PLANNED
-- 🔲 3-stage connection
-- 🔲 Game over/clear conditions
-- 🔲 Main menu integration
-- 🔲 SaveManager persistence
-- 🔲 Meta-progression system
+**Phase 4 (Meta-Progression)** 🔲 NEXT
+- 🔲 SaveManager implementation (save/load functionality)
+- 🔲 Meta-progression unlocks (permanent upgrades)
+- 🔲 Enemy scaling across stages
+- 🔲 Additional content (more events, enhancements, cards)
+- 🔲 Balance tuning and polish
 
 ## Implementation Status
 
-### ✅ Completed Components (Phase 2)
+### ✅ Completed Components (Phase 3)
 
 **Core Classes:**
 - `src/core/unit.gd` - ATB system, buff management, effective stat calculation
 - `src/core/general.gd` - Skill execution, cooldown tracking
 - `src/core/buff.gd` - Stat modification (buffs/debuffs) with duration tracking
 - `src/core/card.gd` - Card effect execution, targeting, penalty system
+- `src/core/run_state.gd` - Run-level state persistence (unit states, deck, enhancements, event flags)
+
+**Autoload Managers:**
+- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods
+- `src/autoload/game_manager.gd` - Run orchestration, scene transitions
+- `src/autoload/save_manager.gd` - Meta-progression stub (Phase 4)
 
 **Systems:**
-- `src/systems/battle/battle_manager.gd` - Dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD), skill execution
+- `src/systems/battle/battle_manager.gd` - Dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD)
+- `src/systems/internal_affairs/internal_affairs_manager.gd` - Event selection, effect execution
 
 **UI Components:**
-- `src/ui/battle/battle_ui.gd` - Main battle controller with deck management
-- `src/ui/battle/unit_display.gd` - HP/ATB bars, visual feedback
-- `src/ui/battle/skill_bar.gd` - Left sidebar container for skill buttons
-- `src/ui/battle/skill_button.gd` - Individual skill button (shows cooldown/ready state)
-- `src/ui/battle/card_hand.gd` - Bottom card display container
-- `src/ui/battle/card_display.gd` - Individual card UI with rarity colors
-- `src/ui/battle/placeholder_sprite.gd` - Category-based colored rectangles
+- Battle: `battle_ui.gd`, `unit_display.gd`, `skill_bar.gd`, `skill_button.gd`, `card_hand.gd`, `card_display.gd`
+- Internal Affairs: `internal_affairs_ui.gd`, `choice_button.gd`
+- Enhancement: `enhancement_selection_ui.gd`, `enhancement_card.gd`
+- Menus: `main_menu_ui.gd`, `victory_ui.gd`, `defeat_ui.gd`
 
 **Data Layer:**
-- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods for cards
 - All YAML data files:
   - 9 generals with skills (hubaekje.yaml, taebong.yaml, silla.yaml)
   - 6 unit types (base_units.yaml)
   - 13 cards (starter_deck.yaml, advanced_cards.yaml)
-  - 99 localization strings each language (ko.yaml, en.yaml)
+  - 20 events (military_events.yaml, economic_events.yaml, diplomatic_events.yaml, personnel_events.yaml)
+  - 14 enhancements (combat_enhancements.yaml)
+  - 189 localization strings each language (ko.yaml, en.yaml)
 
 **Critical Implementation Notes:**
 1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)
 2. **Keyword Conflict**: Avoid using "trait" as variable name (reserved keyword) - use "trait_data" instead
-3. **RefCounted Classes**: Unit, General, Card, Buff all extend RefCounted (not Node)
-4. **UI Timing**: All UI components create children in `_init()` not `_ready()` to avoid null reference errors
+3. **RefCounted Classes**: Unit, General, Card, Buff, RunState all extend RefCounted (not Node)
+4. **UI Timing**: All UI components create children in `_init()`, but set text in `_ready()` (after DataManager loads)
 5. **Class Preloading**: All files preload dependencies using `const` (e.g., `const Buff = preload("...")`)
 6. **Null Safety**: YAML optional fields checked with `data.get("field", null)` before assignment to typed properties
 7. **Skills ATB-Independent**: Skills do NOT require or reset ATB (Phase 2 design revision)
 8. **Buff Duration**: Ticks on global turns only (not ATB turns) for consistency
 9. **Audio Looping**: Set `stream.loop = true` in code for reliable looping (import file settings may not persist)
+10. **Scene Z-Index**: Background ColorRects use `z_index = -1` to prevent covering UI elements
+11. **Await Safety**: Check `is_inside_tree()` before and after `await` to prevent errors during scene transitions
+12. **Localization Timing**: Never call `DataManager.get_localized()` in `_init()` - DataManager loads after scene instantiation
 
-### 🔲 Not Yet Implemented (Phase 3+)
+### 🔲 Not Yet Implemented (Phase 4+)
 
 **Formation System:**
 - Pre-battle formation selection UI
@@ -342,11 +391,10 @@ var name = "견훤"
 - load_order priority handling
 - Asset override support
 
-**Internal Affairs:**
-- Governance UI (3 choice display)
-- Event system
-- Stage progression
-- Enhancement selection
+**Meta-Progression:**
+- SaveManager implementation (save/load)
+- Permanent unlocks across runs
+- Player progression tracking
 
 ## Asset Placeholder Strategy
 

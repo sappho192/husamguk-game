@@ -127,3 +127,115 @@ strings:
   # UI
   UI_BATTLE_VICTORY: "VICTORY!"
   UI_BATTLE_DEFEAT: "DEFEAT!"
+
+  # === Internal Affairs UI (Phase 3) ===
+  UI_INTERNAL_AFFAIRS_TITLE: "Internal Affairs"
+  UI_INTERNAL_AFFAIRS_SUBTITLE: "Choose one of three options"
+  UI_CHOICES_REMAINING: "Choices Remaining"
+  UI_CATEGORY_MILITARY: "Military"
+  UI_CATEGORY_ECONOMIC: "Economic"
+  UI_CATEGORY_DIPLOMATIC: "Diplomatic"
+  UI_CATEGORY_PERSONNEL: "Personnel"
+
+  # === Military Events ===
+  EVENT_MILITARY_DRILL: "Military Drill"
+  EVENT_MILITARY_DRILL_DESC: "Train soldiers to increase attack power. (+3 Attack)"
+  EVENT_DEFENSIVE_FORTIFICATION: "Defensive Fortification"
+  EVENT_DEFENSIVE_FORTIFICATION_DESC: "Build fortifications to increase defense. (+4 Defense)"
+  EVENT_TACTICAL_TRAINING: "Tactical Training"
+  EVENT_TACTICAL_TRAINING_DESC: "Tactical training increases action speed. (+15% ATB Speed)"
+  EVENT_FORCED_MARCH: "Forced March"
+  EVENT_FORCED_MARCH_DESC: "Forced march greatly increases attack but exhausts troops. (+8 Attack, -10% HP)"
+  EVENT_WEAPON_UPGRADE: "Weapon Upgrade"
+  EVENT_WEAPON_UPGRADE_DESC: "Upgrade weapons to improve attack power. (+15% Attack)"
+
+  # === Economic Events ===
+  EVENT_HARVEST_FESTIVAL: "Harvest Festival"
+  EVENT_HARVEST_FESTIVAL_DESC: "Celebrate the harvest and restore morale. (Restore 50% HP)"
+  EVENT_MEDICAL_SUPPLIES: "Medical Supplies"
+  EVENT_MEDICAL_SUPPLIES_DESC: "Treat all wounded with medical supplies. (Restore 100% HP)"
+  EVENT_BLACKSMITH_UPGRADE: "Blacksmith Upgrade"
+  EVENT_BLACKSMITH_UPGRADE_DESC: "Upgrade blacksmith to strengthen armor. (+5 Defense)"
+  EVENT_SUPPLY_SHORTAGE: "Supply Shortage"
+  EVENT_SUPPLY_SHORTAGE_DESC: "Limited supplies but make the best of it. (Restore 25% HP, -5 Defense)"
+  EVENT_TAX_COLLECTION: "Tax Collection"
+  EVENT_TAX_COLLECTION_DESC: "Use tax revenue to purchase armor. (Gain Iron Defense card)"
+
+  # === Diplomatic Events ===
+  EVENT_ALLIANCE_OFFER: "Alliance Offer"
+  EVENT_ALLIANCE_OFFER_DESC: "Form an alliance with Silla. (Gain Rally card)"
+  EVENT_TRADE_ROUTE: "Trade Route"
+  EVENT_TRADE_ROUTE_DESC: "Obtain medical supplies through trade. (Gain Field Medic card)"
+  EVENT_DIPLOMATIC_MISSION: "Diplomatic Mission"
+  EVENT_DIPLOMATIC_MISSION_DESC: "Send diplomatic mission to increase influence. (Gain Intimidate card)"
+  EVENT_SPY_NETWORK: "Spy Network"
+  EVENT_SPY_NETWORK_DESC: "Build spy network to identify enemy weaknesses. (Gain Sabotage card)"
+  EVENT_PEACE_NEGOTIATIONS: "Peace Negotiations"
+  EVENT_PEACE_NEGOTIATIONS_DESC: "Temporary peace allows rest and recovery. (Restore 30% HP)"
+
+  # === Personnel Events ===
+  EVENT_VETERAN_RECRUITMENT: "Veteran Recruitment"
+  EVENT_VETERAN_RECRUITMENT_DESC: "Recruit experienced veterans. (Random unit +10 Attack, +5 Defense)"
+  EVENT_GENERAL_TRAINING: "General Training"
+  EVENT_GENERAL_TRAINING_DESC: "Improve generals' command abilities. (+10% ATB Speed)"
+  EVENT_MORALE_BOOST: "Morale Boost"
+  EVENT_MORALE_BOOST_DESC: "Boost morale to increase attack power. (+5% Attack)"
+  EVENT_DISCIPLINE_ENFORCEMENT: "Discipline Enforcement"
+  EVENT_DISCIPLINE_ENFORCEMENT_DESC: "Strict discipline increases defense but some are injured. (+10% Defense, Random unit -20% HP)"
+  EVENT_ELITE_TRAINING: "Elite Training"
+  EVENT_ELITE_TRAINING_DESC: "Intensively train selected soldiers. (Random unit +20% Attack, +0.2 ATB Speed)"
+
+  # === Enhancement UI (Phase 3C) ===
+  UI_ENHANCEMENT_TITLE: "Choose Enhancement"
+  UI_ENHANCEMENT_SUBTITLE: "Select one of three enhancements"
+
+  # === Common Enhancements ===
+  ENH_VETERAN_WARRIORS: "Veteran Warriors"
+  ENH_VETERAN_WARRIORS_DESC: "All units gain +10% Attack."
+  ENH_FORTIFIED_ARMOR: "Fortified Armor"
+  ENH_FORTIFIED_ARMOR_DESC: "All units gain +10% Defense."
+  ENH_SWIFT_TRAINING: "Swift Training"
+  ENH_SWIFT_TRAINING_DESC: "All units gain +0.1 ATB Speed."
+  ENH_BATTLE_HARDENED: "Battle Hardened"
+  ENH_BATTLE_HARDENED_DESC: "All units gain +15% Max HP."
+  ENH_TACTICAL_ADVANTAGE: "Tactical Advantage"
+  ENH_TACTICAL_ADVANTAGE_DESC: "Add 'Rally' card to your deck."
+
+  # === Rare Enhancements ===
+  ENH_BERSERKER_RAGE: "Berserker Rage"
+  ENH_BERSERKER_RAGE_DESC: "+40% Attack, -15% Defense. Choose aggression."
+  ENH_IRON_WALL: "Iron Wall"
+  ENH_IRON_WALL_DESC: "+50% Defense, -0.2 ATB Speed. Solid defensive strategy."
+  ENH_LIGHTNING_STRIKES: "Lightning Strikes"
+  ENH_LIGHTNING_STRIKES_DESC: "+0.3 ATB Speed, -20% Max HP. Fast but risky."
+  ENH_ELITE_SQUAD: "Elite Squad"
+  ENH_ELITE_SQUAD_DESC: "One random unit gains +80% Attack."
+  ENH_STRATEGIC_RESERVES: "Strategic Reserves"
+  ENH_STRATEGIC_RESERVES_DESC: "Add 'Overwhelming Force' card to your deck."
+
+  # === Legendary Enhancements ===
+  ENH_UNSTOPPABLE_FORCE: "Unstoppable Force"
+  ENH_UNSTOPPABLE_FORCE_DESC: "+100% Attack, -50% Defense. Extreme offense!"
+  ENH_IMMORTAL_LEGION: "Immortal Legion"
+  ENH_IMMORTAL_LEGION_DESC: "All units gain +100% Max HP!"
+  ENH_TIME_MANIPULATION: "Time Manipulation"
+  ENH_TIME_MANIPULATION_DESC: "+100% ATB Speed for 5 turns in next battle!"
+  ENH_OVERWHELMING_MIGHT: "Overwhelming Might"
+  ENH_OVERWHELMING_MIGHT_DESC: "All units gain +50% Attack."
+
+  # === Main Menu & Game Screens ===
+  UI_GAME_TITLE: "HUSAMGUK"
+  UI_GAME_SUBTITLE: "Later Three Kingdoms"
+  UI_START_NEW_RUN: "Start New Run"
+  UI_CONTINUE: "Continue"
+  UI_SETTINGS: "Settings"
+  UI_QUIT: "Quit"
+
+  # === Victory/Defeat Screens ===
+  UI_RUN_VICTORY: "RUN VICTORY!"
+  UI_RUN_DEFEAT: "RUN DEFEAT"
+  UI_STAGES_CLEARED: "Stages Cleared"
+  UI_BATTLES_WON: "Battles Won"
+  UI_CHOICES_MADE: "Governance Choices"
+  UI_ENHANCEMENTS_GAINED: "Enhancements Gained"
+  UI_RETURN_TO_MENU: "Return to Main Menu"

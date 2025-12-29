@@ -47,6 +47,10 @@ func _ready() -> void:
 	# Start test battle
 	_start_test_battle()
 
+	# Phase 3: Notify GameManager battle is ready (for run state restoration)
+	if GameManager.current_run:
+		GameManager.on_battle_ready(battle_manager, battle_manager.ally_units)
+
 func _start_test_battle() -> void:
 	# Phase 2: Create generals for testing
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
@@ -89,9 +93,15 @@ func _create_unit_display(unit: Unit) -> UnitDisplay:
 	return display
 
 func _on_battle_ended(victory: bool) -> void:
-	result_label.text = DataManager.get_localized("UI_BATTLE_VICTORY" if victory else "UI_BATTLE_DEFEAT")
-	result_label.visible = true
-	print("BattleUI: Battle ended - ", result_label.text)
+	# Phase 3: Redirect to GameManager if run is active
+	if GameManager.current_run:
+		# Pass ally units for state saving
+		GameManager.on_battle_ended(victory, battle_manager.ally_units)
+	else:
+		# Standalone battle (no run active) - show result as before
+		result_label.text = DataManager.get_localized("UI_BATTLE_VICTORY" if victory else "UI_BATTLE_DEFEAT")
+		result_label.visible = true
+		print("BattleUI: Battle ended - ", result_label.text)
 
 # Phase 2: Create UI components
 func _create_phase2_ui() -> void:
@@ -148,19 +158,26 @@ func _process(_delta: float) -> void:
 
 # Phase 2: Initialize card deck
 func _initialize_deck() -> void:
-	# Build starter deck: 3x aggressive charge, 2x iron defense, 2x field medic, 2x intimidate, 1x sabotage
-	var deck_composition = [
-		"card_aggressive_charge",
-		"card_aggressive_charge",
-		"card_aggressive_charge",
-		"card_iron_defense",
-		"card_iron_defense",
-		"card_field_medic",
-		"card_field_medic",
-		"card_intimidate",
-		"card_intimidate",
-		"card_sabotage"
-	]
+	# Phase 3: Get deck from GameManager if run is active
+	var deck_composition: Array[String] = []
+
+	if GameManager.current_run:
+		deck_composition = GameManager.get_current_deck()
+		print("Deck loaded from run state: ", deck_composition.size(), " cards")
+	else:
+		# Standalone battle - use default starter deck
+		deck_composition = [
+			"card_aggressive_charge",
+			"card_aggressive_charge",
+			"card_aggressive_charge",
+			"card_iron_defense",
+			"card_iron_defense",
+			"card_field_medic",
+			"card_field_medic",
+			"card_intimidate",
+			"card_intimidate",
+			"card_sabotage"
+		]
 
 	for card_id in deck_composition:
 		var card = DataManager.create_card_instance(card_id)

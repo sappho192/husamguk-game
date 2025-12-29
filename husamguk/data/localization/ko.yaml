@@ -127,3 +127,115 @@ strings:
   # UI
   UI_BATTLE_VICTORY: "승리!"
   UI_BATTLE_DEFEAT: "패배!"
+
+  # === 내정 UI (Phase 3) ===
+  UI_INTERNAL_AFFAIRS_TITLE: "내정"
+  UI_INTERNAL_AFFAIRS_SUBTITLE: "3가지 선택지 중 하나를 고르세요"
+  UI_CHOICES_REMAINING: "남은 선택"
+  UI_CATEGORY_MILITARY: "군사"
+  UI_CATEGORY_ECONOMIC: "경제"
+  UI_CATEGORY_DIPLOMATIC: "외교"
+  UI_CATEGORY_PERSONNEL: "인사"
+
+  # === 군사 이벤트 ===
+  EVENT_MILITARY_DRILL: "군사 훈련"
+  EVENT_MILITARY_DRILL_DESC: "병사들의 공격력을 강화합니다. (+3 공격력)"
+  EVENT_DEFENSIVE_FORTIFICATION: "방어 진지 구축"
+  EVENT_DEFENSIVE_FORTIFICATION_DESC: "방어 진지를 구축하여 방어력을 높입니다. (+4 방어력)"
+  EVENT_TACTICAL_TRAINING: "전술 훈련"
+  EVENT_TACTICAL_TRAINING_DESC: "전술 훈련으로 행동 속도가 증가합니다. (+15% ATB 속도)"
+  EVENT_FORCED_MARCH: "강행군"
+  EVENT_FORCED_MARCH_DESC: "강행군으로 공격력을 크게 높이지만 병사들이 지칩니다. (+8 공격력, -10% HP)"
+  EVENT_WEAPON_UPGRADE: "무기 개량"
+  EVENT_WEAPON_UPGRADE_DESC: "무기를 개량하여 공격력을 향상시킵니다. (+15% 공격력)"
+
+  # === 경제 이벤트 ===
+  EVENT_HARVEST_FESTIVAL: "풍년제"
+  EVENT_HARVEST_FESTIVAL_DESC: "풍작을 축하하며 병사들의 사기가 회복됩니다. (HP 50% 회복)"
+  EVENT_MEDICAL_SUPPLIES: "의료 물자 조달"
+  EVENT_MEDICAL_SUPPLIES_DESC: "의료 물자로 모든 부상자를 치료합니다. (HP 100% 회복)"
+  EVENT_BLACKSMITH_UPGRADE: "대장간 개선"
+  EVENT_BLACKSMITH_UPGRADE_DESC: "대장간을 개선하여 방어구를 강화합니다. (+5 방어력)"
+  EVENT_SUPPLY_SHORTAGE: "물자 부족"
+  EVENT_SUPPLY_SHORTAGE_DESC: "물자가 부족하지만 최선을 다합니다. (HP 25% 회복, -5 방어력)"
+  EVENT_TAX_COLLECTION: "세금 징수"
+  EVENT_TAX_COLLECTION_DESC: "세금으로 방어구를 구입합니다. (강철 방패 카드 획득)"
+
+  # === 외교 이벤트 ===
+  EVENT_ALLIANCE_OFFER: "동맹 제안"
+  EVENT_ALLIANCE_OFFER_DESC: "신라와 동맹을 맺습니다. (집결 카드 획득)"
+  EVENT_TRADE_ROUTE: "교역로 개설"
+  EVENT_TRADE_ROUTE_DESC: "교역로를 통해 의료 물자를 얻습니다. (야전의무 카드 획득)"
+  EVENT_DIPLOMATIC_MISSION: "외교 사절단"
+  EVENT_DIPLOMATIC_MISSION_DESC: "외교 사절단을 파견하여 영향력을 높입니다. (위협 카드 획득)"
+  EVENT_SPY_NETWORK: "첩보망 구축"
+  EVENT_SPY_NETWORK_DESC: "첩보망을 구축하여 적의 약점을 파악합니다. (파괴공작 카드 획득)"
+  EVENT_PEACE_NEGOTIATIONS: "평화 협상"
+  EVENT_PEACE_NEGOTIATIONS_DESC: "일시적 평화로 휴식을 취합니다. (HP 30% 회복)"
+
+  # === 인사 이벤트 ===
+  EVENT_VETERAN_RECRUITMENT: "노병 모집"
+  EVENT_VETERAN_RECRUITMENT_DESC: "경험 많은 노병을 모집합니다. (무작위 유닛 +10 공격력, +5 방어력)"
+  EVENT_GENERAL_TRAINING: "장수 훈련"
+  EVENT_GENERAL_TRAINING_DESC: "장수들의 지휘 능력이 향상됩니다. (+10% ATB 속도)"
+  EVENT_MORALE_BOOST: "사기 진작"
+  EVENT_MORALE_BOOST_DESC: "사기를 진작시켜 공격력을 높입니다. (+5% 공격력)"
+  EVENT_DISCIPLINE_ENFORCEMENT: "군율 강화"
+  EVENT_DISCIPLINE_ENFORCEMENT_DESC: "엄격한 군율로 방어력이 높아지지만 일부가 다칩니다. (+10% 방어력, 무작위 유닛 -20% HP)"
+  EVENT_ELITE_TRAINING: "정예 훈련"
+  EVENT_ELITE_TRAINING_DESC: "선발된 병사를 집중 훈련시킵니다. (무작위 유닛 +20% 공격력, +0.2 ATB 속도)"
+
+  # === 강화 UI (Phase 3C) ===
+  UI_ENHANCEMENT_TITLE: "강화 선택"
+  UI_ENHANCEMENT_SUBTITLE: "3가지 강화 중 하나를 선택하세요"
+
+  # === Common 강화 ===
+  ENH_VETERAN_WARRIORS: "노련한 전사들"
+  ENH_VETERAN_WARRIORS_DESC: "모든 유닛의 공격력이 10% 증가합니다."
+  ENH_FORTIFIED_ARMOR: "강화 방어구"
+  ENH_FORTIFIED_ARMOR_DESC: "모든 유닛의 방어력이 10% 증가합니다."
+  ENH_SWIFT_TRAINING: "신속 훈련"
+  ENH_SWIFT_TRAINING_DESC: "모든 유닛의 ATB 속도가 +0.1 증가합니다."
+  ENH_BATTLE_HARDENED: "전투 강화"
+  ENH_BATTLE_HARDENED_DESC: "모든 유닛의 최대 HP가 15% 증가합니다."
+  ENH_TACTICAL_ADVANTAGE: "전술적 우위"
+  ENH_TACTICAL_ADVANTAGE_DESC: "덱에 '집결' 카드를 추가합니다."
+
+  # === Rare 강화 ===
+  ENH_BERSERKER_RAGE: "광전사의 분노"
+  ENH_BERSERKER_RAGE_DESC: "공격력 +40%, 방어력 -15%. 공격적인 전략을 선택하세요."
+  ENH_IRON_WALL: "철벽"
+  ENH_IRON_WALL_DESC: "방어력 +50%, ATB 속도 -0.2. 견고한 방어 전략입니다."
+  ENH_LIGHTNING_STRIKES: "번개 타격"
+  ENH_LIGHTNING_STRIKES_DESC: "ATB 속도 +0.3, 최대 HP -20%. 빠르지만 위험합니다."
+  ENH_ELITE_SQUAD: "정예 부대"
+  ENH_ELITE_SQUAD_DESC: "무작위 유닛 1명의 공격력이 80% 증가합니다."
+  ENH_STRATEGIC_RESERVES: "전략적 예비군"
+  ENH_STRATEGIC_RESERVES_DESC: "덱에 '압도적 병력' 카드를 추가합니다."
+
+  # === Legendary 강화 ===
+  ENH_UNSTOPPABLE_FORCE: "막을 수 없는 힘"
+  ENH_UNSTOPPABLE_FORCE_DESC: "공격력 +100%, 방어력 -50%. 극단적인 공격 전략!"
+  ENH_IMMORTAL_LEGION: "불멸의 군단"
+  ENH_IMMORTAL_LEGION_DESC: "모든 유닛의 최대 HP가 100% 증가합니다!"
+  ENH_TIME_MANIPULATION: "시간 조작"
+  ENH_TIME_MANIPULATION_DESC: "다음 전투에서 5턴 동안 ATB 속도 +100%!"
+  ENH_OVERWHELMING_MIGHT: "압도적인 힘"
+  ENH_OVERWHELMING_MIGHT_DESC: "모든 유닛의 공격력이 50% 증가합니다."
+
+  # === 메인 메뉴 & 게임 화면 ===
+  UI_GAME_TITLE: "후삼국"
+  UI_GAME_SUBTITLE: "후삼국시대"
+  UI_START_NEW_RUN: "새 게임 시작"
+  UI_CONTINUE: "계속하기"
+  UI_SETTINGS: "설정"
+  UI_QUIT: "종료"
+
+  # === 승리/패배 화면 ===
+  UI_RUN_VICTORY: "승리!"
+  UI_RUN_DEFEAT: "패배"
+  UI_STAGES_CLEARED: "클리어한 스테이지"
+  UI_BATTLES_WON: "승리한 전투"
+  UI_CHOICES_MADE: "내정 선택"
+  UI_ENHANCEMENTS_GAINED: "획득한 강화"
+  UI_RETURN_TO_MENU: "메인 메뉴로"

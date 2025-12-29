@@ -1,0 +1,176 @@
+enhancements:
+  # === Common Enhancements (작은 보너스) ===
+  - id: "enh_veteran_warriors"
+    name_key: "ENH_VETERAN_WARRIORS"
+    description_key: "ENH_VETERAN_WARRIORS_DESC"
+    rarity: "common"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "attack"
+      value: 10
+      value_type: "percent"
+
+  - id: "enh_fortified_armor"
+    name_key: "ENH_FORTIFIED_ARMOR"
+    description_key: "ENH_FORTIFIED_ARMOR_DESC"
+    rarity: "common"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "defense"
+      value: 10
+      value_type: "percent"
+
+  - id: "enh_swift_training"
+    name_key: "ENH_SWIFT_TRAINING"
+    description_key: "ENH_SWIFT_TRAINING_DESC"
+    rarity: "common"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "atb_speed"
+      value: 0.1
+      value_type: "flat"
+
+  - id: "enh_battle_hardened"
+    name_key: "ENH_BATTLE_HARDENED"
+    description_key: "ENH_BATTLE_HARDENED_DESC"
+    rarity: "common"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "max_hp"
+      value: 15
+      value_type: "percent"
+
+  - id: "enh_tactical_advantage"
+    name_key: "ENH_TACTICAL_ADVANTAGE"
+    description_key: "ENH_TACTICAL_ADVANTAGE_DESC"
+    rarity: "common"
+    effect_type: "card_add"
+    effect:
+      card_id: "card_rally"
+
+  # === Rare Enhancements (큰 보너스, 일부 페널티) ===
+  - id: "enh_berserker_rage"
+    name_key: "ENH_BERSERKER_RAGE"
+    description_key: "ENH_BERSERKER_RAGE_DESC"
+    rarity: "rare"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "attack"
+      value: 40
+      value_type: "percent"
+    penalty:
+      type: "stat_reduction"
+      target: "all_units"
+      stat: "defense"
+      value: 15
+      value_type: "percent"
+
+  - id: "enh_iron_wall"
+    name_key: "ENH_IRON_WALL"
+    description_key: "ENH_IRON_WALL_DESC"
+    rarity: "rare"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "defense"
+      value: 50
+      value_type: "percent"
+    penalty:
+      type: "stat_reduction"
+      target: "all_units"
+      stat: "atb_speed"
+      value: 0.2
+      value_type: "flat"
+
+  - id: "enh_lightning_strikes"
+    name_key: "ENH_LIGHTNING_STRIKES"
+    description_key: "ENH_LIGHTNING_STRIKES_DESC"
+    rarity: "rare"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "atb_speed"
+      value: 0.3
+      value_type: "flat"
+    penalty:
+      type: "stat_reduction"
+      target: "all_units"
+      stat: "max_hp"
+      value: 20
+      value_type: "percent"
+
+  - id: "enh_elite_squad"
+    name_key: "ENH_ELITE_SQUAD"
+    description_key: "ENH_ELITE_SQUAD_DESC"
+    rarity: "rare"
+    effect_type: "stat_boost"
+    effect:
+      target: "random_unit"
+      stat: "attack"
+      value: 80
+      value_type: "percent"
+
+  - id: "enh_strategic_reserves"
+    name_key: "ENH_STRATEGIC_RESERVES"
+    description_key: "ENH_STRATEGIC_RESERVES_DESC"
+    rarity: "rare"
+    effect_type: "card_add"
+    effect:
+      card_id: "card_overwhelming_force"
+
+  # === Legendary Enhancements (게임 체인징) ===
+  - id: "enh_unstoppable_force"
+    name_key: "ENH_UNSTOPPABLE_FORCE"
+    description_key: "ENH_UNSTOPPABLE_FORCE_DESC"
+    rarity: "legendary"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "attack"
+      value: 100
+      value_type: "percent"
+    penalty:
+      type: "stat_reduction"
+      target: "all_units"
+      stat: "defense"
+      value: 50
+      value_type: "percent"
+
+  - id: "enh_immortal_legion"
+    name_key: "ENH_IMMORTAL_LEGION"
+    description_key: "ENH_IMMORTAL_LEGION_DESC"
+    rarity: "legendary"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "max_hp"
+      value: 100
+      value_type: "percent"
+
+  - id: "enh_time_manipulation"
+    name_key: "ENH_TIME_MANIPULATION"
+    description_key: "ENH_TIME_MANIPULATION_DESC"
+    rarity: "legendary"
+    effect_type: "buff"
+    effect:
+      target: "all_units"
+      stat: "atb_speed"
+      value: 100
+      value_type: "percent"
+      duration: 5
+
+  - id: "enh_overwhelming_might"
+    name_key: "ENH_OVERWHELMING_MIGHT"
+    description_key: "ENH_OVERWHELMING_MIGHT_DESC"
+    rarity: "legendary"
+    effect_type: "stat_boost"
+    effect:
+      target: "all_units"
+      stat: "attack"
+      value: 50
+      value_type: "percent"

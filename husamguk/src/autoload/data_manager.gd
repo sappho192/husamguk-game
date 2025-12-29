@@ -9,6 +9,8 @@ const Card = preload("res://src/core/card.gd")
 var generals: Dictionary = {}      # id → general_data
 var units: Dictionary = {}          # id → unit_data
 var cards: Dictionary = {}          # id → card_data (Phase 2)
+var events: Dictionary = {}         # id → event_data (Phase 3)
+var enhancements: Dictionary = {}   # id → enhancement_data (Phase 3)
 var localization: Dictionary = {}   # locale → (key → string)
 
 func _ready() -> void:
@@ -19,11 +21,15 @@ func _load_all_data() -> void:
 	_load_generals()
 	_load_units()
 	_load_cards()
+	_load_events()
+	_load_enhancements()
 	_load_localization()
 	print("DataManager: Data loading complete")
 	print("  - Generals loaded: ", generals.size())
 	print("  - Units loaded: ", units.size())
 	print("  - Cards loaded: ", cards.size())
+	print("  - Events loaded: ", events.size())
+	print("  - Enhancements loaded: ", enhancements.size())
 	print("  - Localization locales: ", localization.keys())
 
 func _load_generals() -> void:
@@ -42,6 +48,25 @@ func _load_cards() -> void:
 	for file_name in card_files:
 		var path = "res://data/cards/" + file_name
 		_load_yaml_list(path, "cards", cards)
+
+func _load_events() -> void:
+	# Phase 3: Load event data
+	var event_files = [
+		"military_events.yaml",
+		"economic_events.yaml",
+		"diplomatic_events.yaml",
+		"personnel_events.yaml"
+	]
+	for file_name in event_files:
+		var path = "res://data/events/" + file_name
+		_load_yaml_list(path, "events", events)
+
+func _load_enhancements() -> void:
+	# Phase 3: Load enhancement data
+	var enhancement_files = ["combat_enhancements.yaml"]
+	for file_name in enhancement_files:
+		var path = "res://data/enhancements/" + file_name
+		_load_yaml_list(path, "enhancements", enhancements)
 
 func _load_localization() -> void:
 	var locale_files = ["ko.yaml", "en.yaml"]
@@ -99,6 +124,26 @@ func get_unit(id: String) -> Dictionary:
 
 func get_card(id: String) -> Dictionary:
 	return cards.get(id, {})
+
+func get_event(id: String) -> Dictionary:
+	return events.get(id, {})
+
+func get_events_by_category(category: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for event_data in events.values():
+		if event_data.get("category", "") == category:
+			result.append(event_data.duplicate(true))
+	return result
+
+func get_enhancement(id: String) -> Dictionary:
+	return enhancements.get(id, {})
+
+func get_enhancements_by_rarity(rarity: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for enhancement_data in enhancements.values():
+		if enhancement_data.get("rarity", "") == rarity:
+			result.append(enhancement_data.duplicate(true))
+	return result
 
 func get_localized(key: String) -> String:
 	var locale = TranslationServer.get_locale().substr(0, 2)  # "ko", "en"

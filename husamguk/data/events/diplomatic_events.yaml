@@ -1,0 +1,54 @@
+events:
+  - id: "event_alliance_offer"
+    name_key: "EVENT_ALLIANCE_OFFER"
+    description_key: "EVENT_ALLIANCE_OFFER_DESC"
+    category: "diplomatic"
+    effects:
+      - type: "add_card"
+        card_id: "card_rally"
+      - type: "set_flag"
+        flag_id: "allied_with_silla"
+        flag_value: true
+
+  - id: "event_trade_route"
+    name_key: "EVENT_TRADE_ROUTE"
+    description_key: "EVENT_TRADE_ROUTE_DESC"
+    category: "diplomatic"
+    effects:
+      - type: "add_card"
+        card_id: "card_field_medic"
+
+  - id: "event_diplomatic_mission"
+    name_key: "EVENT_DIPLOMATIC_MISSION"
+    description_key: "EVENT_DIPLOMATIC_MISSION_DESC"
+    category: "diplomatic"
+    effects:
+      - type: "set_flag"
+        flag_id: "diplomatic_success"
+        flag_value: true
+      - type: "add_card"
+        card_id: "card_intimidate"
+
+  - id: "event_spy_network"
+    name_key: "EVENT_SPY_NETWORK"
+    description_key: "EVENT_SPY_NETWORK_DESC"
+    category: "diplomatic"
+    effects:
+      - type: "add_card"
+        card_id: "card_sabotage"
+      - type: "set_flag"
+        flag_id: "has_spy_network"
+        flag_value: true
+
+  - id: "event_peace_negotiations"
+    name_key: "EVENT_PEACE_NEGOTIATIONS"
+    description_key: "EVENT_PEACE_NEGOTIATIONS_DESC"
+    category: "diplomatic"
+    effects:
+      - type: "hp_restore"
+        target: "all_units"
+        value: 30
+        value_type: "percent"
+      - type: "set_flag"
+        flag_id: "negotiated_peace"
+        flag_value: true

@@ -1,0 +1,54 @@
+events:
+  - id: "event_harvest_festival"
+    name_key: "EVENT_HARVEST_FESTIVAL"
+    description_key: "EVENT_HARVEST_FESTIVAL_DESC"
+    category: "economic"
+    effects:
+      - type: "hp_restore"
+        target: "all_units"
+        value: 50
+        value_type: "percent"
+
+  - id: "event_medical_supplies"
+    name_key: "EVENT_MEDICAL_SUPPLIES"
+    description_key: "EVENT_MEDICAL_SUPPLIES_DESC"
+    category: "economic"
+    effects:
+      - type: "hp_restore"
+        target: "all_units"
+        value: 100
+        value_type: "percent"
+
+  - id: "event_blacksmith_upgrade"
+    name_key: "EVENT_BLACKSMITH_UPGRADE"
+    description_key: "EVENT_BLACKSMITH_UPGRADE_DESC"
+    category: "economic"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "defense"
+        value: 5
+        value_type: "flat"
+
+  - id: "event_supply_shortage"
+    name_key: "EVENT_SUPPLY_SHORTAGE"
+    description_key: "EVENT_SUPPLY_SHORTAGE_DESC"
+    category: "economic"
+    effects:
+      - type: "hp_restore"
+        target: "all_units"
+        value: 25
+        value_type: "percent"
+      - type: "penalty"
+        target: "all_units"
+        stat: "defense"
+        value: 5
+        value_type: "flat"
+
+  - id: "event_tax_collection"
+    name_key: "EVENT_TAX_COLLECTION"
+    description_key: "EVENT_TAX_COLLECTION_DESC"
+    category: "economic"
+    effects:
+      - type: "add_card"
+        card_id: "card_iron_defense"

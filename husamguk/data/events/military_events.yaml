@@ -1,0 +1,61 @@
+events:
+  - id: "event_military_drill"
+    name_key: "EVENT_MILITARY_DRILL"
+    description_key: "EVENT_MILITARY_DRILL_DESC"
+    category: "military"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "attack"
+        value: 3
+        value_type: "flat"
+
+  - id: "event_defensive_fortification"
+    name_key: "EVENT_DEFENSIVE_FORTIFICATION"
+    description_key: "EVENT_DEFENSIVE_FORTIFICATION_DESC"
+    category: "military"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "defense"
+        value: 4
+        value_type: "flat"
+
+  - id: "event_tactical_training"
+    name_key: "EVENT_TACTICAL_TRAINING"
+    description_key: "EVENT_TACTICAL_TRAINING_DESC"
+    category: "military"
+    effects:
+      - type: "buff"
+        target: "all_units"
+        stat: "atb_speed"
+        value: 15
+        value_type: "percent"
+        duration: 999
+
+  - id: "event_forced_march"
+    name_key: "EVENT_FORCED_MARCH"
+    description_key: "EVENT_FORCED_MARCH_DESC"
+    category: "military"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "attack"
+        value: 8
+        value_type: "flat"
+      - type: "penalty"
+        target: "all_units"
+        stat: "hp"
+        value: 10
+        value_type: "percent"
+
+  - id: "event_weapon_upgrade"
+    name_key: "EVENT_WEAPON_UPGRADE"
+    description_key: "EVENT_WEAPON_UPGRADE_DESC"
+    category: "military"
+    effects:
+      - type: "stat_boost"
+        target: "all_units"
+        stat: "attack"
+        value: 15
+        value_type: "percent"

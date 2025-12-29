@@ -22,10 +22,10 @@ godot project.godot
 ```
 
 ### Running the Game
-- Press **F5** in Godot Editor to run
-- Main scene: `scenes/battle.tscn` (Phase 1 demo)
+- Press **F5** in Godot Editor to run the full game
+- Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 2 Complete ✅
+## Current Status: Phase 3 Complete ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -46,17 +46,26 @@ godot project.godot
 - ✅ Card hand UI (bottom, 3-5 cards with draw mechanics)
 - ✅ Dual-layer timing (individual ATB + global turn pauses)
 
-**What's Playable:**
-- 3v3 battle with general skills and strategic cards
-- Click skills on left sidebar anytime (cooldown-based)
-- Play cards when global turn timer reaches 10 seconds
-- Auto-attack system continues independently
+**Phase 3 (Internal Affairs Connection)** - Complete:
+- ✅ GameManager autoload (run orchestration and scene flow)
+- ✅ RunState class (full unit state carry-forward between battles)
+- ✅ Internal Affairs system (20 events across 4 categories: Military, Economic, Diplomatic, Personnel)
+- ✅ Enhancement system (14 enhancements: 5 common, 5 rare, 4 legendary)
+- ✅ Main menu and victory/defeat screens
+- ✅ Complete 3-stage run loop with statistics tracking
+- ✅ Event flag system for branching choices
 
-**Next: Phase 3 (Internal Affairs)**
-- Governance system (choice-based events between battles)
-- Stage progression (3 stages per run)
-- Enhancement selection screen
-- Event system implementation
+**What's Playable:**
+- Full roguelite run: Main Menu → 3 Battle Stages → Victory/Defeat
+- Between each stage: Internal Affairs (3 governance choices) → Enhancement Selection
+- Unit HP, stats, and buffs carry forward through all battles
+- Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
+
+**Next: Phase 4 (Meta-Progression)**
+- Save/load system (permanent progression)
+- Meta-progression unlocks (persistent upgrades)
+- Enemy scaling across stages
+- Additional content (more events, enhancements, cards)
 
 ## Documentation
 
@@ -74,18 +83,42 @@ godot project.godot
 ```
 husamguk/
 ├── src/
-│   ├── autoload/          # Global singletons (DataManager)
-│   ├── core/              # Data classes (Unit, General, Card, Buff)
-│   ├── systems/battle/    # BattleManager with dual-layer timing
-│   └── ui/battle/         # Battle UI (SkillBar, CardHand, UnitDisplay)
-├── scenes/                # .tscn files (battle.tscn)
+│   ├── autoload/                    # Global singletons
+│   │   ├── data_manager.gd          # YAML loading, localization, factory methods
+│   │   ├── game_manager.gd          # Run orchestration, scene transitions
+│   │   └── save_manager.gd          # Meta-progression (stub for Phase 4)
+│   ├── core/                        # Data classes
+│   │   ├── unit.gd                  # ATB system, buff management
+│   │   ├── general.gd               # Skill execution
+│   │   ├── card.gd                  # Card effects
+│   │   ├── buff.gd                  # Stat modifications
+│   │   └── run_state.gd             # Run-level state persistence
+│   ├── systems/
+│   │   ├── battle/                  # BattleManager (dual-layer timing)
+│   │   └── internal_affairs/        # InternalAffairsManager (event system)
+│   └── ui/
+│       ├── battle/                  # SkillBar, CardHand, UnitDisplay
+│       ├── internal_affairs/        # ChoiceButton, InternalAffairsUI
+│       ├── enhancement/             # EnhancementCard, EnhancementSelectionUI
+│       ├── main_menu_ui.gd          # Main menu
+│       ├── victory_ui.gd            # Victory screen
+│       └── defeat_ui.gd             # Defeat screen
+├── scenes/
+│   ├── main_menu.tscn              # Entry point
+│   ├── battle.tscn                 # Battle scene
+│   ├── internal_affairs.tscn       # Governance choices
+│   ├── enhancement_selection.tscn  # Enhancement selection
+│   ├── victory_screen.tscn         # Victory screen
+│   └── defeat_screen.tscn          # Defeat screen
 ├── data/
-│   ├── generals/          # 9 generals YAML (3 nations × 3 roles)
-│   ├── units/             # 6 unit types YAML
-│   ├── cards/             # 13 cards YAML (starter + advanced)
-│   └── localization/      # ko.yaml, en.yaml (99 strings each)
-├── addons/yaml/           # godot-yaml parser addon
-└── docs/                  # Design documents
+│   ├── generals/                   # 9 generals YAML
+│   ├── units/                      # 6 unit types YAML
+│   ├── cards/                      # 13 cards YAML
+│   ├── events/                     # 20 events YAML (4 categories)
+│   ├── enhancements/               # 14 enhancements YAML
+│   └── localization/               # ko.yaml, en.yaml (189 strings each)
+├── addons/yaml/                    # godot-yaml parser addon
+└── docs/                           # Design documents
 ```
 
 ## Technology Stack
