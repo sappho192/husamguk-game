@@ -28,16 +28,14 @@ func _update_display() -> void:
 	# Check if skill is ready (cooldown 0 only, independent of ATB)
 	is_skill_ready = unit.general.is_skill_ready()
 
-	# Get skill name (abbreviated)
+	# Get localized skill name
 	var skill_name = ""
 	if unit.general.skill.has("name_key"):
-		skill_name = unit.general.skill.get("name_key", "")
-		# Take first 2 characters for display
-		if skill_name.length() >= 2:
-			skill_name = skill_name.substr(0, 2)
+		var name_key = unit.general.skill.get("name_key", "")
+		skill_name = DataManager.get_localized(name_key)
 
-	# Display unit name + skill status
-	text = unit.display_name + "\n"
+	# Display skill name + status
+	text = skill_name + "\n"
 
 	if is_skill_ready:
 		text += "[준비]"

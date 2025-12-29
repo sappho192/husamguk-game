@@ -39,6 +39,7 @@ generals:
         target: "all_allies"
         stat: "attack"
         value: 25
+        duration: 3
 
   - id: "jin_hongae"
     name_key: "GENERAL_JIN_HONGAE"
@@ -59,3 +60,4 @@ generals:
         type: "heal"
         target: "self"
         value: 50
+        value_type: "percent"

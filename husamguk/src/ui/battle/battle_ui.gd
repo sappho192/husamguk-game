@@ -196,7 +196,10 @@ func _draw_card() -> void:
 
 # Phase 2: Skill activation handler
 func _on_skill_activated(unit: Unit) -> void:
-	print("BattleUI: Skill activated for ", unit.display_name)
+	if unit.general:
+		print("BattleUI: Skill activated for ", unit.general.display_name, " (", unit.display_name, ")")
+	else:
+		print("BattleUI: Skill activated for ", unit.display_name)
 	battle_manager.execute_unit_skill(unit)
 
 # Phase 2: Global turn handler

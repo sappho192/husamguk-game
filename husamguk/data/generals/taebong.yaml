@@ -19,6 +19,7 @@ generals:
         target: "all_allies"
         stat: "attack"
         value: 30
+        duration: 3
 
   - id: "hongyu"
     name_key: "GENERAL_HONGYU"
@@ -60,3 +61,4 @@ generals:
         target: "all_allies"
         stat: "defense"
         value: 50
+        duration: 3

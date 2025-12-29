@@ -19,6 +19,7 @@ generals:
         target: "all_allies"
         stat: "defense"
         value: 40
+        duration: 3
 
   - id: "jinseong_yeowang"
     name_key: "GENERAL_JINSEONG_YEOWANG"
@@ -59,3 +60,4 @@ generals:
         type: "heal"
         target: "all_allies"
         value: 30
+        value_type: "percent"

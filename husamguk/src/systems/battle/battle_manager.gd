@@ -194,7 +194,7 @@ func _execute_skill(unit: Unit) -> void:
 	# Note: Skills do NOT reset ATB - they are independent of the ATB system
 	# ATB continues to fill normally for auto-attacks
 
-	print(unit.display_name, " used skill!")
+	print(general.display_name, " (", unit.display_name, ") used skill!")
 
 func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array[Unit]:
 	var effect = skill.get("effect", {})
@@ -206,7 +206,12 @@ func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array
 	match target_type:
 		"single_enemy":
 			var target_list = enemies if is_ally else allies
-			return [target_list[0]] if not target_list.is_empty() else []
+			if not target_list.is_empty():
+				var result: Array[Unit] = [target_list[0]]
+				return result
+			else:
+				var empty: Array[Unit] = []
+				return empty
 		"all_enemies":
 			return enemies if is_ally else allies
 		"single_ally":
@@ -217,11 +222,20 @@ func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array
 				for u in target_list:
 					if u.current_hp < lowest.current_hp:
 						lowest = u
-				return [lowest]
-			return []
+				var result: Array[Unit] = [lowest]
+				return result
+			else:
+				var empty: Array[Unit] = []
+				return empty
 		"all_allies":
 			return allies if is_ally else enemies
 		"self":
-			return [caster] if caster.is_alive else []
+			if caster.is_alive:
+				var result: Array[Unit] = [caster]
+				return result
+			else:
+				var empty: Array[Unit] = []
+				return empty
 		_:
-			return []
+			var empty: Array[Unit] = []
+			return empty
