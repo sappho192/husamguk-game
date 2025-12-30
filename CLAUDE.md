@@ -62,7 +62,7 @@ The game uses Godot's autoload pattern for global managers:
 
 **Critical:** Never access data files directly. Always query through `DataManager`.
 
-### Complete Game Flow (Phase 3)
+### Complete Game Flow (Phase 3D)
 
 ```
 Main Menu (scenes/main_menu.tscn)
@@ -76,15 +76,17 @@ Internal Affairs (scenes/internal_affairs.tscn)
   ↓ 3 governance choices from 4 categories (Military/Economic/Diplomatic/Personnel)
   ↓ InternalAffairsManager.execute_event() → modifies RunState (stats, deck, flags)
   ↓
-Enhancement Selection (scenes/enhancement_selection.tscn)
-  ↓ Choose 1 of 3 enhancements (1 common, 1 rare, 1 legendary)
+Fateful Encounter (scenes/fateful_encounter.tscn)  # Phase 3D: Narrative NPC encounters
+  ↓ Random NPC appears (1 of 5: Jwaja, Hwata, Ugil, Namhwa, Sugyeong)
+  ↓ NPC offers 3 themed enhancements (filtered by NPC's theme tags)
+  ↓ Choose 1 enhancement (1 common, 1 rare, 1 legendary)
   ↓ GameManager.on_enhancement_selected() → adds to RunState.active_enhancements
   ↓ RunState.current_stage += 1
   ↓
 Battle Stage 2
   ↓ Units restored from RunState (HP, stats, buffs carry forward)
   ↓ Enhancements applied
-  ↓ [Victory] → Internal Affairs → Enhancement
+  ↓ [Victory] → Internal Affairs → Fateful Encounter
   ↓
 Battle Stage 3
   ↓ [Victory or Defeat]
@@ -96,13 +98,13 @@ Victory/Defeat Screen (scenes/victory_screen.tscn or defeat_screen.tscn)
 Main Menu
 ```
 
-### Project Structure (Phase 3 Complete)
+### Project Structure (Phase 3D Complete)
 
 ```
 husamguk/
 ├── src/
 │   ├── autoload/                    # Global singletons
-│   │   ├── data_manager.gd          # ✅ YAML loading, localization, factory methods
+│   │   ├── data_manager.gd          # ✅ YAML loading, NPC/theme filtering, localization
 │   │   ├── game_manager.gd          # ✅ Run orchestration, scene transitions
 │   │   └── save_manager.gd          # ✅ Stub for Phase 4
 │   ├── core/                        # Data classes
@@ -119,7 +121,8 @@ husamguk/
 │   └── ui/
 │       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, etc.
 │       ├── internal_affairs/        # ✅ ChoiceButton, InternalAffairsUI
-│       ├── enhancement/             # ✅ EnhancementCard, EnhancementSelectionUI
+│       ├── enhancement/             # ✅ EnhancementCard (reused by Fateful Encounter)
+│       ├── fateful_encounter/       # ✅ NPCPortraitDisplay, FatefulEncounterUI
 │       ├── main_menu_ui.gd          # ✅ Main menu
 │       ├── victory_ui.gd            # ✅ Victory screen
 │       └── defeat_ui.gd             # ✅ Defeat screen
@@ -128,7 +131,7 @@ husamguk/
 │   ├── main_menu.tscn               # ✅ Entry point
 │   ├── battle.tscn                  # ✅ Battle scene
 │   ├── internal_affairs.tscn        # ✅ Governance choices
-│   ├── enhancement_selection.tscn   # ✅ Enhancement selection
+│   ├── fateful_encounter.tscn       # ✅ Fateful Encounter (Phase 3D)
 │   ├── victory_screen.tscn          # ✅ Victory screen
 │   └── defeat_screen.tscn           # ✅ Defeat screen
 ├── data/
@@ -136,15 +139,16 @@ husamguk/
 │   ├── units/                       # ✅ 6 unit types YAML
 │   ├── cards/                       # ✅ 13 cards YAML
 │   ├── events/                      # ✅ 20 events YAML (4 categories)
-│   ├── enhancements/                # ✅ 14 enhancements YAML
-│   └── localization/                # ✅ Korean/English (189 strings each)
+│   ├── enhancements/                # ✅ 14 enhancements YAML (with theme tags)
+│   ├── npcs/                        # ✅ 5 NPCs YAML (Phase 3D)
+│   └── localization/                # ✅ Korean/English (216 strings each)
 ├── addons/yaml/                     # ✅ godot-yaml parser addon
 ├── assets/audio/                    # ✅ Battle BGM (looping)
 └── mods/                            # 🔲 MOD system (Phase 4+)
 ```
 
 **Legend:**
-- ✅ Implemented (Phase 3 complete)
+- ✅ Implemented (Phase 3D complete)
 - 🔲 Not yet implemented (Phase 4+)
 
 ### MOD System Architecture
@@ -227,6 +231,16 @@ All data schemas are in `_schema.yaml` files. Each schema includes:
 - Effect types: Buff, Debuff, Damage, Heal, Special
 - **Penalty system**: Risk-reward (e.g., +40% ATK but -5% HP/turn)
 - Conditions: Can restrict by HP threshold, unit count, turn number
+
+### NPCs (`data/npcs/_schema.yaml`) - Phase 3D
+- 5 legendary figures: Jwaja, Hwata, Ugil, Namhwa, Sugyeong
+- Each NPC has unique dialogue (greeting, dialogue, offer)
+- **Enhancement themes**: NPCs offer enhancements matching their themes
+  - Medical (Jwaja, Hwata): healing, defense, support
+  - Mystic (Ugil, Namhwa): mystic, buff, speed
+  - Strategist (Sugyeong): tactical, card, command
+- Background color for visual theming
+- Portrait path (placeholder system in Phase 3D)
 
 ### Nations
 - **Hubaekje** (견훤): Aggressive, faster ATB
@@ -323,6 +337,16 @@ var name = "견훤"
 - ✅ Event flag system for branching choices
 - ✅ 189 localization strings (Korean + English)
 
+**Phase 3D (Fateful Encounter)** ✅ COMPLETE
+- ✅ NPC system (5 legendary figures with unique dialogue)
+- ✅ Theme-based enhancement filtering (healing, mystic, tactical, etc.)
+- ✅ Narrative-driven encounter UI (Arknights-inspired)
+- ✅ NPC portrait display component with theming
+- ✅ Fateful Encounter scene replaces simple enhancement selection
+- ✅ 14 enhancements extended with theme tags
+- ✅ 27 additional localization strings (Korean + English → 216 total)
+- ✅ DataManager NPC loading and theme filtering API
+
 **Phase 4 (Meta-Progression)** 🔲 NEXT
 - 🔲 SaveManager implementation (save/load functionality)
 - 🔲 Meta-progression unlocks (permanent upgrades)
@@ -332,7 +356,7 @@ var name = "견훤"
 
 ## Implementation Status
 
-### ✅ Completed Components (Phase 3)
+### ✅ Completed Components (Phase 3D)
 
 **Core Classes:**
 - `src/core/unit.gd` - ATB system, buff management, effective stat calculation
@@ -342,8 +366,8 @@ var name = "견훤"
 - `src/core/run_state.gd` - Run-level state persistence (unit states, deck, enhancements, event flags)
 
 **Autoload Managers:**
-- `src/autoload/data_manager.gd` - YAML loading, localization, factory methods
-- `src/autoload/game_manager.gd` - Run orchestration, scene transitions
+- `src/autoload/data_manager.gd` - YAML loading, NPC/theme filtering, localization, factory methods
+- `src/autoload/game_manager.gd` - Run orchestration, scene transitions (updated to Fateful Encounter)
 - `src/autoload/save_manager.gd` - Meta-progression stub (Phase 4)
 
 **Systems:**
@@ -353,7 +377,7 @@ var name = "견훤"
 **UI Components:**
 - Battle: `battle_ui.gd`, `unit_display.gd`, `skill_bar.gd`, `skill_button.gd`, `card_hand.gd`, `card_display.gd`
 - Internal Affairs: `internal_affairs_ui.gd`, `choice_button.gd`
-- Enhancement: `enhancement_selection_ui.gd`, `enhancement_card.gd`
+- Fateful Encounter: `fateful_encounter_ui.gd`, `npc_portrait_display.gd`, `enhancement_card.gd` (reused)
 - Menus: `main_menu_ui.gd`, `victory_ui.gd`, `defeat_ui.gd`
 
 **Data Layer:**
@@ -362,8 +386,9 @@ var name = "견훤"
   - 6 unit types (base_units.yaml)
   - 13 cards (starter_deck.yaml, advanced_cards.yaml)
   - 20 events (military_events.yaml, economic_events.yaml, diplomatic_events.yaml, personnel_events.yaml)
-  - 14 enhancements (combat_enhancements.yaml)
-  - 189 localization strings each language (ko.yaml, en.yaml)
+  - 14 enhancements with theme tags (combat_enhancements.yaml)
+  - 5 NPCs with dialogue (fateful_encounter_npcs.yaml)
+  - 216 localization strings each language (ko.yaml, en.yaml)
 
 **Critical Implementation Notes:**
 1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)

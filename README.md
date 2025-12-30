@@ -25,7 +25,7 @@ godot project.godot
 - Press **F5** in Godot Editor to run the full game
 - Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 3 Complete ✅
+## Current Status: Phase 3D Complete ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -55,9 +55,18 @@ godot project.godot
 - ✅ Complete 3-stage run loop with statistics tracking
 - ✅ Event flag system for branching choices
 
+**Phase 3D (Fateful Encounter)** - Complete:
+- ✅ Narrative-driven NPC encounter system (replacing simple enhancement selection)
+- ✅ 5 legendary NPCs (Jwaja, Hwata, Ugil, Namhwa, Sugyeong) with unique dialogue
+- ✅ Theme-based enhancement filtering (healing, mystic, tactical, etc.)
+- ✅ Horizontal layout: NPC portrait + info on left, dialogue on right
+- ✅ 14 enhancements extended with theme tags
+- ✅ 216 localization strings per language (Korean/English)
+
 **What's Playable:**
 - Full roguelite run: Main Menu → 3 Battle Stages → Victory/Defeat
-- Between each stage: Internal Affairs (3 governance choices) → Enhancement Selection
+- Between each stage: Internal Affairs (3 governance choices) → Fateful Encounter (meet 1 of 5 NPCs)
+- NPCs offer themed enhancements matching their character (physicians offer healing, mystics offer buffs, etc.)
 - Unit HP, stats, and buffs carry forward through all battles
 - Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
 
@@ -99,7 +108,8 @@ husamguk/
 │   └── ui/
 │       ├── battle/                  # SkillBar, CardHand, UnitDisplay
 │       ├── internal_affairs/        # ChoiceButton, InternalAffairsUI
-│       ├── enhancement/             # EnhancementCard, EnhancementSelectionUI
+│       ├── enhancement/             # EnhancementCard (reused by Fateful Encounter)
+│       ├── fateful_encounter/       # NPCPortraitDisplay, FatefulEncounterUI
 │       ├── main_menu_ui.gd          # Main menu
 │       ├── victory_ui.gd            # Victory screen
 │       └── defeat_ui.gd             # Defeat screen
@@ -107,7 +117,7 @@ husamguk/
 │   ├── main_menu.tscn              # Entry point
 │   ├── battle.tscn                 # Battle scene
 │   ├── internal_affairs.tscn       # Governance choices
-│   ├── enhancement_selection.tscn  # Enhancement selection
+│   ├── fateful_encounter.tscn      # Fateful Encounter (Phase 3D)
 │   ├── victory_screen.tscn         # Victory screen
 │   └── defeat_screen.tscn          # Defeat screen
 ├── data/
@@ -115,8 +125,9 @@ husamguk/
 │   ├── units/                      # 6 unit types YAML
 │   ├── cards/                      # 13 cards YAML
 │   ├── events/                     # 20 events YAML (4 categories)
-│   ├── enhancements/               # 14 enhancements YAML
-│   └── localization/               # ko.yaml, en.yaml (189 strings each)
+│   ├── enhancements/               # 14 enhancements YAML (with theme tags)
+│   ├── npcs/                       # 5 NPCs YAML (Phase 3D)
+│   └── localization/               # ko.yaml, en.yaml (216 strings each)
 ├── addons/yaml/                    # godot-yaml parser addon
 └── docs/                           # Design documents
 ```

@@ -14,7 +14,7 @@
 
 ## 2. 프로젝트 구조
 
-### 2.1 Phase 3 구현 상태 (2025-12)
+### 2.1 Phase 3D 구현 상태 (2025-12)
 
 ```
 husamguk/                         # Godot 프로젝트 루트
@@ -55,8 +55,10 @@ husamguk/                         # Godot 프로젝트 루트
 │       │   ├── internal_affairs_ui.gd  # ✅ 내정 선택 화면
 │       │   └── choice_button.gd  # ✅ 선택지 버튼
 │       ├── enhancement/
-│       │   ├── enhancement_selection_ui.gd  # ✅ 강화 선택 화면
-│       │   └── enhancement_card.gd  # ✅ 강화 카드 표시
+│       │   └── enhancement_card.gd  # ✅ 강화 카드 표시 (운명적 조우에서 재사용)
+│       ├── fateful_encounter/
+│       │   ├── fateful_encounter_ui.gd  # ✅ 운명적 조우 화면 (Phase 3D)
+│       │   └── npc_portrait_display.gd  # ✅ NPC 초상화 및 대화 표시
 │       ├── main_menu_ui.gd       # ✅ 메인 메뉴
 │       ├── victory_ui.gd         # ✅ 승리 화면
 │       └── defeat_ui.gd          # ✅ 패배 화면
@@ -65,7 +67,7 @@ husamguk/                         # Godot 프로젝트 루트
 │   ├── main_menu.tscn            # ✅ 진입점
 │   ├── battle.tscn               # ✅ 전투 씬
 │   ├── internal_affairs.tscn     # ✅ 내정 씬
-│   ├── enhancement_selection.tscn  # ✅ 강화 선택 씬
+│   ├── fateful_encounter.tscn    # ✅ 운명적 조우 씬 (Phase 3D)
 │   ├── victory_screen.tscn       # ✅ 승리 화면
 │   └── defeat_screen.tscn        # ✅ 패배 화면
 │
@@ -90,10 +92,13 @@ husamguk/                         # Godot 프로젝트 루트
 │   │   └── personnel_events.yaml  # ✅ 인사 이벤트 (5개, 총 20개)
 │   ├── enhancements/
 │   │   ├── _schema.yaml          # ✅ 스키마 정의
-│   │   └── combat_enhancements.yaml  # ✅ 14개 강화 (5 common, 5 rare, 4 legendary)
+│   │   └── combat_enhancements.yaml  # ✅ 14개 강화 (테마 태그 포함, Phase 3D)
+│   ├── npcs/                     # ✅ Phase 3D - 운명적 조우
+│   │   ├── _schema.yaml          # ✅ NPC 스키마 정의
+│   │   └── fateful_encounter_npcs.yaml  # ✅ 5명 NPC (좌자, 화타, 우길, 남화노선, 수경선생)
 │   └── localization/
-│       ├── ko.yaml               # ✅ 한국어 (189 스트링)
-│       └── en.yaml               # ✅ 영어 (189 스트링)
+│       ├── ko.yaml               # ✅ 한국어 (216 스트링, Phase 3D)
+│       └── en.yaml               # ✅ 영어 (216 스트링, Phase 3D)
 │
 └── assets/
     └── audio/
@@ -749,6 +754,30 @@ func load_portrait(path: String) -> Texture2D:
 ✅ 내정 이벤트 20개 (카테고리당 5개)
 ✅ 강화 14개 (Common 5, Rare 5, Legendary 4)
 ✅ 로컬라이제이션 189 스트링 (한/영)
+```
+
+### Phase 3D: 운명적 조우 (Fateful Encounter) ✅ 완료
+
+```
+[구현 항목]
+✅ NPC 시스템 (5명: 좌자, 화타, 우길, 남화노선, 수경선생)
+✅ NPC별 고유 대화 (greeting, dialogue, offer)
+✅ 테마 기반 강화 필터링 (healing, mystic, tactical 등)
+✅ 강화 14개에 테마 태그 추가
+✅ 가로 레이아웃 UI (초상화 좌측, 정보 우측)
+✅ NPC 초상화 플레이스홀더 시스템
+✅ DataManager NPC 로딩 및 테마 필터링 API
+
+[데이터]
+✅ NPC 데이터 5개 (YAML)
+✅ 강화 테마 태그 추가 (14개 모두)
+✅ 로컬라이제이션 216 스트링 (한/영, +27개)
+
+[UI 흐름]
+전투 승리 → 내정 → **운명적 조우** → 다음 전투
+- 5명 중 랜덤 1명 NPC 등장
+- NPC 테마에 맞는 강화 3개 제공 (1 common, 1 rare, 1 legendary)
+- 플레이어가 1개 선택
 ```
 
 ### Phase 4: 메타 프로그레션 🔲 다음 단계

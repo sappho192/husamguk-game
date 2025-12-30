@@ -239,3 +239,42 @@ strings:
   UI_CHOICES_MADE: "내정 선택"
   UI_ENHANCEMENTS_GAINED: "획득한 강화"
   UI_RETURN_TO_MENU: "메인 메뉴로"
+
+  # === 운명적 조우 시스템 ===
+  UI_FATEFUL_ENCOUNTER_TITLE: "운명적 조우"
+  UI_FATEFUL_ENCOUNTER_SUBTITLE: "역사 속 인물과의 만남"
+
+  # NPC: 좌자
+  NPC_JWAJA_NAME: "좌자"
+  NPC_JWAJA_TITLE: "삼국시대의 명의"
+  NPC_JWAJA_GREETING: "전장에서 부상당한 병사들을 돌보는 것이 내 업이오."
+  NPC_JWAJA_DIALOGUE: "그대의 군사들은 용맹하나, 상처를 돌보지 않으면 오래 싸울 수 없소. 내 의술의 비법을 전수하겠으니, 현명하게 선택하시오."
+  NPC_JWAJA_OFFER: "다음 중 하나를 선택하시오."
+
+  # NPC: 화타
+  NPC_HWATA_NAME: "화타"
+  NPC_HWATA_TITLE: "천하제일 명의"
+  NPC_HWATA_GREETING: "화타라 하오. 이 세상 모든 병을 고칠 수 있소."
+  NPC_HWATA_DIALOGUE: "전쟁은 수많은 상처를 남기오. 하나 내 의술이 있다면, 그대의 병사들은 다시 일어설 것이오. 생명을 소중히 여기는 자에게 복이 있나니."
+  NPC_HWATA_OFFER: "치유의 길을 선택하시오."
+
+  # NPC: 우길
+  NPC_UGIL_NAME: "우길"
+  NPC_UGIL_TITLE: "도술사"
+  NPC_UGIL_GREETING: "하늘의 뜻을 아는 자, 우길이오."
+  NPC_UGIL_DIALOGUE: "도의 힘은 눈에 보이지 않으나, 그 효험은 분명하오. 그대의 군세에 신비한 기운을 불어넣어 주겠소."
+  NPC_UGIL_OFFER: "신의 가호를 선택하시오."
+
+  # NPC: 남화노선
+  NPC_NAMHWA_NAME: "남화노선"
+  NPC_NAMHWA_TITLE: "도가의 선인"
+  NPC_NAMHWA_GREETING: "세상의 이치를 깨달은 자, 남화노선이라 하오."
+  NPC_NAMHWA_DIALOGUE: "무릇 전쟁은 형세의 변화를 따르는 법. 그대에게 도의 오묘함을 빌려주겠으니, 시공을 초월한 힘을 누리시오."
+  NPC_NAMHWA_OFFER: "도의 선택을 하시오."
+
+  # NPC: 수경선생
+  NPC_SUGYEONG_NAME: "수경선생"
+  NPC_SUGYEONG_TITLE: "천하의 책략가"
+  NPC_SUGYEONG_GREETING: "수경이라 불리는 사마휘요. 세상의 인재를 알아보는 안목이 있소."
+  NPC_SUGYEONG_DIALOGUE: "전쟁은 병력만으로 이기는 것이 아니오. 지략과 모략이 있어야 하오. 내가 그대에게 책략의 비법을 전하겠으니, 현명하게 사용하시오."
+  NPC_SUGYEONG_OFFER: "전략을 선택하시오."

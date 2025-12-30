@@ -11,6 +11,7 @@ var units: Dictionary = {}          # id → unit_data
 var cards: Dictionary = {}          # id → card_data (Phase 2)
 var events: Dictionary = {}         # id → event_data (Phase 3)
 var enhancements: Dictionary = {}   # id → enhancement_data (Phase 3)
+var npcs: Dictionary = {}           # id → npc_data (Phase 3D - Fateful Encounter)
 var localization: Dictionary = {}   # locale → (key → string)
 
 func _ready() -> void:
@@ -23,6 +24,7 @@ func _load_all_data() -> void:
 	_load_cards()
 	_load_events()
 	_load_enhancements()
+	_load_npcs()
 	_load_localization()
 	print("DataManager: Data loading complete")
 	print("  - Generals loaded: ", generals.size())
@@ -30,6 +32,7 @@ func _load_all_data() -> void:
 	print("  - Cards loaded: ", cards.size())
 	print("  - Events loaded: ", events.size())
 	print("  - Enhancements loaded: ", enhancements.size())
+	print("  - NPCs loaded: ", npcs.size())
 	print("  - Localization locales: ", localization.keys())
 
 func _load_generals() -> void:
@@ -67,6 +70,13 @@ func _load_enhancements() -> void:
 	for file_name in enhancement_files:
 		var path = "res://data/enhancements/" + file_name
 		_load_yaml_list(path, "enhancements", enhancements)
+
+func _load_npcs() -> void:
+	# Phase 3D: Load NPC data (Fateful Encounter system)
+	var npc_files = ["fateful_encounter_npcs.yaml"]
+	for file_name in npc_files:
+		var path = "res://data/npcs/" + file_name
+		_load_yaml_list(path, "npcs", npcs)
 
 func _load_localization() -> void:
 	var locale_files = ["ko.yaml", "en.yaml"]
@@ -144,6 +154,41 @@ func get_enhancements_by_rarity(rarity: String) -> Array[Dictionary]:
 		if enhancement_data.get("rarity", "") == rarity:
 			result.append(enhancement_data.duplicate(true))
 	return result
+
+func get_enhancements_by_themes(themes: Array, rarity: String) -> Array[Dictionary]:
+	# Phase 3D: Filter enhancements by themes and rarity for Fateful Encounter
+	var result: Array[Dictionary] = []
+	for enhancement_data in enhancements.values():
+		# Check rarity match
+		if enhancement_data.get("rarity", "") != rarity:
+			continue
+
+		# Check if enhancement has at least one matching theme
+		var enh_themes = enhancement_data.get("themes", [])
+		var has_matching_theme = false
+		for theme in themes:
+			if theme in enh_themes:
+				has_matching_theme = true
+				break
+
+		if has_matching_theme:
+			result.append(enhancement_data.duplicate(true))
+
+	return result
+
+func get_npc(id: String) -> Dictionary:
+	return npcs.get(id, {})
+
+func get_random_npc() -> Dictionary:
+	# Phase 3D: Select a random NPC for Fateful Encounter
+	var npc_list = npcs.values()
+	if npc_list.is_empty():
+		push_error("DataManager: No NPCs loaded!")
+		return {}
+
+	# Shuffle and return first NPC
+	npc_list.shuffle()
+	return npc_list[0].duplicate(true)
 
 func get_localized(key: String) -> String:
 	var locale = TranslationServer.get_locale().substr(0, 2)  # "ko", "en"

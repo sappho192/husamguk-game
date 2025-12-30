@@ -10,6 +10,7 @@ enhancements:
       stat: "attack"
       value: 10
       value_type: "percent"
+    themes: ["aggressive", "tactical"]
 
   - id: "enh_fortified_armor"
     name_key: "ENH_FORTIFIED_ARMOR"
@@ -21,6 +22,7 @@ enhancements:
       stat: "defense"
       value: 10
       value_type: "percent"
+    themes: ["defense", "support"]
 
   - id: "enh_swift_training"
     name_key: "ENH_SWIFT_TRAINING"
@@ -32,6 +34,7 @@ enhancements:
       stat: "atb_speed"
       value: 0.1
       value_type: "flat"
+    themes: ["speed", "tactical"]
 
   - id: "enh_battle_hardened"
     name_key: "ENH_BATTLE_HARDENED"
@@ -43,6 +46,7 @@ enhancements:
       stat: "max_hp"
       value: 15
       value_type: "percent"
+    themes: ["healing", "support"]
 
   - id: "enh_tactical_advantage"
     name_key: "ENH_TACTICAL_ADVANTAGE"
@@ -51,6 +55,7 @@ enhancements:
     effect_type: "card_add"
     effect:
       card_id: "card_rally"
+    themes: ["card", "tactical"]
 
   # === Rare Enhancements (큰 보너스, 일부 페널티) ===
   - id: "enh_berserker_rage"
@@ -69,6 +74,7 @@ enhancements:
       stat: "defense"
       value: 15
       value_type: "percent"
+    themes: ["aggressive", "mystic"]
 
   - id: "enh_iron_wall"
     name_key: "ENH_IRON_WALL"
@@ -86,6 +92,7 @@ enhancements:
       stat: "atb_speed"
       value: 0.2
       value_type: "flat"
+    themes: ["defense", "support"]
 
   - id: "enh_lightning_strikes"
     name_key: "ENH_LIGHTNING_STRIKES"
@@ -103,6 +110,7 @@ enhancements:
       stat: "max_hp"
       value: 20
       value_type: "percent"
+    themes: ["speed", "mystic"]
 
   - id: "enh_elite_squad"
     name_key: "ENH_ELITE_SQUAD"
@@ -114,6 +122,7 @@ enhancements:
       stat: "attack"
       value: 80
       value_type: "percent"
+    themes: ["aggressive", "command"]
 
   - id: "enh_strategic_reserves"
     name_key: "ENH_STRATEGIC_RESERVES"
@@ -122,6 +131,7 @@ enhancements:
     effect_type: "card_add"
     effect:
       card_id: "card_overwhelming_force"
+    themes: ["card", "command"]
 
   # === Legendary Enhancements (게임 체인징) ===
   - id: "enh_unstoppable_force"
@@ -140,6 +150,7 @@ enhancements:
       stat: "defense"
       value: 50
       value_type: "percent"
+    themes: ["aggressive", "mystic"]
 
   - id: "enh_immortal_legion"
     name_key: "ENH_IMMORTAL_LEGION"
@@ -151,6 +162,7 @@ enhancements:
       stat: "max_hp"
       value: 100
       value_type: "percent"
+    themes: ["healing", "mystic"]
 
   - id: "enh_time_manipulation"
     name_key: "ENH_TIME_MANIPULATION"
@@ -163,6 +175,7 @@ enhancements:
       value: 100
       value_type: "percent"
       duration: 5
+    themes: ["speed", "mystic"]
 
   - id: "enh_overwhelming_might"
     name_key: "ENH_OVERWHELMING_MIGHT"
@@ -174,3 +187,4 @@ enhancements:
       stat: "attack"
       value: 50
       value_type: "percent"
+    themes: ["aggressive", "command"]

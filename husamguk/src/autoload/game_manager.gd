@@ -17,7 +17,7 @@ var next_battle_config: Dictionary = {}  # ally_units, enemy_units, stage
 # Scene paths
 const BATTLE_SCENE = "res://scenes/battle.tscn"
 const INTERNAL_AFFAIRS_SCENE = "res://scenes/internal_affairs.tscn"
-const ENHANCEMENT_SCENE = "res://scenes/enhancement_selection.tscn"
+const ENHANCEMENT_SCENE = "res://scenes/fateful_encounter.tscn"  # Phase 3D: Changed to Fateful Encounter
 const MAIN_MENU_SCENE = "res://scenes/main_menu.tscn"
 const VICTORY_SCENE = "res://scenes/victory_screen.tscn"
 const DEFEAT_SCENE = "res://scenes/defeat_screen.tscn"

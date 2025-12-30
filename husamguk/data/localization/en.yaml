@@ -239,3 +239,42 @@ strings:
   UI_CHOICES_MADE: "Governance Choices"
   UI_ENHANCEMENTS_GAINED: "Enhancements Gained"
   UI_RETURN_TO_MENU: "Return to Main Menu"
+
+  # === Fateful Encounter System ===
+  UI_FATEFUL_ENCOUNTER_TITLE: "Fateful Encounter"
+  UI_FATEFUL_ENCOUNTER_SUBTITLE: "A Meeting with a Legend"
+
+  # NPC: Jwaja
+  NPC_JWAJA_NAME: "Jwaja"
+  NPC_JWAJA_TITLE: "Renowned Physician of the Three Kingdoms"
+  NPC_JWAJA_GREETING: "I am Jwaja, healer of the wounded."
+  NPC_JWAJA_DIALOGUE: "Your soldiers are brave, but wounds unattended will lead to defeat. I offer you the secrets of healing. Choose wisely."
+  NPC_JWAJA_OFFER: "Select one of the following."
+
+  # NPC: Hwata
+  NPC_HWATA_NAME: "Hua Tuo"
+  NPC_HWATA_TITLE: "Master Physician"
+  NPC_HWATA_GREETING: "I am Hua Tuo. No ailment is beyond my cure."
+  NPC_HWATA_DIALOGUE: "War leaves many scars. With my medicine, your soldiers will rise again. Blessed are those who value life."
+  NPC_HWATA_OFFER: "Choose the path of healing."
+
+  # NPC: Ugil
+  NPC_UGIL_NAME: "Ugil"
+  NPC_UGIL_TITLE: "Daoist Mystic"
+  NPC_UGIL_GREETING: "I am Ugil, knower of Heaven's will."
+  NPC_UGIL_DIALOGUE: "The power of the Dao is invisible, yet its effects are undeniable. I shall infuse your army with mystical energy."
+  NPC_UGIL_OFFER: "Choose the blessing of the divine."
+
+  # NPC: Namhwa
+  NPC_NAMHWA_NAME: "Namhwa Elder"
+  NPC_NAMHWA_TITLE: "Daoist Immortal"
+  NPC_NAMHWA_GREETING: "I am the Namhwa Elder, enlightened sage."
+  NPC_NAMHWA_DIALOGUE: "War follows the flow of destiny. I lend you the mysteries of the Dao. Transcend time and space."
+  NPC_NAMHWA_OFFER: "Make your choice through the Dao."
+
+  # NPC: Sugyeong
+  NPC_SUGYEONG_NAME: "Master Sugyeong"
+  NPC_SUGYEONG_TITLE: "Legendary Strategist"
+  NPC_SUGYEONG_GREETING: "I am Sima Hui, known as Master Sugyeong. I recognize true talent."
+  NPC_SUGYEONG_DIALOGUE: "Victory is not won by numbers alone. Strategy and cunning are essential. I shall teach you the art of war."
+  NPC_SUGYEONG_OFFER: "Choose your strategy."
