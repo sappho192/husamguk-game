@@ -173,4 +173,9 @@ husamguk/
 
 ## License
 
-[License information to be added]
+This project uses a dual-license structure:
+
+- **Source Code**: [GPL-3.0](LICENSE) - All code in `husamguk/src/`
+- **Assets & Documentation**: [CC-BY-SA-4.0](LICENSE) - Files in `husamguk/assets/` and `husamguk/docs/`
+
+See [LICENSE](LICENSE) for full details and license texts.
