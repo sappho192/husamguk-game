@@ -14,56 +14,95 @@
 
 ## 2. 프로젝트 구조
 
-### 2.1 Phase 1 구현 상태 (2025-01)
+### 2.1 Phase 3 구현 상태 (2025-12)
 
 ```
 husamguk/                         # Godot 프로젝트 루트
-├── project.godot                 # ✅ DataManager autoload 등록
+├── project.godot                 # ✅ DataManager, GameManager autoload 등록
 │
 ├── addons/
 │   └── yaml/                     # ✅ godot-yaml (fimbul-works)
 │
 ├── src/                          # 게임 코드
 │   ├── autoload/                 # 싱글톤
-│   │   └── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리
+│   │   ├── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리
+│   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 씬 전환
+│   │   └── save_manager.gd       # ✅ 스텁 (Phase 4 구현 예정)
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
-│   │   ├── general.gd            # ✅ 장수 (스킬은 Phase 2)
-│   │   └── unit.gd               # ✅ ATB, 전투 로직, 특성 보너스
+│   │   ├── general.gd            # ✅ 장수, 스킬 실행, 쿨다운
+│   │   ├── unit.gd               # ✅ ATB, 전투 로직, 특성 보너스
+│   │   ├── buff.gd               # ✅ 버프/디버프 시스템
+│   │   ├── card.gd               # ✅ 카드 효과 실행, 타겟팅
+│   │   └── run_state.gd          # ✅ 런 레벨 상태 지속성
 │   │
 │   ├── systems/
-│   │   └── battle/
-│   │       └── battle_manager.gd # ✅ 전투 오케스트레이션
+│   │   ├── battle/
+│   │   │   └── battle_manager.gd # ✅ 이중 레이어 타이밍, 상태 머신
+│   │   └── internal_affairs/
+│   │       └── internal_affairs_manager.gd  # ✅ 내정 이벤트 시스템
 │   │
 │   └── ui/
-│       └── battle/
-│           ├── battle_ui.gd      # ✅ 메인 전투 컨트롤러
-│           ├── unit_display.gd   # ✅ HP/ATB 바, 시각 피드백
-│           └── placeholder_sprite.gd  # ✅ 플레이스홀더 그래픽
+│       ├── battle/
+│       │   ├── battle_ui.gd      # ✅ 메인 전투 컨트롤러
+│       │   ├── unit_display.gd   # ✅ HP/ATB 바, 시각 피드백
+│       │   ├── skill_bar.gd      # ✅ 스킬 UI (왼쪽 사이드바)
+│       │   ├── skill_button.gd   # ✅ 개별 스킬 버튼
+│       │   ├── card_hand.gd      # ✅ 카드 핸드 UI (하단)
+│       │   ├── card_display.gd   # ✅ 개별 카드 표시
+│       │   └── placeholder_sprite.gd  # ✅ 플레이스홀더 그래픽
+│       ├── internal_affairs/
+│       │   ├── internal_affairs_ui.gd  # ✅ 내정 선택 화면
+│       │   └── choice_button.gd  # ✅ 선택지 버튼
+│       ├── enhancement/
+│       │   ├── enhancement_selection_ui.gd  # ✅ 강화 선택 화면
+│       │   └── enhancement_card.gd  # ✅ 강화 카드 표시
+│       ├── main_menu_ui.gd       # ✅ 메인 메뉴
+│       ├── victory_ui.gd         # ✅ 승리 화면
+│       └── defeat_ui.gd          # ✅ 패배 화면
 │
 ├── scenes/
-│   └── battle.tscn               # ✅ Phase 1 데모 씬
+│   ├── main_menu.tscn            # ✅ 진입점
+│   ├── battle.tscn               # ✅ 전투 씬
+│   ├── internal_affairs.tscn     # ✅ 내정 씬
+│   ├── enhancement_selection.tscn  # ✅ 강화 선택 씬
+│   ├── victory_screen.tscn       # ✅ 승리 화면
+│   └── defeat_screen.tscn        # ✅ 패배 화면
 │
 ├── data/                         # YAML 데이터
 │   ├── generals/
 │   │   ├── _schema.yaml          # ✅ 스키마 정의
 │   │   ├── hubaekje.yaml         # ✅ 견훤, 신검, 진홍애
 │   │   ├── taebong.yaml          # ✅ 왕건, 홍유, 복지겸일
-│   │   └── silla.yaml            # ✅ 신라 3장수
+│   │   └── silla.yaml            # ✅ 신라 3장수 (총 9명)
 │   ├── units/
 │   │   ├── _schema.yaml          # ✅ 스키마 정의
 │   │   └── base_units.yaml       # ✅ 6종 병종
 │   ├── cards/
-│   │   └── _schema.yaml          # ✅ 스키마만 (구현 Phase 2)
+│   │   ├── _schema.yaml          # ✅ 스키마 정의
+│   │   ├── starter_deck.yaml     # ✅ 기본 덱 (5장)
+│   │   └── advanced_cards.yaml   # ✅ 고급 카드 (8장, 총 13장)
+│   ├── events/
+│   │   ├── _schema.yaml          # ✅ 스키마 정의
+│   │   ├── military_events.yaml  # ✅ 군사 이벤트 (5개)
+│   │   ├── economic_events.yaml  # ✅ 경제 이벤트 (5개)
+│   │   ├── diplomatic_events.yaml  # ✅ 외교 이벤트 (5개)
+│   │   └── personnel_events.yaml  # ✅ 인사 이벤트 (5개, 총 20개)
+│   ├── enhancements/
+│   │   ├── _schema.yaml          # ✅ 스키마 정의
+│   │   └── combat_enhancements.yaml  # ✅ 14개 강화 (5 common, 5 rare, 4 legendary)
 │   └── localization/
-│       ├── ko.yaml               # ✅ 한국어 (44 스트링)
-│       └── en.yaml               # ✅ 영어 (44 스트링)
+│       ├── ko.yaml               # ✅ 한국어 (189 스트링)
+│       └── en.yaml               # ✅ 영어 (189 스트링)
 │
-└── assets/                       # 플레이스홀더 시스템 사용중
+└── assets/
+    └── audio/
+        └── bgm/
+            └── battle_theme.ogg  # ✅ 전투 BGM (루핑)
 
 **범례:**
-- ✅ Phase 1 구현 완료
-- 🔲 향후 Phase 구현 예정
+- ✅ Phase 3 구현 완료
+- 🔲 향후 Phase 구현 예정 (Phase 4+)
 ```
 
 ### 2.2 전체 구조 (계획)
@@ -76,47 +115,56 @@ project_root/
 │
 ├── src/                          # 게임 코드
 │   ├── autoload/                 # 싱글톤 (전역 매니저)
-│   │   ├── game_manager.gd       # 🔲 Phase 4
+│   │   ├── game_manager.gd       # ✅ Phase 3
 │   │   ├── data_manager.gd       # ✅ Phase 1
-│   │   ├── save_manager.gd       # 🔲 Phase 4
+│   │   ├── save_manager.gd       # ✅ Phase 3 (스텁, Phase 4 구현)
 │   │   └── audio_manager.gd      # 🔲 Phase 4
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
-│   │   ├── general.gd            # ✅ Phase 1 (스킬 Phase 2)
+│   │   ├── general.gd            # ✅ Phase 2
 │   │   ├── unit.gd               # ✅ Phase 1
-│   │   ├── nation.gd             # 🔲 Phase 3
-│   │   ├── card.gd               # 🔲 Phase 2
-│   │   └── event.gd              # 🔲 Phase 3
+│   │   ├── buff.gd               # ✅ Phase 2
+│   │   ├── card.gd               # ✅ Phase 2
+│   │   ├── run_state.gd          # ✅ Phase 3
+│   │   ├── nation.gd             # 🔲 Phase 4 (데이터만 Phase 3)
+│   │   └── event.gd              # 🔲 Phase 4 (데이터만 Phase 3)
 │   │
 │   ├── systems/                  # 게임 시스템
-│   │   ├── internal_affairs/     # 🔲 Phase 3
-│   │   ├── battle/               # ✅ Phase 1
-│   │   └── roguelite/            # 🔲 Phase 3
+│   │   ├── internal_affairs/     # ✅ Phase 3
+│   │   ├── battle/               # ✅ Phase 2
+│   │   └── roguelite/            # ✅ Phase 3 (GameManager)
 │   │
 │   └── ui/                       # UI 컴포넌트
 │       ├── common/               # 🔲 Phase 4
-│       ├── main_menu/            # 🔲 Phase 4
-│       ├── internal_affairs/     # 🔲 Phase 3
-│       └── battle/               # ✅ Phase 1
+│       ├── main_menu_ui.gd       # ✅ Phase 3
+│       ├── victory_ui.gd         # ✅ Phase 3
+│       ├── defeat_ui.gd          # ✅ Phase 3
+│       ├── internal_affairs/     # ✅ Phase 3
+│       ├── enhancement/          # ✅ Phase 3
+│       └── battle/               # ✅ Phase 2
 │
 ├── scenes/                       # 씬 파일 (.tscn)
-│   ├── main.tscn                 # 🔲 Phase 4
-│   ├── main_menu.tscn            # 🔲 Phase 4
-│   ├── internal_affairs.tscn     # 🔲 Phase 3
-│   └── battle.tscn               # ✅ Phase 1
+│   ├── main.tscn                 # 🔲 Phase 4 (project.godot에서 설정)
+│   ├── main_menu.tscn            # ✅ Phase 3
+│   ├── battle.tscn               # ✅ Phase 1
+│   ├── internal_affairs.tscn     # ✅ Phase 3
+│   ├── enhancement_selection.tscn  # ✅ Phase 3
+│   ├── victory_screen.tscn       # ✅ Phase 3
+│   └── defeat_screen.tscn        # ✅ Phase 3
 │
 ├── data/                         # 기본 게임 데이터 (YAML)
 │   ├── generals/                 # ✅ Phase 1 (9명)
 │   ├── units/                    # ✅ Phase 1 (6종)
-│   ├── nations/                  # 🔲 Phase 3
-│   ├── cards/                    # 🔲 Phase 2 (스키마만 Phase 1)
-│   ├── events/                   # 🔲 Phase 3
-│   └── localization/             # ✅ Phase 1 (ko, en)
+│   ├── nations/                  # 🔲 Phase 4 (국가별 보너스 구현 예정)
+│   ├── cards/                    # ✅ Phase 2 (13장)
+│   ├── events/                   # ✅ Phase 3 (20개, 4 카테고리)
+│   ├── enhancements/             # ✅ Phase 3 (14개)
+│   └── localization/             # ✅ Phase 3 (ko, en - 189 스트링)
 │
 ├── assets/                       # 기본 에셋
 │   ├── sprites/                  # 🔲 플레이스홀더 사용중
 │   ├── ui/                       # 🔲 플레이스홀더 사용중
-│   ├── audio/                    # 🔲 미구현
+│   ├── audio/                    # ✅ Phase 3 (전투 BGM)
 │   └── fonts/                    # 🔲 미구현
 │
 └── mods/                         # 🔲 MOD 시스템 Phase 4
@@ -148,12 +196,12 @@ project_root/
 
 ### 3.2 주요 Autoload
 
-| 이름 | 역할 |
-|------|------|
-| `GameManager` | 런 상태, 스테이지 진행, 게임 흐름 제어 |
-| `DataManager` | YAML 로딩, MOD 병합, 데이터 조회 API |
-| `SaveManager` | 메타 프로그레션 저장/로드 |
-| `AudioManager` | BGM/SFX 재생 |
+| 이름 | 역할 | 구현 상태 |
+|------|------|----------|
+| `GameManager` | 런 상태 관리(RunState), 스테이지 진행(1-3), 씬 전환, 게임 흐름 제어 | ✅ Phase 3 |
+| `DataManager` | YAML 로딩, MOD 병합, 데이터 조회 API, 팩토리 패턴 객체 생성 | ✅ Phase 1 |
+| `SaveManager` | 메타 프로그레션 저장/로드 (영구 업그레이드, 언락) | ✅ 스텁 (Phase 4 구현) |
+| `AudioManager` | BGM/SFX 재생, 볼륨 제어 | 🔲 Phase 4 |
 
 ### 3.3 시그널 기반 통신
 
@@ -164,6 +212,53 @@ signal unit_took_damage(unit: Unit, amount: int)
 signal global_turn_triggered(turn_number: int)
 signal battle_ended(result: BattleResult)
 ```
+
+### 3.4 완전한 게임 루프 (Phase 3 구현)
+
+```
+메인 메뉴 (main_menu.tscn)
+  ↓
+[새 게임 시작] GameManager.start_new_run()
+  ↓ RunState 생성, current_stage = 1
+  ↓
+전투 1단계 (battle.tscn)
+  ↓ BattleManager: 이중 레이어 타이밍 (ATB + 글로벌 턴)
+  ↓ [승리] GameManager.on_battle_ended()
+  ↓ RunState에 유닛 상태 저장 (HP, 스탯, 버프, 쿨다운)
+  ↓
+내정 (internal_affairs.tscn)
+  ↓ 3턴, 각 턴마다 4개 카테고리(군사/경제/외교/인사)에서 3개 선택지
+  ↓ InternalAffairsManager.execute_event()
+  ↓ RunState 수정 (스탯, 덱, 이벤트 플래그, 페널티)
+  ↓
+강화 선택 (enhancement_selection.tscn)
+  ↓ 3개 강화 중 1개 선택 (1 common, 1 rare, 1 legendary)
+  ↓ GameManager.on_enhancement_selected()
+  ↓ RunState.active_enhancements에 추가
+  ↓ current_stage += 1
+  ↓
+전투 2단계
+  ↓ RunState에서 유닛 복원 (HP, 스탯, 버프 유지)
+  ↓ 강화 효과 적용
+  ↓ [승리] → 내정 → 강화 선택
+  ↓
+전투 3단계 (최종 전투)
+  ↓ [승리 또는 패배]
+  ↓
+승리/패배 화면 (victory_screen.tscn / defeat_screen.tscn)
+  ↓ 런 통계 표시 (클리어 스테이지, 전투 승리, 선택한 내정, 강화)
+  ↓ [메인 메뉴로] GameManager.clear_run()
+  ↓ RunState = null
+  ↓
+메인 메뉴
+```
+
+**핵심 특징:**
+- **RunState 지속성**: 전투 → 내정 → 강화 사이클 간 모든 상태 유지
+- **3 스테이지 구조**: 각 스테이지 = 전투 → 내정 → 강화 (3단계는 강화 없음)
+- **내정 턴 제한**: 정확히 3턴, 각 턴마다 3개 선택지
+- **강화 희귀도**: Common 5개, Rare 5개, Legendary 4개 풀에서 랜덤 선택
+- **이벤트 플래그**: 내정 선택에 따른 분기 가능, 런 내에서만 유지
 
 ---
 
@@ -363,7 +458,61 @@ events:
             passive_id: "hojok_alliance"
 ```
 
-### 4.6 로컬라이제이션 (localization/*.yaml)
+### 4.6 강화 (enhancements/*.yaml)
+
+```yaml
+# data/enhancements/combat_enhancements.yaml
+enhancements:
+  - id: "enhancement_first_strike"
+    name_key: "ENHANCEMENT_FIRST_STRIKE"
+    description_key: "ENHANCEMENT_FIRST_STRIKE_DESC"
+    rarity: "common"  # common | rare | legendary
+    icon: "res://assets/ui/enhancements/first_strike.png"
+
+    effect:
+      type: "combat_modifier"
+      trigger: "battle_start"
+      stat: "atb_current"
+      target: "all_allies"
+      value: 50  # 전투 시작 시 아군 전체 ATB +50
+
+  - id: "enhancement_veteran_troops"
+    name_key: "ENHANCEMENT_VETERAN_TROOPS"
+    rarity: "rare"
+
+    effect:
+      type: "stat_modifier"
+      trigger: "permanent"
+      stats:
+        - stat: "attack"
+          value: 15
+          value_type: "percent"
+        - stat: "defense"
+          value: 10
+          value_type: "percent"
+
+  - id: "enhancement_legendary_commander"
+    name_key: "ENHANCEMENT_LEGENDARY_COMMANDER"
+    rarity: "legendary"
+
+    effects:  # 복수 효과 가능
+      - type: "stat_modifier"
+        trigger: "permanent"
+        stat: "attack"
+        value: 25
+        value_type: "percent"
+      - type: "ability"
+        trigger: "battle_start"
+        ability_id: "mass_morale_boost"
+        cooldown_reduction: 1
+```
+
+**희귀도별 밸런스:**
+- **Common (5개)**: 단순 스탯 증가 (~10%), 전투 시작 보너스
+- **Rare (5개)**: 복합 스탯 증가 (~15%), 특수 능력 쿨다운 감소
+- **Legendary (4개)**: 강력한 복합 효과 (~25%), 게임 플레이 변화 능력
+
+### 4.7 로컬라이제이션 (localization/*.yaml)
 
 ```yaml
 # data/localization/ko.yaml
@@ -543,62 +692,77 @@ func load_portrait(path: String) -> Texture2D:
 
 ## 7. 프로토타입 구현 로드맵
 
-### Phase 1: 전투 코어 (목표: 3 vs 3 전투 플레이 가능)
+### Phase 1: 전투 코어 ✅ 완료 (2025-12-29)
 
 ```
 [구현 항목]
-□ 프로젝트 세팅 및 기본 구조
-□ YAML 파서 연동 (godot-yaml 플러그인)
-□ DataManager 기본 구현
-□ Unit 클래스 (HP, ATB, 기본 스탯)
-□ ATB 시스템 (게이지 충전 → 행동)
-□ 기본 공격 로직
-□ 전투 씬 UI (유닛 배치, HP바, ATB바)
-□ 전투 종료 판정
+✅ 프로젝트 세팅 및 기본 구조
+✅ YAML 파서 연동 (godot-yaml 플러그인)
+✅ DataManager 기본 구현
+✅ Unit 클래스 (HP, ATB, 기본 스탯)
+✅ ATB 시스템 (게이지 충전 → 행동)
+✅ 기본 공격 로직
+✅ 전투 씬 UI (유닛 배치, HP바, ATB바)
+✅ 전투 종료 판정
 
 [테스트 데이터]
-- 장수 2명 (아군 1, 적 1)
-- 유닛 2종 (보병, 궁병)
+✅ 장수 9명 (3 국가 × 3 역할)
+✅ 유닛 6종 (보병, 창병, 궁병, 기병, 특수병, 공성병)
 ```
 
-### Phase 2: 전투 확장
+### Phase 2: 전투 확장 ✅ 완료 (2025-12-29)
 
 ```
 [구현 항목]
-□ 장수 고유 스킬 시스템
-□ 글로벌 턴 시스템
-□ 카드 시스템 (덱, 드로우, 사용)
-□ 전투 카드 효과 (버프/디버프)
-□ 진형 선택 (전투 시작 전)
+✅ 장수 고유 스킬 시스템 (9개 스킬)
+✅ 글로벌 턴 시스템 (10초 간격, ATB 일시정지/재개)
+✅ 카드 시스템 (덱, 드로우, 사용)
+✅ 전투 카드 효과 (버프/디버프)
+✅ 버프 지속시간 시스템
+✅ 스킬 쿨다운 시스템 (ATB 독립)
+✅ 이중 레이어 타이밍 (ATB + 글로벌 턴)
+🔲 진형 선택 (Phase 4 예정, 현재 유닛 데이터에 하드코딩)
 
 [테스트 데이터]
-- 카드 5종
-- 스킬 3종
+✅ 카드 13장 (기본 덱 5장 + 고급 카드 8장)
+✅ 스킬 9종 (장수별 고유 스킬)
 ```
 
-### Phase 3: 내정 연결
+### Phase 3: 내정 연결 ✅ 완료 (2025-12-30)
 
 ```
 [구현 항목]
-□ 내정 씬 기본 UI
-□ 선택지 시스템 (3개 중 1개)
-□ 선택 → 효과 적용
-□ 내정 → 전투 전환
-□ 스테이지 진행 흐름
+✅ GameManager autoload (런 오케스트레이션)
+✅ RunState 클래스 (유닛 상태 지속성)
+✅ 내정 씬 기본 UI
+✅ 선택지 시스템 (3턴, 각 턴 3개 선택지)
+✅ 4개 카테고리 (군사/경제/외교/인사)
+✅ 선택 → 효과 적용 (InternalAffairsManager)
+✅ 내정 → 전투 전환
+✅ 스테이지 진행 흐름 (1-3)
+✅ 강화 선택 화면 (3개 중 1개, 희귀도별)
+✅ 승리/패배 화면 (통계 표시)
+✅ 메인 메뉴 → 런 시작 → 엔딩 흐름
+✅ 이벤트 플래그 시스템
 
 [테스트 데이터]
-- 내정 선택지 9개 (카테고리당 3개)
+✅ 내정 이벤트 20개 (카테고리당 5개)
+✅ 강화 14개 (Common 5, Rare 5, Legendary 4)
+✅ 로컬라이제이션 189 스트링 (한/영)
 ```
 
-### Phase 4: 런 루프
+### Phase 4: 메타 프로그레션 🔲 다음 단계
 
 ```
 [구현 항목]
-□ 3 스테이지 연결
-□ 강화 선택 화면 (3 중 1)
-□ 게임오버 / 클리어 판정
-□ 메인 메뉴 → 런 시작 → 엔딩 흐름
-□ SaveManager (메타 프로그레션 저장)
+🔲 SaveManager 완전 구현
+🔲 메타 프로그레션 언락 (영구 업그레이드)
+🔲 스테이지별 적 스케일링
+🔲 추가 콘텐츠 (이벤트, 강화, 카드)
+🔲 진형 선택 시스템
+🔲 밸런스 조정 및 폴리시
+🔲 MOD 시스템 완전 구현
+🔲 AudioManager 구현
 ```
 
 ---
@@ -777,6 +941,270 @@ func _end_battle(result: Dictionary) -> void:
     battle_ended.emit(result)
 ```
 
+### 8.3 RunState 클래스
+
+```gdscript
+# src/core/run_state.gd
+class_name RunState
+extends RefCounted
+
+# 현재 스테이지 (1-3)
+var current_stage: int = 1
+
+# 유닛 상태 지속성 (전투 간 HP, 스탯, 버프 유지)
+var unit_states: Array[Dictionary] = []
+
+# 장수 쿨다운 상태 (스킬 쿨다운 전투 간 유지)
+var general_cooldowns: Dictionary = {}
+
+# 활성 강화 목록 (런 동안 누적)
+var active_enhancements: Array[Dictionary] = []
+
+# 덱 상태 (카드 추가/제거 가능)
+var deck: Array[String] = []  # 카드 ID 배열
+
+# 이벤트 플래그 (내정 선택 분기용)
+var event_flags: Dictionary = {}
+
+# 통계 (승리/패배 화면용)
+var stats: Dictionary = {
+    "stages_cleared": 0,
+    "battles_won": 0,
+    "internal_affairs_choices": [],
+    "enhancements_acquired": []
+}
+
+func save_unit_state(unit: Unit) -> void:
+    var state := {
+        "id": unit.id,
+        "current_hp": unit.current_hp,
+        "max_hp": unit.max_hp,
+        "attack": unit.attack,
+        "defense": unit.defense,
+        "atb_speed": unit.atb_speed,
+        "buffs": []  # 전투 종료 시 일부 버프만 유지 (permanent 플래그)
+    }
+
+    for buff in unit.buffs:
+        if buff.persistent:  # 런 레벨 버프만 저장
+            state.buffs.append(buff.to_dict())
+
+    unit_states.append(state)
+
+func restore_unit_state(unit: Unit, saved_state: Dictionary) -> void:
+    unit.current_hp = saved_state.get("current_hp", unit.max_hp)
+    unit.max_hp = saved_state.get("max_hp", unit.max_hp)
+    unit.attack = saved_state.get("attack", unit.attack)
+    unit.defense = saved_state.get("defense", unit.defense)
+    unit.atb_speed = saved_state.get("atb_speed", unit.atb_speed)
+
+    # 저장된 버프 복원
+    for buff_data in saved_state.get("buffs", []):
+        var buff := Buff.from_dict(buff_data)
+        unit.buffs.append(buff)
+
+func apply_enhancements(units: Array[Unit]) -> void:
+    for enhancement in active_enhancements:
+        var effect := enhancement.get("effect", {})
+        match effect.get("type", ""):
+            "stat_modifier":
+                _apply_stat_modifier(units, effect)
+            "combat_modifier":
+                _apply_combat_modifier(units, effect)
+            "ability":
+                _apply_ability_effect(units, effect)
+
+func add_event_flag(flag: String) -> void:
+    event_flags[flag] = true
+
+func has_event_flag(flag: String) -> bool:
+    return event_flags.get(flag, false)
+```
+
+### 8.4 GameManager
+
+```gdscript
+# src/autoload/game_manager.gd
+extends Node
+
+signal run_started()
+signal stage_changed(stage_number: int)
+signal run_ended(victory: bool)
+
+var current_run: RunState = null
+
+func start_new_run() -> void:
+    current_run = RunState.new()
+    current_run.current_stage = 1
+    current_run.deck = ["card_basic_attack", "card_defend", "card_rally"]  # 기본 덱
+    run_started.emit()
+    _load_battle_scene()
+
+func on_battle_ended(victory: bool) -> void:
+    if not victory:
+        _show_defeat_screen()
+        return
+
+    # 유닛 상태 저장
+    var battle_manager := get_node_or_null("/root/BattleManager")
+    if battle_manager:
+        current_run.unit_states.clear()
+        for unit in battle_manager.ally_units:
+            current_run.save_unit_state(unit)
+
+    current_run.stats.battles_won += 1
+
+    # 다음 단계로 전환
+    if current_run.current_stage < 3:
+        _load_internal_affairs_scene()
+    else:
+        _show_victory_screen()
+
+func on_internal_affairs_completed() -> void:
+    _load_enhancement_selection_scene()
+
+func on_enhancement_selected(enhancement: Dictionary) -> void:
+    current_run.active_enhancements.append(enhancement)
+    current_run.stats.enhancements_acquired.append(enhancement.id)
+
+    if current_run.current_stage < 3:
+        current_run.current_stage += 1
+        current_run.stats.stages_cleared += 1
+        stage_changed.emit(current_run.current_stage)
+        _load_battle_scene()
+    else:
+        _show_victory_screen()
+
+func clear_run() -> void:
+    current_run = null
+    _load_main_menu()
+
+func _load_battle_scene() -> void:
+    get_tree().change_scene_to_file("res://scenes/battle.tscn")
+
+func _load_internal_affairs_scene() -> void:
+    get_tree().change_scene_to_file("res://scenes/internal_affairs.tscn")
+
+func _load_enhancement_selection_scene() -> void:
+    get_tree().change_scene_to_file("res://scenes/enhancement_selection.tscn")
+
+func _show_victory_screen() -> void:
+    run_ended.emit(true)
+    get_tree().change_scene_to_file("res://scenes/victory_screen.tscn")
+
+func _show_defeat_screen() -> void:
+    run_ended.emit(false)
+    get_tree().change_scene_to_file("res://scenes/defeat_screen.tscn")
+
+func _load_main_menu() -> void:
+    get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+```
+
+### 8.5 InternalAffairsManager
+
+```gdscript
+# src/systems/internal_affairs/internal_affairs_manager.gd
+class_name InternalAffairsManager
+extends Node
+
+signal choices_presented(choices: Array[Dictionary])
+signal choice_executed(choice: Dictionary)
+signal turn_completed(turn_number: int)
+signal all_turns_completed()
+
+const TURNS_PER_PHASE := 3
+const CHOICES_PER_TURN := 3
+
+var current_turn: int = 1
+var event_pool: Dictionary = {}
+
+func _ready() -> void:
+    _load_events()
+
+func _load_events() -> void:
+    # DataManager에서 이벤트 로드
+    event_pool = {
+        "military": DataManager.get_events_by_category("military"),
+        "economic": DataManager.get_events_by_category("economic"),
+        "diplomatic": DataManager.get_events_by_category("diplomatic"),
+        "personnel": DataManager.get_events_by_category("personnel")
+    }
+
+func start_turn() -> void:
+    var choices := _generate_choices()
+    choices_presented.emit(choices)
+
+func execute_choice(choice: Dictionary) -> void:
+    var effects := choice.get("effects", [])
+
+    for effect in effects:
+        _apply_effect(effect)
+
+    # 이벤트 플래그 설정
+    if choice.has("flag"):
+        GameManager.current_run.add_event_flag(choice.flag)
+
+    GameManager.current_run.stats.internal_affairs_choices.append(choice.id)
+    choice_executed.emit(choice)
+
+    current_turn += 1
+
+    if current_turn > TURNS_PER_PHASE:
+        all_turns_completed.emit()
+    else:
+        turn_completed.emit(current_turn)
+
+func _generate_choices() -> Array[Dictionary]:
+    var choices: Array[Dictionary] = []
+    var categories := ["military", "economic", "diplomatic", "personnel"]
+    categories.shuffle()
+
+    for i in CHOICES_PER_TURN:
+        var category := categories[i]
+        var events := event_pool[category]
+        var event := events.pick_random()
+
+        # 조건 체크 (이벤트 플래그)
+        if _check_conditions(event):
+            choices.append(event)
+
+    return choices
+
+func _check_conditions(event: Dictionary) -> bool:
+    var condition := event.get("condition", {})
+    if condition.is_empty():
+        return true
+
+    var required_flag := condition.get("flag", "")
+    if required_flag.is_empty():
+        return true
+
+    return GameManager.current_run.has_event_flag(required_flag)
+
+func _apply_effect(effect: Dictionary) -> void:
+    match effect.get("type", ""):
+        "modify_stat":
+            _modify_unit_stat(effect)
+        "add_card":
+            _add_card_to_deck(effect)
+        "add_troops":
+            _add_troops(effect)
+        # 기타 효과 타입...
+
+func _modify_unit_stat(effect: Dictionary) -> void:
+    var stat := effect.get("stat", "")
+    var value := effect.get("value", 0)
+
+    # RunState의 유닛 스탯 수정
+    for unit_state in GameManager.current_run.unit_states:
+        match stat:
+            "attack":
+                unit_state.attack += value
+            "defense":
+                unit_state.defense += value
+            # 기타 스탯...
+```
+
 ---
 
 ## 변경 이력
@@ -784,9 +1212,20 @@ func _end_battle(result: Dictionary) -> void:
 | 날짜 | 내용 |
 |------|------|
 | 2025-12-29 | 초안 작성 |
-| 2025-12-29 | Phase 1 구현 상태 반영 |
+| 2025-12-29 | Phase 1 구현 상태 반영 (전투 코어) |
 | 2025-12-29 | YAML 데이터 구조 및 로딩 시스템 추가 |
 | 2025-12-29 | 전투 시스템 구조 및 ATB 로직 추가 |
 | 2025-12-29 | UI 컴포넌트 구조 추가 (BattleUI, UnitDisplay, PlaceholderSprite) |
 | 2025-12-29 | 전투 시스템 구현 완료 (ATB, 턴제, 전투 로직) |
 | 2025-12-29 | 전투 씬 및 데모 구현 완료 |
+| 2025-12-29 | Phase 2 구현 완료 (스킬, 카드, 버프 시스템) |
+| 2025-12-30 | Phase 3 구현 완료 (내정 연결, 완전한 런 루프) |
+| 2025-12-30 | GameManager 및 RunState 클래스 추가 |
+| 2025-12-30 | 내정 시스템 구현 (20개 이벤트, 4개 카테고리) |
+| 2025-12-30 | 강화 시스템 구현 (14개 강화, 희귀도별 분류) |
+| 2025-12-30 | 메인 메뉴, 승리/패배 화면 구현 |
+| 2025-12-30 | 완전한 게임 루프 문서화 (3.4절) |
+| 2025-12-30 | InternalAffairsManager 클래스 설계 추가 (8.5절) |
+| 2025-12-30 | 강화 데이터 스키마 추가 (4.6절) |
+| 2025-12-30 | 로컬라이제이션 업데이트 (189 스트링) |
+| 2025-12-30 | Phase 1-3 로드맵 완료 상태 반영 |
