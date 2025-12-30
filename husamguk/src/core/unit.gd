@@ -59,7 +59,7 @@ func tick_atb(delta: float) -> void:
 		return
 
 	# Use effective ATB speed (includes buffs)
-	atb_current += get_effective_atb_speed() * delta * 10.0  # Scale factor for faster testing
+	atb_current += get_effective_atb_speed() * delta * 40.0  # Scale factor: ~2.5sec per action (speed 1.0)
 
 	if atb_current >= atb_max:
 		atb_current = atb_max
