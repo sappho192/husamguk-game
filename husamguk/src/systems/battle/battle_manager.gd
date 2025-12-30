@@ -239,3 +239,24 @@ func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array
 		_:
 			var empty: Array[Unit] = []
 			return empty
+
+# DEBUG: Force battle result for testing
+func force_victory() -> void:
+	print("BattleManager: FORCE VICTORY - killing all enemies")
+	for unit in enemy_units:
+		if unit.is_alive:
+			# Set HP directly to bypass defense calculation
+			unit.current_hp = 0
+			unit.is_alive = false
+			unit.died.emit()
+	_check_battle_end()
+
+func force_defeat() -> void:
+	print("BattleManager: FORCE DEFEAT - killing all allies")
+	for unit in ally_units:
+		if unit.is_alive:
+			# Set HP directly to bypass defense calculation
+			unit.current_hp = 0
+			unit.is_alive = false
+			unit.died.emit()
+	_check_battle_end()

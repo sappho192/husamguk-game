@@ -40,7 +40,7 @@ func _create_ui() -> void:
 	# Main vertical container
 	var main_vbox = VBoxContainer.new()
 	main_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	main_vbox.add_theme_constant_override("separation", 20)
+	main_vbox.add_theme_constant_override("separation", 40)
 	add_child(main_vbox)
 
 	# Top spacer

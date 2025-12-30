@@ -39,7 +39,7 @@ func _create_ui() -> void:
 
 	# Top spacer
 	var top_spacer = Control.new()
-	top_spacer.custom_minimum_size = Vector2(0, 40)
+	top_spacer.custom_minimum_size = Vector2(0, 10)
 	main_vbox.add_child(top_spacer)
 
 	# Title

@@ -31,6 +31,12 @@ godot project.godot
 - Press **F6** to run a specific scene
 - Main scene will be defined in `project.godot`
 
+### Debug/Testing Features
+**Battle Scene Debug Buttons** (top-right corner):
+- **Force Victory**: Instantly kill all enemies and trigger victory
+- **Force Defeat**: Instantly kill all allies and trigger defeat
+- Use these to quickly test the full run loop (Battle → Internal Affairs → Fateful Encounter → Next Battle)
+
 ### Data Validation
 All YAML files in `data/` follow schemas defined in `_schema.yaml` files. When adding or modifying game data:
 1. Reference the appropriate schema file (e.g., `data/generals/_schema.yaml`)
@@ -403,6 +409,8 @@ var name = "견훤"
 10. **Scene Z-Index**: Background ColorRects use `z_index = -1` to prevent covering UI elements
 11. **Await Safety**: Check `is_inside_tree()` before and after `await` to prevent errors during scene transitions
 12. **Localization Timing**: Never call `DataManager.get_localized()` in `_init()` - DataManager loads after scene instantiation
+13. **Cooldown Reset Between Battles**: General skill cooldowns are NOT persisted in RunState - they reset to 0 at the start of each new battle stage (all skills available)
+14. **Debug Force Victory/Defeat**: Use direct HP/alive manipulation instead of `take_damage()` to bypass defense calculations
 
 ### 🔲 Not Yet Implemented (Phase 4+)
 

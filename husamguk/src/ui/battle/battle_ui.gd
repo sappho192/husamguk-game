@@ -147,6 +147,9 @@ func _create_phase2_ui() -> void:
 
 	add_child(card_hand)
 
+	# DEBUG: Test buttons in top-right corner
+	_create_debug_buttons()
+
 func _process(_delta: float) -> void:
 	# Update global turn timer bar
 	if battle_manager:
@@ -243,3 +246,37 @@ func _on_card_selected(card: Card) -> void:
 
 	# Resume battle
 	battle_manager.on_card_used()
+
+# DEBUG: Create test buttons for quick battle result
+func _create_debug_buttons() -> void:
+	var debug_container = VBoxContainer.new()
+	debug_container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	debug_container.offset_left = -150
+	debug_container.offset_top = 10
+	debug_container.offset_right = -10
+	debug_container.offset_bottom = 100
+	add_child(debug_container)
+
+	var debug_label = Label.new()
+	debug_label.text = "[DEBUG]"
+	debug_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	debug_label.add_theme_font_size_override("font_size", 12)
+	debug_container.add_child(debug_label)
+
+	var victory_btn = Button.new()
+	victory_btn.text = "Force Victory"
+	victory_btn.custom_minimum_size = Vector2(130, 30)
+	victory_btn.pressed.connect(_on_force_victory)
+	debug_container.add_child(victory_btn)
+
+	var defeat_btn = Button.new()
+	defeat_btn.text = "Force Defeat"
+	defeat_btn.custom_minimum_size = Vector2(130, 30)
+	defeat_btn.pressed.connect(_on_force_defeat)
+	debug_container.add_child(defeat_btn)
+
+func _on_force_victory() -> void:
+	battle_manager.force_victory()
+
+func _on_force_defeat() -> void:
+	battle_manager.force_defeat()
