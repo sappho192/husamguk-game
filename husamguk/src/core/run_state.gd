@@ -51,8 +51,7 @@ func save_unit_state(unit: Unit) -> void:
 		"defense": unit.defense,
 		"atb_speed": unit.atb_speed,
 		"buffs": _serialize_buffs(unit.active_buffs),
-		"general_id": unit.general.id if unit.general else null,
-		"general_cooldown": unit.general.current_cooldown if unit.general else 0
+		"general_id": unit.general.id if unit.general else null
 	}
 	unit_states[unit.id] = state_data
 
@@ -74,9 +73,8 @@ func restore_unit_state(unit: Unit) -> void:
 		var buff = Buff.new(buff_data)
 		unit.add_buff(buff)
 
-	# Restore general cooldown
-	if unit.general and state.has("general_cooldown"):
-		unit.general.current_cooldown = state.get("general_cooldown", 0)
+	# NOTE: General cooldown is NOT restored - resets to 0 at the start of each battle
+	# This ensures all skills are available at the beginning of every new battle stage
 
 # Apply run-level enhancement to units
 func apply_enhancement_to_units(enhancement: Dictionary, units: Array) -> void:
