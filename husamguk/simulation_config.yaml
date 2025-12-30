@@ -1,0 +1,35 @@
+# Battle Simulator Configuration
+# This file defines simulation scenarios
+# Available generals: gyeonhwon, wanggeon, gyunhwon, singeom, bogo, sangyeong, gyeonae, wonhoe, sumyeong
+# Available units: spearman, swordsman, light_cavalry, heavy_cavalry, archer, crossbowman
+
+simulations:
+  # Test 1: Gyeonhwon vs Wanggeon (Spearman vs Heavy Cavalry)
+  - name: "gyeonhwon_vs_wanggeon_spearman_cavalry"
+    team1:
+      general: "gyeonhwon"
+      units: ["spearman", "spearman"]
+    team2:
+      general: "wanggeon"
+      units: ["heavy_cavalry", "heavy_cavalry"]
+    iterations: 50
+
+  # Test 2: Balanced teams
+  - name: "balanced_test"
+    team1:
+      general: "gyeonhwon"
+      units: ["spearman", "light_cavalry", "archer"]
+    team2:
+      general: "wanggeon"
+      units: ["swordsman", "heavy_cavalry", "crossbowman"]
+    iterations: 100
+
+  # Test 3: Archer focus
+  - name: "ranged_focus"
+    team1:
+      general: "gyunhwon"
+      units: ["archer", "archer", "crossbowman"]
+    team2:
+      general: "singeom"
+      units: ["archer", "archer", "crossbowman"]
+    iterations: 50

@@ -1,0 +1,10 @@
+# Quick test configuration
+simulations:
+  - name: "quick_test"
+    team1:
+      general: "gyeonhwon"
+      units: ["spearman", "spearman"]
+    team2:
+      general: "wanggeon"
+      units: ["heavy_cavalry", "heavy_cavalry"]
+    iterations: 3

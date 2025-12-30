@@ -37,6 +37,20 @@ godot project.godot
 - **Force Defeat**: Instantly kill all allies and trigger defeat
 - Use these to quickly test the full run loop (Battle → Internal Affairs → Fateful Encounter → Next Battle)
 
+**Battle Simulator** (headless testing):
+```bash
+# Run combat simulations without GUI
+cd husamguk
+"C:\BIN\Godot_v4.5.1-stable_win64\Godot_v4.5.1-stable_win64_console.exe" --path . --headless scenes/battle_simulator.tscn
+
+# Edit simulation_config.yaml to configure scenarios
+# Results output to: output/simulation/<scenario_name>/
+#   - battles.csv (raw data)
+#   - summary.json (statistics)
+```
+
+See [Battle Simulator Guide](husamguk/docs/BATTLE_SIMULATOR.md) for detailed usage.
+
 ### Data Validation
 All YAML files in `data/` follow schemas defined in `_schema.yaml` files. When adding or modifying game data:
 1. Reference the appropriate schema file (e.g., `data/generals/_schema.yaml`)
@@ -124,6 +138,8 @@ husamguk/
 │   │   │   └── battle_manager.gd    # ✅ Dual-layer timing, state machine
 │   │   └── internal_affairs/
 │   │       └── internal_affairs_manager.gd  # ✅ Event system
+│   ├── tools/
+│   │   └── battle_simulator.gd      # ✅ Headless combat simulator (Phase 3D+)
 │   └── ui/
 │       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, etc.
 │       ├── internal_affairs/        # ✅ ChoiceButton, InternalAffairsUI
@@ -136,6 +152,7 @@ husamguk/
 ├── scenes/
 │   ├── main_menu.tscn               # ✅ Entry point
 │   ├── battle.tscn                  # ✅ Battle scene
+│   ├── battle_simulator.tscn        # ✅ Battle simulator (headless)
 │   ├── internal_affairs.tscn        # ✅ Governance choices
 │   ├── fateful_encounter.tscn       # ✅ Fateful Encounter (Phase 3D)
 │   ├── victory_screen.tscn          # ✅ Victory screen
@@ -150,6 +167,10 @@ husamguk/
 │   └── localization/                # ✅ Korean/English (216 strings each)
 ├── addons/yaml/                     # ✅ godot-yaml parser addon
 ├── assets/audio/                    # ✅ Battle BGM (looping)
+├── docs/                            # ✅ Design documents & guides
+│   └── BATTLE_SIMULATOR.md          # ✅ Battle simulator usage guide
+├── simulation_config.yaml           # ✅ Battle simulator scenarios
+├── output/simulation/               # ✅ Simulator output (CSV/JSON)
 └── mods/                            # 🔲 MOD system (Phase 4+)
 ```
 

@@ -81,7 +81,19 @@ godot project.godot
 - [Game Design Document](docs/game_design_document.md) - Core gameplay design (Korean)
 - [Technical Design Document](docs/technical_design_document.md) - Architecture & systems
 - [CLAUDE.md](CLAUDE.md) - Development guidance for Claude Code
+- [Battle Simulator Guide](husamguk/docs/BATTLE_SIMULATOR.md) - Headless combat testing & balance tuning
 - [Data Schemas](husamguk/data/) - YAML schema definitions
+
+## Development Tools
+
+### Battle Simulator
+Headless combat simulator for balance testing:
+- Run battles without GUI for fast iteration
+- Test various unit/general combinations
+- Output CSV (raw data) + JSON (statistics)
+- 10x accelerated simulation speed
+
+See [Battle Simulator Guide](husamguk/docs/BATTLE_SIMULATOR.md) for usage.
 
 ## Related Links
 
@@ -105,6 +117,8 @@ husamguk/
 │   ├── systems/
 │   │   ├── battle/                  # BattleManager (dual-layer timing)
 │   │   └── internal_affairs/        # InternalAffairsManager (event system)
+│   ├── tools/                       # Development tools
+│   │   └── battle_simulator.gd      # Headless battle simulator
 │   └── ui/
 │       ├── battle/                  # SkillBar, CardHand, UnitDisplay
 │       ├── internal_affairs/        # ChoiceButton, InternalAffairsUI
@@ -116,6 +130,7 @@ husamguk/
 ├── scenes/
 │   ├── main_menu.tscn              # Entry point
 │   ├── battle.tscn                 # Battle scene
+│   ├── battle_simulator.tscn       # Battle simulator (headless)
 │   ├── internal_affairs.tscn       # Governance choices
 │   ├── fateful_encounter.tscn      # Fateful Encounter (Phase 3D)
 │   ├── victory_screen.tscn         # Victory screen
@@ -129,7 +144,10 @@ husamguk/
 │   ├── npcs/                       # 5 NPCs YAML (Phase 3D)
 │   └── localization/               # ko.yaml, en.yaml (216 strings each)
 ├── addons/yaml/                    # godot-yaml parser addon
-└── docs/                           # Design documents
+├── docs/                           # Design documents & guides
+│   └── BATTLE_SIMULATOR.md         # Battle simulator usage guide
+├── simulation_config.yaml          # Battle simulator scenarios
+└── output/simulation/              # Simulator output (CSV/JSON)
 ```
 
 ## Technology Stack
