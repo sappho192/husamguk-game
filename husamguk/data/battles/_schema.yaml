@@ -1,0 +1,113 @@
+# Battle Data Schema
+# 전투 정의 - Wave 기반 전투 시스템
+
+description: |
+  전투는 여러 Wave로 구성됩니다. 각 Wave는 적 유닛 구성을 정의합니다.
+  Wave를 모두 클리어하면 전투 승리입니다.
+
+schema:
+  battles:
+    type: array
+    items:
+      id:
+        type: string
+        required: true
+        description: "전투 고유 ID (예: stage_1_battle_1)"
+
+      stage:
+        type: integer
+        required: true
+        description: "스테이지 번호 (1-3)"
+        range: [1, 3]
+
+      battle_number:
+        type: integer
+        required: true
+        description: "스테이지 내 전투 순서 (1부터 시작)"
+        range: [1, 10]
+
+      waves:
+        type: array
+        required: true
+        description: "Wave 구성 배열 (최소 1개, 권장 3-4개)"
+        min_items: 1
+        items:
+          enemies:
+            type: array
+            required: true
+            description: "적 유닛 ID 배열"
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: "유닛 ID (units 데이터 참조)"
+                general:
+                  type: string
+                  nullable: true
+                  description: "장수 ID (generals 데이터 참조, 선택사항)"
+
+          wave_rewards:
+            type: object
+            nullable: true
+            description: "Wave 클리어 시 보상 (선택사항)"
+            properties:
+              hp_recovery_percent:
+                type: integer
+                range: [0, 50]
+                description: "체력 회복 비율 (%)"
+              global_turn_reset:
+                type: boolean
+                description: "글로벌 턴 즉시 발동 여부"
+              buff_duration_extension:
+                type: integer
+                range: [0, 5]
+                description: "버프 지속시간 연장 (턴)"
+
+example:
+  battles:
+    # Stage 1 - 튜토리얼 난이도
+    - id: "stage_1_battle_1"
+      stage: 1
+      battle_number: 1
+      waves:
+        - enemies:
+            - id: "spearman"
+            - id: "archer"
+        - enemies:
+            - id: "swordsman"
+            - id: "spearman"
+            - id: "archer"
+          wave_rewards:
+            hp_recovery_percent: 20
+        - enemies:
+            - id: "light_cavalry"
+              general: "wanggeon"  # 보스 wave
+            - id: "heavy_cavalry"
+            - id: "archer"
+          wave_rewards:
+            hp_recovery_percent: 10
+            global_turn_reset: true
+
+    # Stage 2 - 중간 난이도
+    - id: "stage_2_battle_1"
+      stage: 2
+      battle_number: 1
+      waves:
+        - enemies:
+            - id: "swordsman"
+            - id: "swordsman"
+            - id: "crossbowman"
+        - enemies:
+            - id: "heavy_cavalry"
+            - id: "light_cavalry"
+            - id: "archer"
+            - id: "archer"
+          wave_rewards:
+            hp_recovery_percent: 15
+        - enemies:
+            - id: "heavy_cavalry"
+              general: "gyeonhwon"  # 보스
+            - id: "swordsman"
+            - id: "crossbowman"
+            - id: "crossbowman"

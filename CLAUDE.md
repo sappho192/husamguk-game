@@ -118,30 +118,30 @@ Victory/Defeat Screen (scenes/victory_screen.tscn or defeat_screen.tscn)
 Main Menu
 ```
 
-### Project Structure (Phase 3D Complete)
+### Project Structure (Phase 4 Wave System)
 
 ```
 husamguk/
 ├── src/
 │   ├── autoload/                    # Global singletons
-│   │   ├── data_manager.gd          # ✅ YAML loading, NPC/theme filtering, localization
-│   │   ├── game_manager.gd          # ✅ Run orchestration, scene transitions
-│   │   └── save_manager.gd          # ✅ Stub for Phase 4
+│   │   ├── data_manager.gd          # ✅ YAML loading, battle data, NPC/theme filtering, localization
+│   │   ├── game_manager.gd          # ✅ Run orchestration, scene transitions, wave battles
+│   │   └── save_manager.gd          # ✅ Stub for Phase 4 meta-progression
 │   ├── core/                        # Data classes
-│   │   ├── unit.gd                  # ✅ ATB system, buff management
-│   │   ├── general.gd               # ✅ Skill execution, cooldown tracking
+│   │   ├── unit.gd                  # ✅ ATB system (4x speed), buff management
+│   │   ├── general.gd               # ✅ Skill execution, cooldown tracking (resets each stage)
 │   │   ├── buff.gd                  # ✅ Stat modification system
 │   │   ├── card.gd                  # ✅ Card effects and targeting
 │   │   └── run_state.gd             # ✅ Run-level state persistence
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd    # ✅ Dual-layer timing, state machine
+│   │   │   └── battle_manager.gd    # ✅ Wave system, dual-layer timing, state machine
 │   │   └── internal_affairs/
 │   │       └── internal_affairs_manager.gd  # ✅ Event system
 │   ├── tools/
-│   │   └── battle_simulator.gd      # ✅ Headless combat simulator (Phase 3D+)
+│   │   └── battle_simulator.gd      # ✅ Headless combat simulator
 │   └── ui/
-│       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, etc.
+│       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, Wave UI
 │       ├── internal_affairs/        # ✅ ChoiceButton, InternalAffairsUI
 │       ├── enhancement/             # ✅ EnhancementCard (reused by Fateful Encounter)
 │       ├── fateful_encounter/       # ✅ NPCPortraitDisplay, FatefulEncounterUI
@@ -151,7 +151,7 @@ husamguk/
 │
 ├── scenes/
 │   ├── main_menu.tscn               # ✅ Entry point
-│   ├── battle.tscn                  # ✅ Battle scene
+│   ├── battle.tscn                  # ✅ Battle scene (wave-based)
 │   ├── battle_simulator.tscn        # ✅ Battle simulator (headless)
 │   ├── internal_affairs.tscn        # ✅ Governance choices
 │   ├── fateful_encounter.tscn       # ✅ Fateful Encounter (Phase 3D)
@@ -164,6 +164,7 @@ husamguk/
 │   ├── events/                      # ✅ 20 events YAML (4 categories)
 │   ├── enhancements/                # ✅ 14 enhancements YAML (with theme tags)
 │   ├── npcs/                        # ✅ 5 NPCs YAML (Phase 3D)
+│   ├── battles/                     # ✅ 3 battle definitions YAML (Phase 4 - Wave system)
 │   └── localization/                # ✅ Korean/English (216 strings each)
 ├── addons/yaml/                     # ✅ godot-yaml parser addon
 ├── assets/audio/                    # ✅ Battle BGM (looping)
@@ -175,8 +176,8 @@ husamguk/
 ```
 
 **Legend:**
-- ✅ Implemented (Phase 3D complete)
-- 🔲 Not yet implemented (Phase 4+)
+- ✅ Implemented (Phase 4 Wave system in progress)
+- 🔲 Not yet implemented (Phase 4 meta-progression)
 
 ### MOD System Architecture
 
@@ -201,13 +202,14 @@ generals:
       combat: 90  # Overrides base 95, keeps other stats
 ```
 
-## Combat System: Dual-Layer Design
+## Combat System: Dual-Layer Design + Wave System
 
-The combat system has **two independent timing layers**, which is unusual and requires careful state management:
+The combat system has **two independent timing layers** + **wave-based encounters**:
 
 ### Layer 1: Individual Unit ATB
 - Each unit has an ATB gauge (0-100)
 - Fills at unit's ATB speed (multiplier, base 1.0)
+- **Phase 4 optimization**: Scale factor 40 (~2.5s per action for speed 1.0, 4x faster than before)
 - Gauge reaches 100 → unit executes auto-attack, ATB resets
 - **Continuous**: No global pause, units act as they become ready
 
@@ -224,12 +226,28 @@ The combat system has **two independent timing layers**, which is unusual and re
 - Ready when cooldown = 0 (no ATB requirement)
 - Using skill does NOT reset ATB
 - Cooldown decrements on global turns only
+- **Phase 4 fix**: Cooldowns reset to 0 at the start of each new stage (fresh general instances)
+
+### Wave System (Phase 4)
+- Each battle consists of 3-4 waves defined in YAML
+- **Stage 1**: 3 waves (2, 3, 4 enemies) - Tutorial difficulty
+- **Stage 2**: 3 waves (3, 3, 4 enemies) - Medium difficulty
+- **Stage 3**: 3 waves (3, 4, 5 enemies) - Final boss with 2 generals
+- Wave transition: 2-second pause with "Wave X Complete!" message
+- Wave rewards after each wave clear (except first wave):
+  - HP recovery (10-20% of max HP)
+  - Global turn reset (instant card draw)
+  - Buff duration extension (1-3 turns)
+- UI displays: Wave counter (top center), transition messages (center screen)
+- Enemy units dynamically spawned per wave (previous wave enemies cleared)
 
 **Why This Matters:** State management must handle:
-- Two pause states: RUNNING, PAUSED_FOR_CARD
+- Three pause states: RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION
 - ATB continues during normal combat
 - Skills usable anytime (cooldown-based)
 - Card effects that modify buffs/ATB speeds
+- Wave transitions with reward application
+- General instance recreation between stages (cooldown reset)
 
 ## Data Schema System
 
@@ -268,6 +286,15 @@ All data schemas are in `_schema.yaml` files. Each schema includes:
   - Scholar (Choi Chi-won): tactical, card, command
 - Background color for visual theming
 - Portrait path (placeholder system in Phase 3D)
+
+### Battles (`data/battles/_schema.yaml`) - Phase 4
+- Wave-based battle definitions for each stage
+- Each battle has 3-4 waves with enemy composition
+- Wave structure:
+  - `enemies`: Array of unit IDs with optional general assignments
+  - `wave_rewards`: HP recovery %, global turn reset, buff extension
+- Example: Stage 1 has 3 waves (2→3→4 enemies), Stage 3 has 3 waves (3→4→5 enemies)
+- Supports boss waves with multiple generals
 
 ### Nations
 - **Hubaekje** (견훤): Aggressive, faster ATB
@@ -374,31 +401,36 @@ var name = "견훤"
 - ✅ 27 additional localization strings (Korean + English → 216 total)
 - ✅ DataManager NPC loading and theme filtering API
 
-**Phase 4 (Meta-Progression)** 🔲 NEXT
+**Phase 4 (Wave System & Combat Improvements)** 🔄 IN PROGRESS
+- ✅ Wave-based battle system (3-4 waves per stage)
+- ✅ Battle data schema and YAML definitions (data/battles/)
+- ✅ Wave rewards (HP recovery, global turn reset, buff extension)
+- ✅ Wave UI (counter, transition messages)
+- ✅ ATB speed optimization (4x faster: 2.5s → from 10s per action)
+- ✅ Dynamic enemy spawning per wave
+- ✅ General cooldown reset between stages (fresh instances)
 - 🔲 SaveManager implementation (save/load functionality)
 - 🔲 Meta-progression unlocks (permanent upgrades)
-- 🔲 Enemy scaling across stages
-- 🔲 Additional content (more events, enhancements, cards)
-- 🔲 Balance tuning and polish
+- 🔲 Additional content balancing
 
 ## Implementation Status
 
-### ✅ Completed Components (Phase 3D)
+### ✅ Completed Components (Phase 4 Wave System)
 
 **Core Classes:**
-- `src/core/unit.gd` - ATB system, buff management, effective stat calculation
-- `src/core/general.gd` - Skill execution, cooldown tracking
+- `src/core/unit.gd` - ATB system (4x speed), buff management, effective stat calculation
+- `src/core/general.gd` - Skill execution, cooldown tracking (resets each stage)
 - `src/core/buff.gd` - Stat modification (buffs/debuffs) with duration tracking
 - `src/core/card.gd` - Card effect execution, targeting, penalty system
 - `src/core/run_state.gd` - Run-level state persistence (unit states, deck, enhancements, event flags)
 
 **Autoload Managers:**
-- `src/autoload/data_manager.gd` - YAML loading, NPC/theme filtering, localization, factory methods
-- `src/autoload/game_manager.gd` - Run orchestration, scene transitions (updated to Fateful Encounter)
+- `src/autoload/data_manager.gd` - YAML loading, battle data, NPC/theme filtering, localization, factory methods
+- `src/autoload/game_manager.gd` - Run orchestration, scene transitions, wave battle integration
 - `src/autoload/save_manager.gd` - Meta-progression stub (Phase 4)
 
 **Systems:**
-- `src/systems/battle/battle_manager.gd` - Dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD)
+- `src/systems/battle/battle_manager.gd` - Wave system, dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD/WAVE_TRANSITION)
 - `src/systems/internal_affairs/internal_affairs_manager.gd` - Event selection, effect execution
 
 **UI Components:**
@@ -415,6 +447,7 @@ var name = "견훤"
   - 20 events (military_events.yaml, economic_events.yaml, diplomatic_events.yaml, personnel_events.yaml)
   - 14 enhancements with theme tags (combat_enhancements.yaml)
   - 5 NPCs with dialogue (fateful_encounter_npcs.yaml)
+  - 3 battle definitions (stage_battles.yaml) - Phase 4 Wave system
   - 216 localization strings each language (ko.yaml, en.yaml)
 
 **Critical Implementation Notes:**
@@ -430,8 +463,10 @@ var name = "견훤"
 10. **Scene Z-Index**: Background ColorRects use `z_index = -1` to prevent covering UI elements
 11. **Await Safety**: Check `is_inside_tree()` before and after `await` to prevent errors during scene transitions
 12. **Localization Timing**: Never call `DataManager.get_localized()` in `_init()` - DataManager loads after scene instantiation
-13. **Cooldown Reset Between Battles**: General skill cooldowns are NOT persisted in RunState - they reset to 0 at the start of each new battle stage (all skills available)
+13. **Cooldown Reset Between Stages**: General instances recreated in `_prepare_next_stage()` to reset cooldowns to 0 (not persisted in RunState)
 14. **Debug Force Victory/Defeat**: Use direct HP/alive manipulation instead of `take_damage()` to bypass defense calculations
+15. **Wave UI Duplication Fix**: In wave battles, `_on_battle_started()` only creates enemy UI if `total_waves == 0` (standalone test), otherwise `_on_wave_started()` creates enemy UI
+16. **ATB Speed Scale Factor**: Set to 40 in `unit.gd:62` for ~2.5s per action (4x faster than original 10s)
 
 ### 🔲 Not Yet Implemented (Phase 4+)
 

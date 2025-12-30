@@ -1,0 +1,111 @@
+battles:
+  # ============================================================
+  # Stage 1 Battle - 튜토리얼 난이도
+  # ============================================================
+  - id: "stage_1_battle"
+    stage: 1
+    battle_number: 1
+    waves:
+      # Wave 1: 기본 병력 (2 units)
+      - enemies:
+          - id: "spearman"
+          - id: "archer"
+        wave_rewards: null
+
+      # Wave 2: 증강된 병력 (3 units)
+      - enemies:
+          - id: "swordsman"
+          - id: "spearman"
+          - id: "archer"
+        wave_rewards:
+          hp_recovery_percent: 20
+          global_turn_reset: false
+          buff_duration_extension: 0
+
+      # Wave 3: 보스 wave (4 units with general)
+      - enemies:
+          - id: "light_cavalry"
+            general: "wanggeon"
+          - id: "swordsman"
+          - id: "archer"
+          - id: "spearman"
+        wave_rewards:
+          hp_recovery_percent: 10
+          global_turn_reset: true
+          buff_duration_extension: 1
+
+  # ============================================================
+  # Stage 2 Battle - 중간 난이도
+  # ============================================================
+  - id: "stage_2_battle"
+    stage: 2
+    battle_number: 1
+    waves:
+      # Wave 1: 혼성 병력 (3 units)
+      - enemies:
+          - id: "swordsman"
+          - id: "light_cavalry"
+          - id: "crossbowman"
+        wave_rewards: null
+
+      # Wave 2: 중장 병력 (3 units)
+      - enemies:
+          - id: "heavy_cavalry"
+          - id: "swordsman"
+          - id: "archer"
+        wave_rewards:
+          hp_recovery_percent: 15
+          global_turn_reset: false
+          buff_duration_extension: 0
+
+      # Wave 3: 정예 병력 (4 units with general)
+      - enemies:
+          - id: "heavy_cavalry"
+            general: "gyeonhwon"
+          - id: "light_cavalry"
+          - id: "swordsman"
+          - id: "crossbowman"
+        wave_rewards:
+          hp_recovery_percent: 10
+          global_turn_reset: true
+          buff_duration_extension: 2
+
+  # ============================================================
+  # Stage 3 Battle - 최종 보스 전투
+  # ============================================================
+  - id: "stage_3_battle"
+    stage: 3
+    battle_number: 1
+    waves:
+      # Wave 1: 선봉대 (3 units)
+      - enemies:
+          - id: "heavy_cavalry"
+          - id: "swordsman"
+          - id: "crossbowman"
+        wave_rewards: null
+
+      # Wave 2: 주력부대 (4 units with general)
+      - enemies:
+          - id: "heavy_cavalry"
+            general: "gungsye"
+          - id: "light_cavalry"
+          - id: "swordsman"
+          - id: "crossbowman"
+        wave_rewards:
+          hp_recovery_percent: 15
+          global_turn_reset: false
+          buff_duration_extension: 1
+
+      # Wave 3: 최종 보스 (5 units, 2 generals)
+      - enemies:
+          - id: "heavy_cavalry"
+            general: "gyeonhwon"
+          - id: "heavy_cavalry"
+            general: "wanggeon"
+          - id: "light_cavalry"
+          - id: "swordsman"
+          - id: "crossbowman"
+        wave_rewards:
+          hp_recovery_percent: 20
+          global_turn_reset: true
+          buff_duration_extension: 2

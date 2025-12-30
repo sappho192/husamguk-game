@@ -12,6 +12,7 @@ var cards: Dictionary = {}          # id → card_data (Phase 2)
 var events: Dictionary = {}         # id → event_data (Phase 3)
 var enhancements: Dictionary = {}   # id → enhancement_data (Phase 3)
 var npcs: Dictionary = {}           # id → npc_data (Phase 3D - Fateful Encounter)
+var battles: Dictionary = {}        # id → battle_data (Phase 4 - Wave system)
 var localization: Dictionary = {}   # locale → (key → string)
 
 func _ready() -> void:
@@ -25,6 +26,7 @@ func _load_all_data() -> void:
 	_load_events()
 	_load_enhancements()
 	_load_npcs()
+	_load_battles()
 	_load_localization()
 	print("DataManager: Data loading complete")
 	print("  - Generals loaded: ", generals.size())
@@ -33,6 +35,7 @@ func _load_all_data() -> void:
 	print("  - Events loaded: ", events.size())
 	print("  - Enhancements loaded: ", enhancements.size())
 	print("  - NPCs loaded: ", npcs.size())
+	print("  - Battles loaded: ", battles.size())
 	print("  - Localization locales: ", localization.keys())
 
 func _load_generals() -> void:
@@ -77,6 +80,13 @@ func _load_npcs() -> void:
 	for file_name in npc_files:
 		var path = "res://data/npcs/" + file_name
 		_load_yaml_list(path, "npcs", npcs)
+
+func _load_battles() -> void:
+	# Phase 4: Load battle data (Wave system)
+	var battle_files = ["stage_battles.yaml"]
+	for file_name in battle_files:
+		var path = "res://data/battles/" + file_name
+		_load_yaml_list(path, "battles", battles)
 
 func _load_localization() -> void:
 	var locale_files = ["ko.yaml", "en.yaml"]
@@ -189,6 +199,10 @@ func get_random_npc() -> Dictionary:
 	# Shuffle and return first NPC
 	npc_list.shuffle()
 	return npc_list[0].duplicate(true)
+
+func get_battle(id: String) -> Dictionary:
+	# Phase 4: Get battle definition by ID
+	return battles.get(id, {})
 
 func get_localized(key: String) -> String:
 	var locale = TranslationServer.get_locale().substr(0, 2)  # "ko", "en"

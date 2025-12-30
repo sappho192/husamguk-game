@@ -5,8 +5,10 @@ signal battle_started()
 signal unit_action_ready(unit: Unit)
 signal battle_ended(victory: bool)
 signal global_turn_ready()  # Phase 2: Global turn system
+signal wave_started(wave_number: int, total_waves: int)  # Phase 4: Wave system
+signal wave_complete(wave_number: int, has_next_wave: bool)  # Phase 4: Wave complete
 
-enum BattleState { PREPARING, RUNNING, PAUSED_FOR_CARD, ENDED }  # Phase 2: New pause state
+enum BattleState { PREPARING, RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION, ENDED }  # Phase 4: Added WAVE_TRANSITION
 
 var state: BattleState = BattleState.PREPARING
 
@@ -19,6 +21,11 @@ var action_queue: Array[Unit] = []  # Units waiting to act
 const GLOBAL_TURN_INTERVAL: float = 10.0  # seconds
 var global_turn_timer: float = 0.0
 var global_turn_count: int = 0
+
+# Phase 4: Wave system
+var battle_data: Dictionary = {}  # Full battle definition
+var current_wave_index: int = 0   # 0-based wave index
+var total_waves: int = 0
 
 func start_battle(ally_data: Array, enemy_data: Array) -> void:
 	print("BattleManager: Starting battle with ", ally_data.size(), " allies vs ", enemy_data.size(), " enemies")
@@ -68,6 +75,130 @@ func start_battle_with_generals(ally_data: Array, enemy_data: Array) -> void:
 
 	state = BattleState.RUNNING
 	battle_started.emit()
+
+# Phase 4: Start battle from battle data (Wave system)
+func start_battle_from_data(battle_id: String, ally_data: Array) -> void:
+	print("BattleManager: Starting battle from data: ", battle_id)
+
+	# Load battle definition
+	battle_data = DataManager.get_battle(battle_id)
+	if battle_data.is_empty():
+		push_error("BattleManager: Battle not found: " + battle_id)
+		return
+
+	var waves = battle_data.get("waves", [])
+	if waves.is_empty():
+		push_error("BattleManager: No waves defined for battle: " + battle_id)
+		return
+
+	total_waves = waves.size()
+	current_wave_index = 0
+
+	# Create ally units
+	for unit_config in ally_data:
+		var unit_id = unit_config.get("id", "")
+		var general = unit_config.get("general", null)
+		var unit = DataManager.create_unit_instance(unit_id, true, general)
+		if unit:
+			ally_units.append(unit)
+			_connect_unit_signals(unit)
+			var general_name = general.display_name if general else "None"
+			print("  Ally: ", unit.display_name, " (General: ", general_name, ")")
+
+	# Start first wave
+	_spawn_wave(0)
+	state = BattleState.RUNNING
+	battle_started.emit()
+
+func _spawn_wave(wave_index: int) -> void:
+	print("=== SPAWNING WAVE ", wave_index + 1, " / ", total_waves, " ===")
+
+	var waves = battle_data.get("waves", [])
+	if wave_index >= waves.size():
+		push_error("BattleManager: Wave index out of bounds: ", wave_index)
+		return
+
+	var wave_data = waves[wave_index]
+	var enemies_data = wave_data.get("enemies", [])
+
+	# Clear existing enemies from previous wave
+	for enemy in enemy_units:
+		if enemy.atb_filled.is_connected(_on_unit_atb_filled):
+			enemy.atb_filled.disconnect(_on_unit_atb_filled)
+	enemy_units.clear()
+
+	# Create enemy units for this wave
+	for enemy_config in enemies_data:
+		var unit_id = enemy_config.get("id", "")
+		var general_id = enemy_config.get("general", null)
+		var general = null
+		if general_id:
+			general = DataManager.create_general_instance(general_id)
+
+		var unit = DataManager.create_unit_instance(unit_id, false, general)
+		if unit:
+			enemy_units.append(unit)
+			_connect_unit_signals(unit)
+			var general_name = general.display_name if general else "None"
+			print("  Enemy: ", unit.display_name, " (General: ", general_name, ")")
+
+	current_wave_index = wave_index
+	wave_started.emit(wave_index + 1, total_waves)
+
+func _on_wave_complete() -> void:
+	print("=== WAVE ", current_wave_index + 1, " COMPLETE ===")
+
+	var has_next_wave = current_wave_index + 1 < total_waves
+	wave_complete.emit(current_wave_index + 1, has_next_wave)
+
+	if has_next_wave:
+		# Apply wave rewards
+		var waves = battle_data.get("waves", [])
+		var wave_data = waves[current_wave_index]
+		_apply_wave_rewards(wave_data)
+
+		# Transition to next wave
+		state = BattleState.WAVE_TRANSITION
+		await get_tree().create_timer(2.0).timeout  # 2 second pause
+
+		if not is_inside_tree():
+			return  # Scene was changed during wait
+
+		_spawn_wave(current_wave_index + 1)
+		state = BattleState.RUNNING
+	else:
+		# Battle victory
+		_end_battle(true)
+
+func _apply_wave_rewards(wave_data: Dictionary) -> void:
+	var rewards = wave_data.get("wave_rewards", null)
+	if rewards == null or rewards.is_empty():
+		return
+
+	print("Applying wave rewards...")
+
+	# HP recovery
+	var hp_recovery_pct = rewards.get("hp_recovery_percent", 0)
+	if hp_recovery_pct > 0:
+		for unit in ally_units:
+			if unit.is_alive:
+				var recovery = int(unit.max_hp * hp_recovery_pct / 100.0)
+				unit.current_hp = mini(unit.current_hp + recovery, unit.max_hp)
+				print("  ", unit.display_name, " recovered ", recovery, " HP")
+
+	# Global turn reset
+	var global_turn_reset = rewards.get("global_turn_reset", false)
+	if global_turn_reset:
+		global_turn_timer = GLOBAL_TURN_INTERVAL  # Trigger immediately
+		print("  Global turn reset - card draw ready")
+
+	# Buff duration extension
+	var buff_extension = rewards.get("buff_duration_extension", 0)
+	if buff_extension > 0:
+		for unit in ally_units:
+			for buff in unit.active_buffs:
+				buff.duration += buff_extension
+				print("  ", unit.display_name, " buffs extended by ", buff_extension, " turns")
 
 func _process(delta: float) -> void:
 	match state:
@@ -127,7 +258,13 @@ func _check_battle_end() -> void:
 	var enemies_alive = enemy_units.filter(func(u): return u.is_alive)
 
 	if enemies_alive.is_empty():
-		_end_battle(true)
+		# Check if this is a wave-based battle
+		if total_waves > 0:
+			# Wave complete, check for next wave
+			_on_wave_complete()
+		else:
+			# Non-wave battle - instant victory
+			_end_battle(true)
 	elif allies_alive.is_empty():
 		_end_battle(false)
 

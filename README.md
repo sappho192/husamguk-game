@@ -25,7 +25,7 @@ godot project.godot
 - Press **F5** in Godot Editor to run the full game
 - Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 3D Complete ✅
+## Current Status: Phase 4 (Wave System) In Progress ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -37,7 +37,7 @@ godot project.godot
 
 **Phase 2 (Combat Expansion)** - Complete:
 - ✅ General unique skills (9 skills with damage/buff/debuff/heal effects)
-- ✅ Skill cooldown system (independent of ATB)
+- ✅ Skill cooldown system (independent of ATB, resets each stage)
 - ✅ Global turn timer (10-second intervals)
 - ✅ Card system (13 cards: starter deck + advanced cards)
 - ✅ Buff/debuff system with duration tracking
@@ -63,18 +63,33 @@ godot project.godot
 - ✅ 14 enhancements extended with theme tags
 - ✅ 216 localization strings per language (Korean/English)
 
+**Phase 4 (Wave System & Combat Improvements)** - In Progress:
+- ✅ Wave-based battle system (3-4 waves per stage)
+- ✅ Battle data schema and YAML definitions
+- ✅ Wave rewards (HP recovery, global turn reset, buff extension)
+- ✅ Wave UI (counter, transition messages)
+- ✅ ATB speed optimization (4x faster: ~2.5s per action instead of 10s)
+- ✅ Dynamic enemy spawning per wave
+- 🔲 Meta-progression system (save/load)
+- 🔲 Additional content balancing
+
 **What's Playable:**
-- Full roguelite run: Main Menu → 3 Battle Stages → Victory/Defeat
+- Full roguelite run: Main Menu → 3 Battle Stages (with waves) → Victory/Defeat
+- **Stage 1**: 3 waves (2, 3, 4 enemies) - Tutorial difficulty
+- **Stage 2**: 3 waves (3, 3, 4 enemies) - Medium difficulty
+- **Stage 3**: 3 waves (3, 4, 5 enemies) - Final boss with 2 generals
 - Between each stage: Internal Affairs (3 governance choices) → Fateful Encounter (meet 1 of 5 NPCs)
-- NPCs offer themed enhancements matching their character (physicians offer healing, mystics offer buffs, etc.)
+- Wave rewards: HP recovery (10-20%), global turn reset, buff duration extension
+- NPCs offer themed enhancements matching their character
 - Unit HP, stats, and buffs carry forward through all battles
+- General skills reset to 0 cooldown at the start of each new stage
 - Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
 
-**Next: Phase 4 (Meta-Progression)**
-- Save/load system (permanent progression)
-- Meta-progression unlocks (persistent upgrades)
-- Enemy scaling across stages
-- Additional content (more events, enhancements, cards)
+**Next Steps:**
+- Meta-progression system (permanent unlocks)
+- Save/load functionality
+- Additional content (more battles, events, cards)
+- Balance tuning based on playtesting
 
 ## Documentation
 
@@ -139,6 +154,7 @@ husamguk/
 │   ├── events/                     # 20 events YAML (4 categories)
 │   ├── enhancements/               # 14 enhancements YAML (with theme tags)
 │   ├── npcs/                       # 5 NPCs YAML (Phase 3D)
+│   ├── battles/                    # 3 battle definitions YAML (Phase 4 - Wave system)
 │   └── localization/               # ko.yaml, en.yaml (216 strings each)
 ├── addons/yaml/                    # godot-yaml parser addon
 ├── docs/                           # Design documents & guides

@@ -33,22 +33,18 @@ func start_new_run() -> void:
 
 # Prepare stage 1 battle
 func _prepare_stage_1() -> void:
-	# Test configuration: 3 ally units with generals
+	# Phase 4: Use battle data system
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
 	var wanggeon = DataManager.create_general_instance("wanggeon")
 	var singeom = DataManager.create_general_instance("singeom")
 
 	next_battle_config = {
 		"stage": 1,
+		"battle_id": "stage_1_battle",  # Phase 4: Battle data ID
 		"ally_units": [
 			{"id": "spearman", "general": gyeonhwon},
 			{"id": "archer", "general": wanggeon},
 			{"id": "swordsman", "general": singeom}
-		],
-		"enemy_units": [
-			{"id": "light_cavalry", "general": null},
-			{"id": "archer", "general": null},
-			{"id": "spearman", "general": null}
 		]
 	}
 
@@ -126,8 +122,21 @@ func on_enhancement_selected(enhancement: Dictionary) -> void:
 func _prepare_next_stage() -> void:
 	print("GameManager: Preparing Stage ", current_run.current_stage)
 
-	# For now, use same configuration (Phase 4: proper enemy scaling)
+	# Recreate generals with fresh cooldowns (cooldown doesn't persist between stages)
+	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
+	var wanggeon = DataManager.create_general_instance("wanggeon")
+	var singeom = DataManager.create_general_instance("singeom")
+
+	# Phase 4: Use battle data based on current stage
+	var battle_id = "stage_%d_battle" % current_run.current_stage
 	next_battle_config["stage"] = current_run.current_stage
+	next_battle_config["battle_id"] = battle_id
+	next_battle_config["ally_units"] = [
+		{"id": "spearman", "general": gyeonhwon},
+		{"id": "archer", "general": wanggeon},
+		{"id": "swordsman", "general": singeom}
+	]
+
 	_transition_to_battle()
 
 # Handle defeat

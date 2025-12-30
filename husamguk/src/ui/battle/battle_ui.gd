@@ -17,6 +17,10 @@ var skill_bar: SkillBar
 var card_hand: CardHand
 var global_turn_bar: ProgressBar
 
+# Phase 4: Wave system UI
+var wave_counter_label: Label
+var wave_transition_label: Label
+
 # Phase 2: Card deck management
 var deck: Array[Card] = []
 var discard_pile: Array[Card] = []
@@ -34,6 +38,8 @@ func _ready() -> void:
 	battle_manager.battle_started.connect(_on_battle_started)
 	battle_manager.battle_ended.connect(_on_battle_ended)
 	battle_manager.global_turn_ready.connect(_on_global_turn_ready)
+	battle_manager.wave_started.connect(_on_wave_started)  # Phase 4: Wave system
+	battle_manager.wave_complete.connect(_on_wave_complete)  # Phase 4: Wave system
 
 	# Hide result label initially
 	result_label.visible = false
@@ -52,24 +58,31 @@ func _ready() -> void:
 		GameManager.on_battle_ready(battle_manager, battle_manager.ally_units)
 
 func _start_test_battle() -> void:
-	# Phase 2: Create generals for testing
-	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
-	var wanggeon = DataManager.create_general_instance("wanggeon")
-	var singeom = DataManager.create_general_instance("singeom")
+	# Phase 4: Check if GameManager has battle config (wave system)
+	if GameManager.current_run and GameManager.next_battle_config.has("battle_id"):
+		var battle_id = GameManager.next_battle_config["battle_id"]
+		var ally_units_data = GameManager.next_battle_config.get("ally_units", [])
 
-	# Create ally units with generals
-	var ally_units_data = []
-	ally_units_data.append({"id": "spearman", "general": gyeonhwon})
-	ally_units_data.append({"id": "archer", "general": wanggeon})
-	ally_units_data.append({"id": "swordsman", "general": singeom})
+		print("BattleUI: Starting wave-based battle: ", battle_id)
+		battle_manager.start_battle_from_data(battle_id, ally_units_data)
+	else:
+		# Standalone test battle (no run active) - use old single-wave system
+		print("BattleUI: Starting standalone test battle")
+		var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
+		var wanggeon = DataManager.create_general_instance("wanggeon")
+		var singeom = DataManager.create_general_instance("singeom")
 
-	# Enemy units (no generals for now)
-	var enemy_units_data = []
-	enemy_units_data.append({"id": "light_cavalry", "general": null})
-	enemy_units_data.append({"id": "archer", "general": null})
-	enemy_units_data.append({"id": "spearman", "general": null})
+		var ally_units_data = []
+		ally_units_data.append({"id": "spearman", "general": gyeonhwon})
+		ally_units_data.append({"id": "archer", "general": wanggeon})
+		ally_units_data.append({"id": "swordsman", "general": singeom})
 
-	battle_manager.start_battle_with_generals(ally_units_data, enemy_units_data)
+		var enemy_units_data = []
+		enemy_units_data.append({"id": "light_cavalry", "general": null})
+		enemy_units_data.append({"id": "archer", "general": null})
+		enemy_units_data.append({"id": "spearman", "general": null})
+
+		battle_manager.start_battle_with_generals(ally_units_data, enemy_units_data)
 
 func _on_battle_started() -> void:
 	print("BattleUI: Battle started, creating unit displays")
@@ -79,10 +92,12 @@ func _on_battle_started() -> void:
 		var display = _create_unit_display(unit)
 		ally_container.add_child(display)
 
-	# Create UI for each enemy unit
-	for unit in battle_manager.enemy_units:
-		var display = _create_unit_display(unit)
-		enemy_container.add_child(display)
+	# Phase 4: Wave system - enemy UI is created in _on_wave_started() instead
+	if battle_manager.total_waves == 0:
+		# Non-wave battle (standalone test) - create enemy UI here
+		for unit in battle_manager.enemy_units:
+			var display = _create_unit_display(unit)
+			enemy_container.add_child(display)
 
 	# Setup skill bar with ally units
 	skill_bar.setup(battle_manager.ally_units)
@@ -105,6 +120,29 @@ func _on_battle_ended(victory: bool) -> void:
 
 # Phase 2: Create UI components
 func _create_phase2_ui() -> void:
+	# Phase 4: Wave counter (top center)
+	wave_counter_label = Label.new()
+	wave_counter_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	wave_counter_label.offset_top = 10
+	wave_counter_label.offset_bottom = 40
+	wave_counter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wave_counter_label.add_theme_font_size_override("font_size", 24)
+	wave_counter_label.visible = false  # Hidden until wave starts
+	add_child(wave_counter_label)
+
+	# Phase 4: Wave transition message (center screen)
+	wave_transition_label = Label.new()
+	wave_transition_label.set_anchors_preset(Control.PRESET_CENTER)
+	wave_transition_label.offset_left = -300
+	wave_transition_label.offset_right = 300
+	wave_transition_label.offset_top = -50
+	wave_transition_label.offset_bottom = 50
+	wave_transition_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wave_transition_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	wave_transition_label.add_theme_font_size_override("font_size", 36)
+	wave_transition_label.visible = false
+	add_child(wave_transition_label)
+
 	# Global turn timer container - positioned above card hand
 	var timer_container = VBoxContainer.new()
 	timer_container.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -280,3 +318,36 @@ func _on_force_victory() -> void:
 
 func _on_force_defeat() -> void:
 	battle_manager.force_defeat()
+
+# Phase 4: Wave system handlers
+func _on_wave_started(wave_number: int, total_waves: int) -> void:
+	print("BattleUI: Wave ", wave_number, " / ", total_waves, " started")
+
+	# Update wave counter
+	wave_counter_label.text = "Wave %d / %d" % [wave_number, total_waves]
+	wave_counter_label.visible = true
+
+	# Update enemy container (clear and rebuild)
+	for child in enemy_container.get_children():
+		child.queue_free()
+
+	for unit in battle_manager.enemy_units:
+		var display = _create_unit_display(unit)
+		enemy_container.add_child(display)
+
+	# Show wave start message briefly
+	if wave_number > 1:
+		wave_transition_label.text = "Wave %d" % wave_number
+		wave_transition_label.visible = true
+		await get_tree().create_timer(1.5).timeout
+		if is_inside_tree():
+			wave_transition_label.visible = false
+
+func _on_wave_complete(wave_number: int, has_next_wave: bool) -> void:
+	print("BattleUI: Wave ", wave_number, " complete. Next wave: ", has_next_wave)
+
+	if has_next_wave:
+		# Show wave complete message
+		wave_transition_label.text = "Wave %d Complete!" % wave_number
+		wave_transition_label.visible = true
+		# Will be hidden by _on_wave_started
