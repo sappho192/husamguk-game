@@ -2,10 +2,13 @@
 # This file defines simulation scenarios
 # Available generals: gyeonhwon, wanggeon, gyunhwon, singeom, bogo, sangyeong, gyeonae, wonhoe, sumyeong
 # Available units: spearman, swordsman, light_cavalry, heavy_cavalry, archer, crossbowman
+# Available battle IDs: stage1_battle, stage2_battle, stage3_battle
 
 simulations:
+  # ===== LEGACY MODE TESTS (Direct team vs team) =====
+
   # Test 1: Gyeonhwon vs Wanggeon (Spearman vs Heavy Cavalry)
-  - name: "gyeonhwon_vs_wanggeon_spearman_cavalry"
+  - name: "legacy_gyeonhwon_vs_wanggeon_spearman_cavalry"
     team1:
       general: "gyeonhwon"
       units: ["spearman", "spearman"]
@@ -15,7 +18,7 @@ simulations:
     iterations: 50
 
   # Test 2: Balanced teams
-  - name: "balanced_test"
+  - name: "legacy_balanced_test"
     team1:
       general: "gyeonhwon"
       units: ["spearman", "light_cavalry", "archer"]
@@ -25,7 +28,7 @@ simulations:
     iterations: 100
 
   # Test 3: Archer focus
-  - name: "ranged_focus"
+  - name: "legacy_ranged_focus"
     team1:
       general: "gyunhwon"
       units: ["archer", "archer", "crossbowman"]
@@ -33,3 +36,53 @@ simulations:
       general: "singeom"
       units: ["archer", "archer", "crossbowman"]
     iterations: 50
+
+  # ===== WAVE MODE TESTS (Battle data YAML) =====
+
+  # Test 4: Stage 1 Battle (3 waves, tutorial difficulty)
+  - name: "wave_stage1_gyeonhwon_balanced"
+    battle_id: "stage_1_battle"
+    ally_team:
+      general: "gyeonhwon"
+      units: ["spearman", "spearman", "archer"]
+    iterations: 30
+
+  # Test 5: Stage 1 Battle - Cavalry focus
+  - name: "wave_stage1_wanggeon_cavalry"
+    battle_id: "stage_1_battle"
+    ally_team:
+      general: "wanggeon"
+      units: ["light_cavalry", "heavy_cavalry", "archer"]
+    iterations: 30
+
+  # Test 6: Stage 2 Battle (3 waves, medium difficulty)
+  - name: "wave_stage2_gyeonhwon_balanced"
+    battle_id: "stage_2_battle"
+    ally_team:
+      general: "gyeonhwon"
+      units: ["spearman", "swordsman", "archer"]
+    iterations: 20
+
+  # Test 7: Stage 2 Battle - Ranged focus
+  - name: "wave_stage2_gyunhwon_ranged"
+    battle_id: "stage_2_battle"
+    ally_team:
+      general: "gyunhwon"
+      units: ["archer", "crossbowman", "archer"]
+    iterations: 20
+
+  # Test 8: Stage 3 Battle (3 waves, final boss with 2 generals)
+  - name: "wave_stage3_wanggeon_elite"
+    battle_id: "stage_3_battle"
+    ally_team:
+      general: "wanggeon"
+      units: ["heavy_cavalry", "swordsman", "crossbowman"]
+    iterations: 10
+
+  # Test 9: Stage 3 Battle - Balanced composition
+  - name: "wave_stage3_gyeonhwon_balanced"
+    battle_id: "stage_3_battle"
+    ally_team:
+      general: "gyeonhwon"
+      units: ["spearman", "light_cavalry", "archer"]
+    iterations: 10

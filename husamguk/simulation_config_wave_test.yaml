@@ -1,0 +1,8 @@
+# Quick wave mode test
+simulations:
+  - name: "quick_wave_stage1_test"
+    battle_id: "stage_1_battle"
+    ally_team:
+      general: "gyeonhwon"
+      units: ["spearman", "spearman", "archer"]
+    iterations: 3

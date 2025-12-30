@@ -3,15 +3,26 @@ extends Node
 # Battle Simulator for headless testing and balance tuning
 # Usage: godot --headless --script src/tools/battle_simulator.gd -- [arguments]
 #
-# Arguments:
+# Arguments (Legacy Mode - single battle):
 #   --team1 <general_id>,<unit_id>,<unit_id>,...
 #   --team2 <general_id>,<unit_id>,<unit_id>,...
 #   --iterations <number> (default: 1)
 #   --output <path> (default: output/simulation)
-#   --batch-config <yaml_file> (run multiple team combinations from YAML)
 #
-# Example:
+# Arguments (Wave Mode - battle data):
+#   --battle <battle_id> (e.g., stage1_battle, stage2_battle, stage3_battle)
+#   --team <general_id>,<unit_id>,<unit_id>,... (ally team composition)
+#   --iterations <number> (default: 1)
+#   --output <path> (default: output/simulation)
+#
+# Config File Mode:
+#   --batch-config <yaml_file> (run multiple scenarios from YAML)
+#
+# Example (Legacy):
 #   godot --headless --script src/tools/battle_simulator.gd -- --team1 gyeonhwon,infantry,infantry --team2 wanggeon,cavalry --iterations 100
+#
+# Example (Wave):
+#   godot --headless --script src/tools/battle_simulator.gd -- --battle stage1_battle --team gyeonhwon,spearman,spearman --iterations 50
 
 const BattleManager = preload("res://src/systems/battle/battle_manager.gd")
 const General = preload("res://src/core/general.gd")
@@ -28,6 +39,11 @@ var team2_config: Dictionary = {}
 var iterations: int = 1
 var output_path: String = "output/simulation"
 
+# Wave mode config
+var use_wave_mode: bool = false
+var battle_id: String = ""  # e.g., "stage1_battle"
+var ally_team_config: Dictionary = {}  # {general: String, units: Array[String]}
+
 # Battle manager instance
 var battle_manager: BattleManager = null
 
@@ -43,6 +59,11 @@ var team1_wins: int = 0
 var team2_wins: int = 0
 var total_duration: float = 0.0
 var total_turns: int = 0
+
+# Wave statistics (Phase 4)
+var waves_cleared: int = 0
+var total_wave_count: int = 0
+var wave_stats: Array[Dictionary] = []  # Per-wave statistics
 
 func _ready() -> void:
 	print("=== Battle Simulator Started ===")
@@ -87,6 +108,8 @@ func _ready() -> void:
 	battle_manager.battle_ended.connect(_on_battle_ended)
 	battle_manager.unit_action_ready.connect(_on_unit_action)
 	battle_manager.global_turn_ready.connect(_on_global_turn)
+	battle_manager.wave_started.connect(_on_wave_started)
+	battle_manager.wave_complete.connect(_on_wave_complete)
 
 	# Start simulations
 	_run_all_scenarios()
@@ -167,19 +190,46 @@ func _parse_arguments() -> bool:
 					print("ERROR: --output requires a value")
 					return false
 
+			"--battle":
+				if i + 1 < args.size():
+					battle_id = args[i + 1]
+					use_wave_mode = true
+					i += 2
+				else:
+					print("ERROR: --battle requires a value")
+					return false
+
+			"--team":
+				if i + 1 < args.size():
+					ally_team_config = _parse_team_config(args[i + 1])
+					i += 2
+				else:
+					print("ERROR: --team requires a value")
+					return false
+
 			_:
 				print("WARNING: Unknown argument: ", arg)
 				i += 1
 
 	# Validate configuration
-	if team1_config.is_empty() or team2_config.is_empty():
-		print("ERROR: Both --team1 and --team2 are required")
-		return false
-
-	print("Team 1: ", team1_config)
-	print("Team 2: ", team2_config)
-	print("Iterations: ", iterations)
-	print("Output path: ", output_path)
+	if use_wave_mode:
+		if battle_id.is_empty() or ally_team_config.is_empty():
+			print("ERROR: Wave mode requires --battle and --team")
+			return false
+		print("Mode: Wave Battle")
+		print("Battle ID: ", battle_id)
+		print("Ally Team: ", ally_team_config)
+		print("Iterations: ", iterations)
+		print("Output path: ", output_path)
+	else:
+		if team1_config.is_empty() or team2_config.is_empty():
+			print("ERROR: Legacy mode requires --team1 and --team2")
+			return false
+		print("Mode: Legacy (Single Battle)")
+		print("Team 1: ", team1_config)
+		print("Team 2: ", team2_config)
+		print("Iterations: ", iterations)
+		print("Output path: ", output_path)
 
 	return true
 
@@ -209,19 +259,39 @@ func _run_simulations() -> void:
 		print("--- Battle ", current_battle_id, "/", iterations, " ---")
 
 		# Reset battle stats
-		current_battle_stats = {
-			"battle_id": current_battle_id,
-			"team1_config": _config_to_string(team1_config),
-			"team2_config": _config_to_string(team2_config),
-			"team1_damage_dealt": 0,
-			"team2_damage_dealt": 0,
-			"team1_damage_taken": 0,
-			"team2_damage_taken": 0,
-			"team1_skills_used": 0,
-			"team2_skills_used": 0,
-			"global_turns": 0,
-			"unit_actions": []
-		}
+		if use_wave_mode:
+			current_battle_stats = {
+				"battle_id": current_battle_id,
+				"mode": "wave",
+				"battle_data_id": battle_id,
+				"ally_config": _config_to_string(ally_team_config),
+				"team1_damage_dealt": 0,
+				"team2_damage_dealt": 0,
+				"team1_damage_taken": 0,
+				"team2_damage_taken": 0,
+				"team1_skills_used": 0,
+				"team2_skills_used": 0,
+				"global_turns": 0,
+				"waves_cleared": 0,
+				"total_waves": 0,
+				"wave_details": [],
+				"unit_actions": []
+			}
+		else:
+			current_battle_stats = {
+				"battle_id": current_battle_id,
+				"mode": "legacy",
+				"team1_config": _config_to_string(team1_config),
+				"team2_config": _config_to_string(team2_config),
+				"team1_damage_dealt": 0,
+				"team2_damage_dealt": 0,
+				"team1_damage_taken": 0,
+				"team2_damage_taken": 0,
+				"team1_skills_used": 0,
+				"team2_skills_used": 0,
+				"global_turns": 0,
+				"unit_actions": []
+			}
 
 		# Start battle
 		_start_battle()
@@ -237,42 +307,6 @@ func _run_simulations() -> void:
 	_finalize_results()
 
 func _start_battle() -> void:
-	# Prepare team data
-	var team1_data: Array = []
-	var team2_data: Array = []
-
-	# Team 1
-	var general1 = DataManager.create_general_instance(team1_config["general"])
-	if not general1:
-		push_error("Failed to create general: " + team1_config["general"])
-		return
-
-	var team1_units = team1_config["units"]
-	for i in range(team1_units.size()):
-		var unit_id = team1_units[i]
-		# Only the first unit gets the general
-		var unit_general = general1 if i == 0 else null
-		team1_data.append({
-			"id": unit_id,
-			"general": unit_general
-		})
-
-	# Team 2
-	var general2 = DataManager.create_general_instance(team2_config["general"])
-	if not general2:
-		push_error("Failed to create general: " + team2_config["general"])
-		return
-
-	var team2_units = team2_config["units"]
-	for i in range(team2_units.size()):
-		var unit_id = team2_units[i]
-		# Only the first unit gets the general
-		var unit_general = general2 if i == 0 else null
-		team2_data.append({
-			"id": unit_id,
-			"general": unit_general
-		})
-
 	# Reset battle manager state
 	battle_manager.state = BattleManager.BattleState.PREPARING
 	battle_manager.ally_units.clear()
@@ -281,9 +315,66 @@ func _start_battle() -> void:
 	battle_manager.global_turn_timer = 0.0
 	battle_manager.global_turn_count = 0
 
-	# Start battle
+	# Reset wave statistics
+	wave_stats.clear()
+
 	current_battle_start_time = Time.get_ticks_msec() / 1000.0
-	battle_manager.start_battle_with_generals(team1_data, team2_data)
+
+	if use_wave_mode:
+		# Wave Mode: Start battle from battle data
+		var ally_data: Array = []
+		var general = DataManager.create_general_instance(ally_team_config["general"])
+		if not general:
+			push_error("Failed to create general: " + ally_team_config["general"])
+			return
+
+		var units = ally_team_config["units"]
+		for i in range(units.size()):
+			var unit_id = units[i]
+			var unit_general = general if i == 0 else null
+			ally_data.append({
+				"id": unit_id,
+				"general": unit_general
+			})
+
+		battle_manager.start_battle_from_data(battle_id, ally_data)
+
+	else:
+		# Legacy Mode: Direct team vs team
+		var team1_data: Array = []
+		var team2_data: Array = []
+
+		# Team 1
+		var general1 = DataManager.create_general_instance(team1_config["general"])
+		if not general1:
+			push_error("Failed to create general: " + team1_config["general"])
+			return
+
+		var team1_units = team1_config["units"]
+		for i in range(team1_units.size()):
+			var unit_id = team1_units[i]
+			var unit_general = general1 if i == 0 else null
+			team1_data.append({
+				"id": unit_id,
+				"general": unit_general
+			})
+
+		# Team 2
+		var general2 = DataManager.create_general_instance(team2_config["general"])
+		if not general2:
+			push_error("Failed to create general: " + team2_config["general"])
+			return
+
+		var team2_units = team2_config["units"]
+		for i in range(team2_units.size()):
+			var unit_id = team2_units[i]
+			var unit_general = general2 if i == 0 else null
+			team2_data.append({
+				"id": unit_id,
+				"general": unit_general
+			})
+
+		battle_manager.start_battle_with_generals(team1_data, team2_data)
 
 func _on_battle_started() -> void:
 	print("Battle started!")
@@ -318,6 +409,41 @@ func _on_global_turn() -> void:
 
 	# Auto-resume battle (skip card selection in simulation)
 	battle_manager.on_card_used()
+
+func _on_wave_started(wave_number: int, total_waves: int) -> void:
+	print("Wave ", wave_number, " / ", total_waves, " started!")
+	current_battle_stats["total_waves"] = total_waves
+
+	# Initialize wave tracking
+	wave_stats.append({
+		"wave_number": wave_number,
+		"start_time": Time.get_ticks_msec() / 1000.0,
+		"enemies_at_start": battle_manager.enemy_units.size(),
+		"allies_alive_at_start": _count_alive_units(battle_manager.ally_units),
+		"global_turns_at_start": battle_manager.global_turn_count
+	})
+
+func _on_wave_complete(wave_number: int, has_next_wave: bool) -> void:
+	print("Wave ", wave_number, " complete! ", "Next wave pending." if has_next_wave else "Battle complete.")
+	current_battle_stats["waves_cleared"] = wave_number
+	waves_cleared += 1
+
+	# Finalize wave statistics
+	if wave_stats.size() > 0:
+		var wave_stat = wave_stats[wave_stats.size() - 1]
+		wave_stat["end_time"] = Time.get_ticks_msec() / 1000.0
+		wave_stat["duration"] = wave_stat["end_time"] - wave_stat["start_time"]
+		wave_stat["allies_alive_at_end"] = _count_alive_units(battle_manager.ally_units)
+		wave_stat["global_turns_during_wave"] = battle_manager.global_turn_count - wave_stat["global_turns_at_start"]
+
+		current_battle_stats["wave_details"].append(wave_stat.duplicate())
+
+func _count_alive_units(units: Array[Unit]) -> int:
+	var count = 0
+	for unit in units:
+		if unit.is_alive:
+			count += 1
+	return count
 
 func _on_battle_ended(victory: bool) -> void:
 	var duration = (Time.get_ticks_msec() / 1000.0) - current_battle_start_time
@@ -371,24 +497,46 @@ func _write_csv_results() -> void:
 		push_error("Failed to open CSV file: " + csv_path)
 		return
 
-	# Write header
-	file.store_line("battle_id,team1_config,team2_config,winner,duration,global_turns,team1_damage_dealt,team1_damage_taken,team2_damage_dealt,team2_damage_taken")
+	# Write header (different for wave vs legacy mode)
+	if use_wave_mode:
+		file.store_line("battle_id,mode,battle_data_id,ally_config,winner,duration,global_turns,waves_cleared,total_waves,team1_damage_dealt,team1_damage_taken,team2_damage_dealt,team2_damage_taken")
+	else:
+		file.store_line("battle_id,mode,team1_config,team2_config,winner,duration,global_turns,team1_damage_dealt,team1_damage_taken,team2_damage_dealt,team2_damage_taken")
 
 	# Write data rows
 	for result in battle_results:
-		var row = "%d,%s,%s,%s,%.2f,%d,%d,%d,%d,%d" % [
-			result["battle_id"],
-			result["team1_config"],
-			result["team2_config"],
-			result["winner"],
-			result["duration"],
-			result["global_turns"],
-			result["team1_damage_dealt"],
-			result["team1_damage_taken"],
-			result["team2_damage_dealt"],
-			result["team2_damage_taken"]
-		]
-		file.store_line(row)
+		if result.get("mode", "legacy") == "wave":
+			var row = "%d,%s,%s,%s,%s,%.2f,%d,%d,%d,%d,%d,%d,%d" % [
+				result["battle_id"],
+				result["mode"],
+				result["battle_data_id"],
+				result["ally_config"],
+				result["winner"],
+				result["duration"],
+				result["global_turns"],
+				result.get("waves_cleared", 0),
+				result.get("total_waves", 0),
+				result["team1_damage_dealt"],
+				result["team1_damage_taken"],
+				result["team2_damage_dealt"],
+				result["team2_damage_taken"]
+			]
+			file.store_line(row)
+		else:
+			var row = "%d,%s,%s,%s,%s,%.2f,%d,%d,%d,%d,%d" % [
+				result["battle_id"],
+				result["mode"],
+				result["team1_config"],
+				result["team2_config"],
+				result["winner"],
+				result["duration"],
+				result["global_turns"],
+				result["team1_damage_dealt"],
+				result["team1_damage_taken"],
+				result["team2_damage_dealt"],
+				result["team2_damage_taken"]
+			]
+			file.store_line(row)
 
 	file.close()
 	print("CSV written: ", csv_path)
@@ -420,39 +568,83 @@ func _write_json_summary() -> void:
 	var avg_team2_damage_taken = total_team2_damage_taken / float(total_battles) if total_battles > 0 else 0.0
 
 	# Build summary dictionary
-	var summary = {
-		"simulation_config": {
-			"team1": _config_to_string(team1_config),
-			"team2": _config_to_string(team2_config),
-			"iterations": iterations
-		},
-		"results": {
-			"total_battles": total_battles,
-			"team1_wins": team1_wins,
-			"team2_wins": team2_wins,
-			"team1_win_rate": "%.2f%%" % team1_win_rate,
-			"team2_win_rate": "%.2f%%" % team2_win_rate
-		},
-		"performance": {
-			"average_duration_seconds": "%.2f" % avg_duration,
-			"average_global_turns": "%.1f" % avg_turns,
-			"total_duration_seconds": "%.2f" % total_duration
-		},
-		"damage_statistics": {
-			"team1": {
-				"avg_damage_dealt": "%.1f" % avg_team1_damage_dealt,
-				"avg_damage_taken": "%.1f" % avg_team1_damage_taken,
-				"total_damage_dealt": total_team1_damage_dealt,
-				"total_damage_taken": total_team1_damage_taken
+	var summary = {}
+
+	if use_wave_mode:
+		summary = {
+			"simulation_config": {
+				"mode": "wave",
+				"battle_id": battle_id,
+				"ally_team": _config_to_string(ally_team_config),
+				"iterations": iterations
 			},
-			"team2": {
-				"avg_damage_dealt": "%.1f" % avg_team2_damage_dealt,
-				"avg_damage_taken": "%.1f" % avg_team2_damage_taken,
-				"total_damage_dealt": total_team2_damage_dealt,
-				"total_damage_taken": total_team2_damage_taken
+			"results": {
+				"total_battles": total_battles,
+				"team1_wins": team1_wins,
+				"team2_wins": team2_wins,
+				"team1_win_rate": "%.2f%%" % team1_win_rate,
+				"team2_win_rate": "%.2f%%" % team2_win_rate
+			},
+			"performance": {
+				"average_duration_seconds": "%.2f" % avg_duration,
+				"average_global_turns": "%.1f" % avg_turns,
+				"total_duration_seconds": "%.2f" % total_duration
+			},
+			"wave_statistics": {
+				"total_wave_count": total_wave_count,
+				"waves_cleared": waves_cleared,
+				"average_waves_per_battle": "%.2f" % (waves_cleared / float(total_battles)) if total_battles > 0 else 0.0
+			},
+			"damage_statistics": {
+				"team1": {
+					"avg_damage_dealt": "%.1f" % avg_team1_damage_dealt,
+					"avg_damage_taken": "%.1f" % avg_team1_damage_taken,
+					"total_damage_dealt": total_team1_damage_dealt,
+					"total_damage_taken": total_team1_damage_taken
+				},
+				"team2": {
+					"avg_damage_dealt": "%.1f" % avg_team2_damage_dealt,
+					"avg_damage_taken": "%.1f" % avg_team2_damage_taken,
+					"total_damage_dealt": total_team2_damage_dealt,
+					"total_damage_taken": total_team2_damage_taken
+				}
 			}
 		}
-	}
+	else:
+		summary = {
+			"simulation_config": {
+				"mode": "legacy",
+				"team1": _config_to_string(team1_config),
+				"team2": _config_to_string(team2_config),
+				"iterations": iterations
+			},
+			"results": {
+				"total_battles": total_battles,
+				"team1_wins": team1_wins,
+				"team2_wins": team2_wins,
+				"team1_win_rate": "%.2f%%" % team1_win_rate,
+				"team2_win_rate": "%.2f%%" % team2_win_rate
+			},
+			"performance": {
+				"average_duration_seconds": "%.2f" % avg_duration,
+				"average_global_turns": "%.1f" % avg_turns,
+				"total_duration_seconds": "%.2f" % total_duration
+			},
+			"damage_statistics": {
+				"team1": {
+					"avg_damage_dealt": "%.1f" % avg_team1_damage_dealt,
+					"avg_damage_taken": "%.1f" % avg_team1_damage_taken,
+					"total_damage_dealt": total_team1_damage_dealt,
+					"total_damage_taken": total_team1_damage_taken
+				},
+				"team2": {
+					"avg_damage_dealt": "%.1f" % avg_team2_damage_dealt,
+					"avg_damage_taken": "%.1f" % avg_team2_damage_taken,
+					"total_damage_dealt": total_team2_damage_dealt,
+					"total_damage_taken": total_team2_damage_taken
+				}
+			}
+		}
 
 	# Write JSON
 	var json_string = JSON.stringify(summary, "\t")
@@ -493,13 +685,23 @@ func _load_config_file() -> bool:
 		return false
 
 	for sim in simulations:
-		simulation_scenarios.append({
+		var scenario = {
 			"name": sim.get("name", "unnamed"),
-			"team1": sim.get("team1", {}),
-			"team2": sim.get("team2", {}),
 			"iterations": sim.get("iterations", 1),
 			"output": output_base_path + "/" + sim.get("name", "unnamed")
-		})
+		}
+
+		# Check if this is a wave mode scenario
+		if sim.has("battle_id") and sim.has("ally_team"):
+			scenario["mode"] = "wave"
+			scenario["battle_id"] = sim.get("battle_id", "")
+			scenario["ally_team"] = sim.get("ally_team", {})
+		else:
+			scenario["mode"] = "legacy"
+			scenario["team1"] = sim.get("team1", {})
+			scenario["team2"] = sim.get("team2", {})
+
+		simulation_scenarios.append(scenario)
 
 	print("Loaded ", simulation_scenarios.size(), " scenarios from config file")
 	return true
@@ -519,10 +721,24 @@ func _run_scenario(scenario: Dictionary) -> void:
 	print("========================================")
 
 	# Set up scenario
-	team1_config = scenario["team1"]
-	team2_config = scenario["team2"]
 	iterations = scenario["iterations"]
 	output_path = scenario["output"]
+
+	var mode = scenario.get("mode", "legacy")
+	if mode == "wave":
+		use_wave_mode = true
+		battle_id = scenario["battle_id"]
+		ally_team_config = scenario["ally_team"]
+		print("Mode: Wave Battle")
+		print("Battle ID: ", battle_id)
+		print("Ally Team: ", ally_team_config)
+	else:
+		use_wave_mode = false
+		team1_config = scenario["team1"]
+		team2_config = scenario["team2"]
+		print("Mode: Legacy")
+		print("Team 1: ", team1_config)
+		print("Team 2: ", team2_config)
 
 	# Reset statistics
 	battle_results.clear()
@@ -532,6 +748,8 @@ func _run_scenario(scenario: Dictionary) -> void:
 	team2_wins = 0
 	total_duration = 0.0
 	total_turns = 0
+	waves_cleared = 0
+	total_wave_count = 0
 
 	# Create output directory for this scenario
 	var dir = DirAccess.open("res://")
