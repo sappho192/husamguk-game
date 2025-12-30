@@ -97,7 +97,7 @@ Internal Affairs (scenes/internal_affairs.tscn)
   ↓ InternalAffairsManager.execute_event() → modifies RunState (stats, deck, flags)
   ↓
 Fateful Encounter (scenes/fateful_encounter.tscn)  # Phase 3D: Narrative NPC encounters
-  ↓ Random NPC appears (1 of 5: Jwaja, Hwata, Ugil, Namhwa, Sugyeong)
+  ↓ Random NPC appears (1 of 5: Doseon, Yi Je-ma, Wonhyo, Uisang, Choi Chi-won)
   ↓ NPC offers 3 themed enhancements (filtered by NPC's theme tags)
   ↓ Choose 1 enhancement (1 common, 1 rare, 1 legendary)
   ↓ GameManager.on_enhancement_selected() → adds to RunState.active_enhancements
@@ -260,12 +260,12 @@ All data schemas are in `_schema.yaml` files. Each schema includes:
 - Conditions: Can restrict by HP threshold, unit count, turn number
 
 ### NPCs (`data/npcs/_schema.yaml`) - Phase 3D
-- 5 legendary figures: Jwaja, Hwata, Ugil, Namhwa, Sugyeong
+- 5 Korean historical figures: Doseon, Yi Je-ma, Wonhyo, Uisang, Choi Chi-won
 - Each NPC has unique dialogue (greeting, dialogue, offer)
 - **Enhancement themes**: NPCs offer enhancements matching their themes
-  - Medical (Jwaja, Hwata): healing, defense, support
-  - Mystic (Ugil, Namhwa): mystic, buff, speed
-  - Strategist (Sugyeong): tactical, card, command
+  - Geomancy/Medicine (Doseon, Yi Je-ma): healing, defense, support
+  - Buddhist Monks (Wonhyo, Uisang): mystic, buff, speed
+  - Scholar (Choi Chi-won): tactical, card, command
 - Background color for visual theming
 - Portrait path (placeholder system in Phase 3D)
 

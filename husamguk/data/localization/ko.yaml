@@ -244,37 +244,37 @@ strings:
   UI_FATEFUL_ENCOUNTER_TITLE: "운명적 조우"
   UI_FATEFUL_ENCOUNTER_SUBTITLE: "역사 속 인물과의 만남"
 
-  # NPC: 좌자
-  NPC_JWAJA_NAME: "좌자"
-  NPC_JWAJA_TITLE: "삼국시대의 명의"
-  NPC_JWAJA_GREETING: "전장에서 부상당한 병사들을 돌보는 것이 내 업이오."
-  NPC_JWAJA_DIALOGUE: "그대의 군사들은 용맹하나, 상처를 돌보지 않으면 오래 싸울 수 없소. 내 의술의 비법을 전수하겠으니, 현명하게 선택하시오."
-  NPC_JWAJA_OFFER: "다음 중 하나를 선택하시오."
+  # NPC: 도선국사
+  NPC_DOSEON_NAME: "도선국사"
+  NPC_DOSEON_TITLE: "풍수지리의 대가"
+  NPC_DOSEON_GREETING: "산천의 기운을 읽는 자, 도선이라 하오."
+  NPC_DOSEON_DIALOGUE: "땅의 기운이 군사의 기운과 합쳐질 때, 비로소 진정한 힘이 발현되오. 지맥의 흐름을 따라 그대의 군세를 강하게 하리다."
+  NPC_DOSEON_OFFER: "대지의 가호를 선택하시오."
 
-  # NPC: 화타
-  NPC_HWATA_NAME: "화타"
-  NPC_HWATA_TITLE: "천하제일 명의"
-  NPC_HWATA_GREETING: "화타라 하오. 이 세상 모든 병을 고칠 수 있소."
-  NPC_HWATA_DIALOGUE: "전쟁은 수많은 상처를 남기오. 하나 내 의술이 있다면, 그대의 병사들은 다시 일어설 것이오. 생명을 소중히 여기는 자에게 복이 있나니."
-  NPC_HWATA_OFFER: "치유의 길을 선택하시오."
+  # NPC: 이제마
+  NPC_YIJEMA_NAME: "이제마"
+  NPC_YIJEMA_TITLE: "사상의학의 창시자"
+  NPC_YIJEMA_GREETING: "사람의 체질을 아는 자, 이제마라 하오."
+  NPC_YIJEMA_DIALOGUE: "사람마다 체질이 다르듯, 전쟁도 상황에 따라 다른 처방이 필요하오. 내 의술로 그대의 병사들을 돌보리다."
+  NPC_YIJEMA_OFFER: "치유의 길을 선택하시오."
 
-  # NPC: 우길
-  NPC_UGIL_NAME: "우길"
-  NPC_UGIL_TITLE: "도술사"
-  NPC_UGIL_GREETING: "하늘의 뜻을 아는 자, 우길이오."
-  NPC_UGIL_DIALOGUE: "도의 힘은 눈에 보이지 않으나, 그 효험은 분명하오. 그대의 군세에 신비한 기운을 불어넣어 주겠소."
-  NPC_UGIL_OFFER: "신의 가호를 선택하시오."
+  # NPC: 원효
+  NPC_WONHYO_NAME: "원효"
+  NPC_WONHYO_TITLE: "대중의 스승"
+  NPC_WONHYO_GREETING: "일체유심조. 모든 것은 마음에서 비롯되오."
+  NPC_WONHYO_DIALOGUE: "전쟁의 승패는 무력만이 아니라 마음가짐에서 나오오. 그대의 군사들에게 불법의 가피를 내리리다."
+  NPC_WONHYO_OFFER: "부처의 가르침을 받으시오."
 
-  # NPC: 남화노선
-  NPC_NAMHWA_NAME: "남화노선"
-  NPC_NAMHWA_TITLE: "도가의 선인"
-  NPC_NAMHWA_GREETING: "세상의 이치를 깨달은 자, 남화노선이라 하오."
-  NPC_NAMHWA_DIALOGUE: "무릇 전쟁은 형세의 변화를 따르는 법. 그대에게 도의 오묘함을 빌려주겠으니, 시공을 초월한 힘을 누리시오."
-  NPC_NAMHWA_OFFER: "도의 선택을 하시오."
+  # NPC: 의상
+  NPC_UISANG_NAME: "의상"
+  NPC_UISANG_TITLE: "화엄종의 조사"
+  NPC_UISANG_GREETING: "일즉일체, 일체즉일. 하나가 곧 전체요, 전체가 곧 하나이오."
+  NPC_UISANG_DIALOGUE: "화엄의 이치는 모든 것이 서로 연결되어 있음을 가르치오. 그대의 군세가 하나로 융합될 때, 무한한 힘이 발현되리다."
+  NPC_UISANG_OFFER: "화엄의 이치를 따르시오."
 
-  # NPC: 수경선생
-  NPC_SUGYEONG_NAME: "수경선생"
-  NPC_SUGYEONG_TITLE: "천하의 책략가"
-  NPC_SUGYEONG_GREETING: "수경이라 불리는 사마휘요. 세상의 인재를 알아보는 안목이 있소."
-  NPC_SUGYEONG_DIALOGUE: "전쟁은 병력만으로 이기는 것이 아니오. 지략과 모략이 있어야 하오. 내가 그대에게 책략의 비법을 전하겠으니, 현명하게 사용하시오."
-  NPC_SUGYEONG_OFFER: "전략을 선택하시오."
+  # NPC: 최치원
+  NPC_CHOICHIWON_NAME: "최치원"
+  NPC_CHOICHIWON_TITLE: "고운 선생"
+  NPC_CHOICHIWON_GREETING: "세상을 등지고 은거하는 자, 최치원이라 하오."
+  NPC_CHOICHIWON_DIALOGUE: "난세를 헤쳐나가려면 지혜와 책략이 필요하오. 비록 세상을 떠났으나, 그대에게 계책을 전하리다."
+  NPC_CHOICHIWON_OFFER: "지혜의 길을 선택하시오."

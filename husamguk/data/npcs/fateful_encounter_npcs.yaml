@@ -2,57 +2,57 @@
 # Phase 3D - Fateful Encounter System
 
 npcs:
-  # 좌자 - 삼국시대의 명의 (의료/방어/지원)
-  - id: "npc_jwaja"
-    name_key: "NPC_JWAJA_NAME"
-    title_key: "NPC_JWAJA_TITLE"
-    greeting_key: "NPC_JWAJA_GREETING"
-    dialogue_key: "NPC_JWAJA_DIALOGUE"
-    offer_key: "NPC_JWAJA_OFFER"
+  # 도선국사 - 신라 말기 승려, 풍수지리의 원조 (의료/방어/지원)
+  - id: "npc_doseon"
+    name_key: "NPC_DOSEON_NAME"
+    title_key: "NPC_DOSEON_TITLE"
+    greeting_key: "NPC_DOSEON_GREETING"
+    dialogue_key: "NPC_DOSEON_DIALOGUE"
+    offer_key: "NPC_DOSEON_OFFER"
     enhancement_themes: ["healing", "defense", "support"]
     portrait_path: ""
     background_color: "#4A7C59"
 
-  # 화타 - 천하제일 명의 (의료/방어/지원)
-  - id: "npc_hwata"
-    name_key: "NPC_HWATA_NAME"
-    title_key: "NPC_HWATA_TITLE"
-    greeting_key: "NPC_HWATA_GREETING"
-    dialogue_key: "NPC_HWATA_DIALOGUE"
-    offer_key: "NPC_HWATA_OFFER"
+  # 이제마 - 조선 말기 한의사, 사상의학 창시자 (의료/방어/지원)
+  - id: "npc_yijema"
+    name_key: "NPC_YIJEMA_NAME"
+    title_key: "NPC_YIJEMA_TITLE"
+    greeting_key: "NPC_YIJEMA_GREETING"
+    dialogue_key: "NPC_YIJEMA_DIALOGUE"
+    offer_key: "NPC_YIJEMA_OFFER"
     enhancement_themes: ["healing", "defense", "support"]
     portrait_path: ""
     background_color: "#4A7C59"
 
-  # 우길 - 도술사 (신비/버프/속도)
-  - id: "npc_ugil"
-    name_key: "NPC_UGIL_NAME"
-    title_key: "NPC_UGIL_TITLE"
-    greeting_key: "NPC_UGIL_GREETING"
-    dialogue_key: "NPC_UGIL_DIALOGUE"
-    offer_key: "NPC_UGIL_OFFER"
+  # 원효 - 신라 중기 대중적 승려 (신비/버프/속도)
+  - id: "npc_wonhyo"
+    name_key: "NPC_WONHYO_NAME"
+    title_key: "NPC_WONHYO_TITLE"
+    greeting_key: "NPC_WONHYO_GREETING"
+    dialogue_key: "NPC_WONHYO_DIALOGUE"
+    offer_key: "NPC_WONHYO_OFFER"
     enhancement_themes: ["mystic", "buff", "speed"]
     portrait_path: ""
     background_color: "#6B4C8A"
 
-  # 남화노선 - 도가의 선인 (신비/버프/속도)
-  - id: "npc_namhwa"
-    name_key: "NPC_NAMHWA_NAME"
-    title_key: "NPC_NAMHWA_TITLE"
-    greeting_key: "NPC_NAMHWA_GREETING"
-    dialogue_key: "NPC_NAMHWA_DIALOGUE"
-    offer_key: "NPC_NAMHWA_OFFER"
+  # 의상 - 화엄종 창시자 (신비/버프/속도)
+  - id: "npc_uisang"
+    name_key: "NPC_UISANG_NAME"
+    title_key: "NPC_UISANG_TITLE"
+    greeting_key: "NPC_UISANG_GREETING"
+    dialogue_key: "NPC_UISANG_DIALOGUE"
+    offer_key: "NPC_UISANG_OFFER"
     enhancement_themes: ["mystic", "buff", "speed"]
     portrait_path: ""
     background_color: "#6B4C8A"
 
-  # 수경선생 (사마휘) - 천하의 책략가 (전술/카드/지휘)
-  - id: "npc_sugyeong"
-    name_key: "NPC_SUGYEONG_NAME"
-    title_key: "NPC_SUGYEONG_TITLE"
-    greeting_key: "NPC_SUGYEONG_GREETING"
-    dialogue_key: "NPC_SUGYEONG_DIALOGUE"
-    offer_key: "NPC_SUGYEONG_OFFER"
+  # 최치원 - 은자형 대학자 (전술/카드/지휘)
+  - id: "npc_choichiwon"
+    name_key: "NPC_CHOICHIWON_NAME"
+    title_key: "NPC_CHOICHIWON_TITLE"
+    greeting_key: "NPC_CHOICHIWON_GREETING"
+    dialogue_key: "NPC_CHOICHIWON_DIALOGUE"
+    offer_key: "NPC_CHOICHIWON_OFFER"
     enhancement_themes: ["tactical", "card", "command"]
     portrait_path: ""
     background_color: "#8A6B4C"

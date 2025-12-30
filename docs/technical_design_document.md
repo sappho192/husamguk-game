@@ -95,7 +95,7 @@ husamguk/                         # Godot 프로젝트 루트
 │   │   └── combat_enhancements.yaml  # ✅ 14개 강화 (테마 태그 포함, Phase 3D)
 │   ├── npcs/                     # ✅ Phase 3D - 운명적 조우
 │   │   ├── _schema.yaml          # ✅ NPC 스키마 정의
-│   │   └── fateful_encounter_npcs.yaml  # ✅ 5명 NPC (좌자, 화타, 우길, 남화노선, 수경선생)
+│   │   └── fateful_encounter_npcs.yaml  # ✅ 5명 NPC (도선국사, 이제마, 원효, 의상, 최치원)
 │   └── localization/
 │       ├── ko.yaml               # ✅ 한국어 (216 스트링, Phase 3D)
 │       └── en.yaml               # ✅ 영어 (216 스트링, Phase 3D)
@@ -760,7 +760,7 @@ func load_portrait(path: String) -> Texture2D:
 
 ```
 [구현 항목]
-✅ NPC 시스템 (5명: 좌자, 화타, 우길, 남화노선, 수경선생)
+✅ NPC 시스템 (5명: 도선국사, 이제마, 원효, 의상, 최치원)
 ✅ NPC별 고유 대화 (greeting, dialogue, offer)
 ✅ 테마 기반 강화 필터링 (healing, mystic, tactical 등)
 ✅ 강화 14개에 테마 태그 추가
@@ -769,13 +769,13 @@ func load_portrait(path: String) -> Texture2D:
 ✅ DataManager NPC 로딩 및 테마 필터링 API
 
 [데이터]
-✅ NPC 데이터 5개 (YAML)
+✅ NPC 데이터 5개 (YAML) - 한국 역사 인물
 ✅ 강화 테마 태그 추가 (14개 모두)
 ✅ 로컬라이제이션 216 스트링 (한/영, +27개)
 
 [UI 흐름]
 전투 승리 → 내정 → **운명적 조우** → 다음 전투
-- 5명 중 랜덤 1명 NPC 등장
+- 5명 한국 역사 인물 중 랜덤 1명 NPC 등장
 - NPC 테마에 맞는 강화 3개 제공 (1 common, 1 rare, 1 legendary)
 - 플레이어가 1개 선택
 ```
@@ -1258,3 +1258,4 @@ func _modify_unit_stat(effect: Dictionary) -> void:
 | 2025-12-30 | 강화 데이터 스키마 추가 (4.6절) |
 | 2025-12-30 | 로컬라이제이션 업데이트 (189 스트링) |
 | 2025-12-30 | Phase 1-3 로드맵 완료 상태 반영 |
+| 2025-12-30 | NPC 이름 변경: 중국 삼국지 인물 → 한국 역사 인물 (도선국사, 이제마, 원효, 의상, 최치원) |

@@ -244,37 +244,37 @@ strings:
   UI_FATEFUL_ENCOUNTER_TITLE: "Fateful Encounter"
   UI_FATEFUL_ENCOUNTER_SUBTITLE: "A Meeting with a Legend"
 
-  # NPC: Jwaja
-  NPC_JWAJA_NAME: "Jwaja"
-  NPC_JWAJA_TITLE: "Renowned Physician of the Three Kingdoms"
-  NPC_JWAJA_GREETING: "I am Jwaja, healer of the wounded."
-  NPC_JWAJA_DIALOGUE: "Your soldiers are brave, but wounds unattended will lead to defeat. I offer you the secrets of healing. Choose wisely."
-  NPC_JWAJA_OFFER: "Select one of the following."
+  # NPC: Doseon
+  NPC_DOSEON_NAME: "Master Doseon"
+  NPC_DOSEON_TITLE: "Grandmaster of Pungsu (Geomancy)"
+  NPC_DOSEON_GREETING: "I am Doseon, reader of the land's vital energy."
+  NPC_DOSEON_DIALOGUE: "When the energy of the earth merges with the spirit of warriors, true power emerges. I shall strengthen your army through the flow of the earth's veins."
+  NPC_DOSEON_OFFER: "Choose the blessing of the earth."
 
-  # NPC: Hwata
-  NPC_HWATA_NAME: "Hua Tuo"
-  NPC_HWATA_TITLE: "Master Physician"
-  NPC_HWATA_GREETING: "I am Hua Tuo. No ailment is beyond my cure."
-  NPC_HWATA_DIALOGUE: "War leaves many scars. With my medicine, your soldiers will rise again. Blessed are those who value life."
-  NPC_HWATA_OFFER: "Choose the path of healing."
+  # NPC: Yi Je-ma
+  NPC_YIJEMA_NAME: "Yi Je-ma"
+  NPC_YIJEMA_TITLE: "Founder of Sasang Medicine"
+  NPC_YIJEMA_GREETING: "I am Yi Je-ma, knower of constitutional medicine."
+  NPC_YIJEMA_DIALOGUE: "Just as each person has a unique constitution, each battle requires different remedies. My medical wisdom will care for your soldiers."
+  NPC_YIJEMA_OFFER: "Choose the path of healing."
 
-  # NPC: Ugil
-  NPC_UGIL_NAME: "Ugil"
-  NPC_UGIL_TITLE: "Daoist Mystic"
-  NPC_UGIL_GREETING: "I am Ugil, knower of Heaven's will."
-  NPC_UGIL_DIALOGUE: "The power of the Dao is invisible, yet its effects are undeniable. I shall infuse your army with mystical energy."
-  NPC_UGIL_OFFER: "Choose the blessing of the divine."
+  # NPC: Wonhyo
+  NPC_WONHYO_NAME: "Wonhyo"
+  NPC_WONHYO_TITLE: "Teacher of the People"
+  NPC_WONHYO_GREETING: "All things arise from the mind alone."
+  NPC_WONHYO_DIALOGUE: "Victory in battle comes not from force alone, but from the spirit. I shall bestow upon your warriors the blessings of the Dharma."
+  NPC_WONHYO_OFFER: "Receive the Buddha's teachings."
 
-  # NPC: Namhwa
-  NPC_NAMHWA_NAME: "Namhwa Elder"
-  NPC_NAMHWA_TITLE: "Daoist Immortal"
-  NPC_NAMHWA_GREETING: "I am the Namhwa Elder, enlightened sage."
-  NPC_NAMHWA_DIALOGUE: "War follows the flow of destiny. I lend you the mysteries of the Dao. Transcend time and space."
-  NPC_NAMHWA_OFFER: "Make your choice through the Dao."
+  # NPC: Uisang
+  NPC_UISANG_NAME: "Uisang"
+  NPC_UISANG_TITLE: "Patriarch of Hwaeom (Avatamsaka)"
+  NPC_UISANG_GREETING: "One is all, all is one. The individual is the whole, and the whole is the individual."
+  NPC_UISANG_DIALOGUE: "The principles of Hwaeom teach that all things are interconnected. When your army merges as one, infinite power shall manifest."
+  NPC_UISANG_OFFER: "Follow the principles of Hwaeom."
 
-  # NPC: Sugyeong
-  NPC_SUGYEONG_NAME: "Master Sugyeong"
-  NPC_SUGYEONG_TITLE: "Legendary Strategist"
-  NPC_SUGYEONG_GREETING: "I am Sima Hui, known as Master Sugyeong. I recognize true talent."
-  NPC_SUGYEONG_DIALOGUE: "Victory is not won by numbers alone. Strategy and cunning are essential. I shall teach you the art of war."
-  NPC_SUGYEONG_OFFER: "Choose your strategy."
+  # NPC: Choi Chi-won
+  NPC_CHOICHIWON_NAME: "Choi Chi-won"
+  NPC_CHOICHIWON_TITLE: "The Reclusive Scholar"
+  NPC_CHOICHIWON_GREETING: "I am Choi Chi-won, one who has turned away from the world."
+  NPC_CHOICHIWON_DIALOGUE: "To navigate these troubled times requires wisdom and strategy. Though I have withdrawn from the world, I shall share my counsel with you."
+  NPC_CHOICHIWON_OFFER: "Choose the path of wisdom."

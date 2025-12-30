@@ -57,7 +57,7 @@ godot project.godot
 
 **Phase 3D (Fateful Encounter)** - Complete:
 - ✅ Narrative-driven NPC encounter system (replacing simple enhancement selection)
-- ✅ 5 legendary NPCs (Jwaja, Hwata, Ugil, Namhwa, Sugyeong) with unique dialogue
+- ✅ 5 Korean historical NPCs (Doseon, Yi Je-ma, Wonhyo, Uisang, Choi Chi-won) with unique dialogue
 - ✅ Theme-based enhancement filtering (healing, mystic, tactical, etc.)
 - ✅ Horizontal layout: NPC portrait + info on left, dialogue on right
 - ✅ 14 enhancements extended with theme tags
@@ -83,6 +83,7 @@ godot project.godot
 - [CLAUDE.md](CLAUDE.md) - Development guidance for Claude Code
 - [Battle Simulator Guide](husamguk/docs/BATTLE_SIMULATOR.md) - Headless combat testing & balance tuning
 - [Data Schemas](husamguk/data/) - YAML schema definitions
+- [Issue Tracker](https://husamguk.atlassian.net/jira/software/projects/KAN/boards/1) - Project management & bug tracking
 
 ## Development Tools
 
@@ -94,10 +95,6 @@ Headless combat simulator for balance testing:
 - 10x accelerated simulation speed
 
 See [Battle Simulator Guide](husamguk/docs/BATTLE_SIMULATOR.md) for usage.
-
-## Related Links
-
-- [Issue Tracker](https://husamguk.atlassian.net/jira/software/projects/KAN/boards/1?atlOrigin=eyJpIjoiNDU0YTI2NGQxY2EyNDU4NTllOGM3MWNiNmIzZTZkYmIiLCJwIjoiaiJ9)
 
 ## Project Structure
 
