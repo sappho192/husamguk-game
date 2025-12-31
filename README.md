@@ -71,7 +71,7 @@ godot project.godot
 - ✅ ATB speed optimization (4x faster: ~2.5s per action instead of 10s)
 - ✅ Dynamic enemy spawning per wave
 
-**Phase 5 (Corps & Grid System)** - In Progress:
+**Phase 5 (Corps & Grid System)** - Complete:
 - ✅ Phase 5A: 16×16 tile-based terrain grid system
   - 6 terrain types with stat modifiers (plain, mountain, forest, river, road, wall)
   - 3 stage maps with spawn zones
@@ -86,7 +86,10 @@ godot project.godot
   - Movement phase during global turns
   - CommandPanel UI and MovementOverlay
   - CorpsDisplay component with HP/ATB bars
-- 🔲 Full integration with existing wave battle system
+  - 283 localization strings per language (Korean/English)
+
+**Next Steps:**
+- 🔲 Full integration with existing wave battle system (Phase 6)
 - 🔲 Meta-progression system (save/load)
 
 **What's Playable:**
@@ -101,15 +104,16 @@ godot project.godot
 - General skills reset to 0 cooldown at the start of each new stage
 - Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
 
-**Next Steps:**
-- Integrate Phase 5 corps/grid system with existing wave battles
-- Meta-progression system (permanent unlocks)
-- Save/load functionality
-- Additional content (more battles, events, cards)
-- Balance tuning based on playtesting
+**Development Roadmap:**
+- Phase 6: Integration of corps/grid system with wave battles (replace unit-based with corps-based combat)
+- Phase 7: Meta-progression system (permanent unlocks, save/load)
+- Phase 8: Content expansion (more battles, events, cards, enhancements)
+- Phase 9: Balance tuning and polish based on playtesting
+- Phase 10: MOD system full implementation
 
-**Test Scene:**
-- `scenes/corps_battle_test.tscn` - Test corps-based combat on grid (Phase 5 prototype)
+**Test Scenes:**
+- `scenes/battle.tscn` - Unit-based wave battle system (Phases 1-4, currently active)
+- `scenes/corps_battle_test.tscn` - Corps-based tactical combat on 16×16 grid (Phase 5 prototype)
 
 ## Documentation
 
