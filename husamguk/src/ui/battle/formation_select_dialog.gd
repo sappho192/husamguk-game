@@ -26,8 +26,17 @@ var _selected_corps: Corps = null
 func _init() -> void:
 	custom_minimum_size = Vector2(400, 500)
 
-	# 다이얼로그 중앙 배치
-	set_anchors_preset(Control.PRESET_CENTER)
+	# 다이얼로그 중앙 배치 - 앵커를 중앙으로 설정하고 피벗도 중앙으로
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -200  # custom_minimum_size.x / 2
+	offset_top = -250   # custom_minimum_size.y / 2
+	offset_right = 200
+	offset_bottom = 250
+	grow_horizontal = Control.GROW_DIRECTION_BOTH
+	grow_vertical = Control.GROW_DIRECTION_BOTH
 
 	# 패널 스타일
 	var style = StyleBoxFlat.new()
@@ -159,6 +168,10 @@ func _create_formation_button(formation: Formation) -> Button:
 	vbox.add_theme_constant_override("separation", 4)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	# 버튼의 전체 영역을 사용하도록 앵커 설정
+	vbox.anchor_right = 1.0
+	vbox.anchor_bottom = 1.0
 	button.add_child(vbox)
 
 	# 진형 이름
@@ -167,6 +180,9 @@ func _create_formation_button(formation: Formation) -> Button:
 	name_label.add_theme_font_size_override("font_size", 18)
 	name_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.custom_minimum_size = Vector2(320, 0)  # 충분한 가로 폭 보장
 	vbox.add_child(name_label)
 
 	# 스탯 요약
@@ -175,7 +191,9 @@ func _create_formation_button(formation: Formation) -> Button:
 	stats_label.add_theme_font_size_override("font_size", 14)
 	stats_label.add_theme_color_override("font_color", Color(0.8, 0.8, 1.0))
 	stats_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stats_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stats_label.custom_minimum_size = Vector2(320, 0)
 	vbox.add_child(stats_label)
 
 	# 진형 설명
@@ -185,6 +203,8 @@ func _create_formation_button(formation: Formation) -> Button:
 	desc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	desc_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	desc_label.custom_minimum_size = Vector2(320, 0)
 	vbox.add_child(desc_label)
 
 	return button

@@ -715,8 +715,8 @@ func _execute_formation_change_command(command: CorpsCommand) -> void:
 		corps.reset_atb()
 		return
 
-	# 진형 변경
-	corps.set_formation(command.target_formation)
+	# 진형 변경 (formation_id를 전달)
+	corps.set_formation(command.target_formation.id)
 	print("BattleManager: %s changed formation to %s" % [
 		corps.get_display_name(),
 		command.target_formation.get_display_name()
