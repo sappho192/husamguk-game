@@ -11,8 +11,8 @@ signal scene_transition_started(scene_path: String)
 # Run state (ephemeral, cleared on run end)
 var current_run: RunState = null
 
-# Battle configuration (for next battle)
-var next_battle_config: Dictionary = {}  # ally_units, enemy_units, stage
+# Battle configuration (for next battle) - Phase 5: Corps system
+var next_battle_config: Dictionary = {}  # map_id, ally_corps, stage
 
 # Scene paths
 const BATTLE_SCENE = "res://scenes/battle.tscn"
@@ -31,20 +31,19 @@ func start_new_run() -> void:
 	current_run = RunState.new()
 	_prepare_stage_1()
 
-# Prepare stage 1 battle
+# Prepare stage 1 battle - Phase 5: Corps system
 func _prepare_stage_1() -> void:
-	# Phase 4: Use battle data system
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
 	var wanggeon = DataManager.create_general_instance("wanggeon")
 	var singeom = DataManager.create_general_instance("singeom")
 
 	next_battle_config = {
 		"stage": 1,
-		"battle_id": "stage_1_battle",  # Phase 4: Battle data ID
-		"ally_units": [
-			{"id": "spearman", "general": gyeonhwon},
-			{"id": "archer", "general": wanggeon},
-			{"id": "swordsman", "general": singeom}
+		"map_id": "stage_1_map",  # Phase 5: Map ID for grid-based battle
+		"ally_corps": [
+			{"template_id": "spear_corps", "general": gyeonhwon},
+			{"template_id": "archer_corps", "general": wanggeon},
+			{"template_id": "light_cavalry_corps", "general": singeom}
 		]
 	}
 
@@ -56,20 +55,19 @@ func _transition_to_battle() -> void:
 	scene_transition_started.emit(BATTLE_SCENE)
 	get_tree().change_scene_to_file(BATTLE_SCENE)
 
-# Called by BattleUI after battle setup
-func on_battle_ready(battle_manager, ally_units: Array) -> void:
-	print("GameManager: Battle ready, restoring run state")
+# Called by BattleUI after battle setup - Phase 5: Corps system
+func on_battle_ready(battle_manager, ally_corps: Array) -> void:
+	print("GameManager: Battle ready, restoring run state (Corps)")
 
-	# Restore unit states from run (HP, buffs, etc.)
-	for unit in ally_units:
-		current_run.restore_unit_state(unit)
+	# Restore corps states from run (HP, soldier count)
+	for corps in ally_corps:
+		current_run.restore_corps_state(corps)
 
-	# Apply active enhancements
-	for enhancement in current_run.active_enhancements:
-		current_run.apply_enhancement_to_units(enhancement, ally_units)
+	# TODO Phase 5: Apply active enhancements to Corps
+	# (Enhancement system will need to support Corps in future phase)
 
-# Called when battle ends
-func on_battle_ended(victory: bool, ally_units: Array) -> void:
+# Called when battle ends - Phase 5: Corps system
+func on_battle_ended(victory: bool, ally_corps: Array) -> void:
 	print("GameManager: Battle ended (Stage ", current_run.current_stage, ") - ", "VICTORY" if victory else "DEFEAT")
 
 	# Record result
@@ -79,9 +77,9 @@ func on_battle_ended(victory: bool, ally_units: Array) -> void:
 		_handle_defeat()
 		return
 
-	# Save unit states for carry-forward
-	for unit in ally_units:
-		current_run.save_unit_state(unit)
+	# Save corps states for carry-forward
+	for corps in ally_corps:
+		current_run.save_corps_state(corps)
 
 	# Emit stage completion
 	stage_completed.emit(current_run.current_stage, victory)
@@ -118,7 +116,7 @@ func on_enhancement_selected(enhancement: Dictionary) -> void:
 	current_run.current_stage += 1
 	_prepare_next_stage()
 
-# Prepare next stage battle
+# Prepare next stage battle - Phase 5: Corps system
 func _prepare_next_stage() -> void:
 	print("GameManager: Preparing Stage ", current_run.current_stage)
 
@@ -127,14 +125,14 @@ func _prepare_next_stage() -> void:
 	var wanggeon = DataManager.create_general_instance("wanggeon")
 	var singeom = DataManager.create_general_instance("singeom")
 
-	# Phase 4: Use battle data based on current stage
-	var battle_id = "stage_%d_battle" % current_run.current_stage
+	# Phase 5: Use map based on current stage
+	var map_id = "stage_%d_map" % current_run.current_stage
 	next_battle_config["stage"] = current_run.current_stage
-	next_battle_config["battle_id"] = battle_id
-	next_battle_config["ally_units"] = [
-		{"id": "spearman", "general": gyeonhwon},
-		{"id": "archer", "general": wanggeon},
-		{"id": "swordsman", "general": singeom}
+	next_battle_config["map_id"] = map_id
+	next_battle_config["ally_corps"] = [
+		{"template_id": "spear_corps", "general": gyeonhwon},
+		{"template_id": "archer_corps", "general": wanggeon},
+		{"template_id": "light_cavalry_corps", "general": singeom}
 	]
 
 	_transition_to_battle()

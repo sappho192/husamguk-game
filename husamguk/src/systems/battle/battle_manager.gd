@@ -407,6 +407,31 @@ func _execute_skill(unit: Unit) -> void:
 
 	print(general.display_name, " (", unit.display_name, ") used skill!")
 
+# Phase 5: Execute corps skill (called from UI when player clicks skill icon)
+func execute_corps_skill(corps: Corps) -> void:
+	if not corps.is_alive:
+		push_warning("Cannot execute skill - corps is destroyed")
+		return
+
+	if not corps.general or not corps.general.is_skill_ready():
+		push_warning("Cannot execute skill - skill not ready")
+		return
+
+	_execute_corps_skill(corps)
+
+func _execute_corps_skill(corps: Corps) -> void:
+	var general = corps.general
+	var targets = _get_skill_targets_corps(general.skill, corps.is_ally, corps)
+
+	# Execute the skill effect (General's execute_skill_effect handles both Unit and Corps)
+	# We pass corps as the caster and targets
+	general.execute_skill_effect(corps, targets)
+
+	# Note: Skills do NOT reset ATB - they are independent of the ATB system
+	# ATB continues to fill normally for auto-attacks
+
+	print(general.display_name, " (", corps.get_display_name(), ") used skill!")
+
 func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array[Unit]:
 	var effect = skill.get("effect", {})
 	var target_type = effect.get("target", "single_enemy")
@@ -450,6 +475,44 @@ func _get_skill_targets(skill: Dictionary, is_ally: bool, caster: Unit) -> Array
 		_:
 			var empty: Array[Unit] = []
 			return empty
+
+# Phase 5: Get skill targets for Corps
+func _get_skill_targets_corps(skill: Dictionary, is_ally: bool, caster: Corps) -> Array:
+	var effect = skill.get("effect", {})
+	var target_type = effect.get("target", "single_enemy")
+
+	var allies = ally_corps.filter(func(c): return c.is_alive)
+	var enemies = enemy_corps.filter(func(c): return c.is_alive)
+
+	match target_type:
+		"single_enemy":
+			var target_list = enemies if is_ally else allies
+			if not target_list.is_empty():
+				return [target_list[0]]
+			else:
+				return []
+		"all_enemies":
+			return enemies if is_ally else allies
+		"single_ally":
+			var target_list = allies if is_ally else enemies
+			# Select lowest HP ally for healing
+			if not target_list.is_empty():
+				var lowest = target_list[0]
+				for c in target_list:
+					if c.current_hp < lowest.current_hp:
+						lowest = c
+				return [lowest]
+			else:
+				return []
+		"all_allies":
+			return allies if is_ally else enemies
+		"self":
+			if caster.is_alive:
+				return [caster]
+			else:
+				return []
+		_:
+			return []
 
 # DEBUG: Force battle result for testing
 func force_victory() -> void:

@@ -4,6 +4,7 @@ extends RefCounted
 # Preload dependencies
 const Buff = preload("res://src/core/buff.gd")
 const Unit = preload("res://src/core/unit.gd")
+const Corps = preload("res://src/core/corps.gd")
 
 # Properties
 var id: String
@@ -40,7 +41,7 @@ func can_use(battle_state: Dictionary = {}) -> bool:
 	# For now, all cards can be used
 	return true
 
-# Execute the card's effect
+# Execute the card's effect (Unit version)
 func execute_effect(ally_units: Array[Unit], enemy_units: Array[Unit]) -> void:
 	var targets = _get_targets(ally_units, enemy_units)
 	var effect_type = effect.get("type", "")
@@ -60,6 +61,27 @@ func execute_effect(ally_units: Array[Unit], enemy_units: Array[Unit]) -> void:
 	# Apply penalty if present
 	if not penalty.is_empty():
 		_execute_penalty(ally_units, enemy_units)
+
+# Phase 5: Execute card effect on Corps
+func execute_effect_corps(ally_corps: Array, enemy_corps: Array) -> void:
+	var targets = _get_targets_corps(ally_corps, enemy_corps)
+	var effect_type = effect.get("type", "")
+
+	print("Card '", display_name, "' used on Corps (", effect_type, ")")
+
+	match effect_type:
+		"buff", "debuff":
+			_apply_buff_debuff_corps(targets, effect)
+		"damage":
+			_apply_damage_corps(targets)
+		"heal":
+			_apply_heal_corps(targets)
+		"special":
+			_apply_special_corps(targets, ally_corps, enemy_corps)
+
+	# Apply penalty if present
+	if not penalty.is_empty():
+		_execute_penalty_corps(ally_corps, enemy_corps)
 
 # Get target units based on effect target type
 func _get_targets(allies: Array[Unit], enemies: Array[Unit]) -> Array[Unit]:
@@ -199,3 +221,126 @@ func get_rarity_color() -> Color:
 			return Color.GOLD
 		_:
 			return Color.GRAY
+
+# ====================================
+# Phase 5: Corps Support Methods
+# ====================================
+
+# Get target corps based on effect target type
+func _get_targets_corps(allies: Array, enemies: Array) -> Array:
+	var target_type = effect.get("target", "all_allies")
+	var alive_allies = allies.filter(func(c): return c.is_alive)
+	var alive_enemies = enemies.filter(func(c): return c.is_alive)
+
+	match target_type:
+		"all_allies":
+			return alive_allies
+		"all_enemies":
+			return alive_enemies
+		"single_ally":
+			# Select lowest HP corps for healing, or random for buffs
+			if effect.get("type") == "heal":
+				return [_select_lowest_hp_corps(alive_allies)]
+			else:
+				return [alive_allies[0]] if not alive_allies.is_empty() else []
+		"single_enemy":
+			# Select first alive enemy (simple targeting)
+			return [alive_enemies[0]] if not alive_enemies.is_empty() else []
+		"self":
+			# Not applicable for cards
+			return alive_allies
+		_:
+			return []
+
+# Apply buff or debuff to Corps
+func _apply_buff_debuff_corps(targets: Array, effect_data: Dictionary) -> void:
+	var buff_data = {
+		"id": id + "_effect",
+		"type": effect_data.get("type", "buff"),
+		"stat": effect_data.get("stat", "attack"),
+		"value": effect_data.get("value", 0),
+		"value_type": effect_data.get("value_type", "percent"),
+		"duration": effect_data.get("duration", 2),
+		"source": "card"
+	}
+
+	for target in targets:
+		var buff = Buff.new(buff_data)
+		target.add_buff(buff)
+
+# Apply instant damage to Corps
+func _apply_damage_corps(targets: Array) -> void:
+	var damage_value = effect.get("value", 0)
+	var value_type = effect.get("value_type", "flat")
+
+	for target in targets:
+		var damage = 0
+		if value_type == "flat":
+			damage = int(damage_value)
+		else:
+			# Percent-based damage (% of max HP)
+			damage = int(target.max_hp * damage_value / 100.0)
+
+		target.take_damage(damage)
+		print("  ", target.get_display_name(), " took ", damage, " damage from card")
+
+# Apply instant heal to Corps
+func _apply_heal_corps(targets: Array) -> void:
+	var heal_value = effect.get("value", 0)
+	var value_type = effect.get("value_type", "percent")
+
+	for target in targets:
+		var heal_amount = 0
+		if value_type == "percent":
+			heal_amount = int(target.max_hp * heal_value / 100.0)
+		else:
+			heal_amount = int(heal_value)
+
+		target.current_hp = mini(target.max_hp, target.current_hp + heal_amount)
+		print("  ", target.get_display_name(), " healed ", heal_amount, " HP")
+
+# Apply special effects to Corps
+func _apply_special_corps(targets: Array, allies: Array, enemies: Array) -> void:
+	var special_id = effect.get("special_id", "")
+	print("Special effect '", special_id, "' not yet implemented for Corps")
+
+# Execute penalty effect on Corps
+func _execute_penalty_corps(allies: Array, enemies: Array) -> void:
+	var penalty_type = penalty.get("type", "")
+
+	match penalty_type:
+		"debuff":
+			var penalty_targets = _get_penalty_targets_corps(allies, enemies)
+			_apply_buff_debuff_corps(penalty_targets, penalty)
+		"dot":
+			# Damage over time - apply as a debuff with HP stat
+			var penalty_targets = _get_penalty_targets_corps(allies, enemies)
+			_apply_buff_debuff_corps(penalty_targets, penalty)
+		"conditional":
+			print("Conditional penalty not yet implemented for Corps")
+		"delayed":
+			print("Delayed penalty not yet implemented for Corps")
+
+func _get_penalty_targets_corps(allies: Array, enemies: Array) -> Array:
+	var target_type = penalty.get("target", "all_allies")
+	var alive_allies = allies.filter(func(c): return c.is_alive)
+	var alive_enemies = enemies.filter(func(c): return c.is_alive)
+
+	match target_type:
+		"all_allies":
+			return alive_allies
+		"all_enemies":
+			return alive_enemies
+		_:
+			return []
+
+# Helper: Select corps with lowest HP (for healing)
+func _select_lowest_hp_corps(corps_list: Array) -> Corps:
+	if corps_list.is_empty():
+		return null
+
+	var lowest = corps_list[0]
+	for corps in corps_list:
+		if corps.current_hp < lowest.current_hp:
+			lowest = corps
+	return lowest

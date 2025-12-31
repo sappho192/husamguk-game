@@ -3,35 +3,47 @@ extends Button
 
 # Preload dependencies
 const Unit = preload("res://src/core/unit.gd")
+const Corps = preload("res://src/core/corps.gd")
 
-signal skill_clicked(unit: Unit)
+# Phase 5D: Changed to Variant to support both Unit and Corps
+signal skill_clicked(unit_or_corps)
 
-var unit: Unit
+# Phase 5D: Changed to Variant
+var unit_or_corps = null
 var is_skill_ready: bool = false
 
-func setup(unit_instance: Unit) -> void:
-	unit = unit_instance
+# Phase 5D: Support both Unit and Corps
+func setup(entity) -> void:
+	unit_or_corps = entity
 	custom_minimum_size = Vector2(80, 80)
 
 	# Update display
 	_update_display()
 
 	# Connect to button press
-	pressed.connect(_on_pressed)
+	if not pressed.is_connected(_on_pressed):
+		pressed.connect(_on_pressed)
 
 func _update_display() -> void:
-	if not unit or not unit.general:
+	if not unit_or_corps:
+		text = "???"
+		disabled = true
+		return
+
+	# Get general (both Unit and Corps have .general)
+	var general = unit_or_corps.general if unit_or_corps else null
+	if not general:
 		text = "???"
 		disabled = true
 		return
 
 	# Check if skill is ready (cooldown 0 only, independent of ATB)
-	is_skill_ready = unit.general.is_skill_ready()
+	is_skill_ready = general.is_skill_ready()
 
 	# Get localized skill name
 	var skill_name = ""
-	if unit.general.skill.has("name_key"):
-		var name_key = unit.general.skill.get("name_key", "")
+	if general.skill.has("name_key"):
+		var name_key = general.skill.get("name_key", "")
 		skill_name = DataManager.get_localized(name_key)
 
 	# Display skill name + status
@@ -43,7 +55,7 @@ func _update_display() -> void:
 		modulate = Color.WHITE
 	else:
 		# On cooldown
-		text += "CD:" + str(unit.general.current_cooldown)
+		text += "CD:" + str(general.current_cooldown)
 		disabled = true
 		modulate = Color(0.6, 0.6, 0.6)
 
@@ -52,4 +64,4 @@ func update_status() -> void:
 
 func _on_pressed() -> void:
 	if is_skill_ready:
-		skill_clicked.emit(unit)
+		skill_clicked.emit(unit_or_corps)

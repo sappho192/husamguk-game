@@ -3,6 +3,7 @@ extends RefCounted
 
 # Preload dependencies
 const Buff = preload("res://src/core/buff.gd")
+const Corps = preload("res://src/core/corps.gd")
 
 # Run progression
 var current_stage: int = 1  # 1-3
@@ -13,6 +14,9 @@ var event_flags: Dictionary = {}  # flag_id → bool/int/string
 
 # Unit state persistence (HP, buffs, stat mods)
 var unit_states: Dictionary = {}  # unit_id → UnitState dictionary
+
+# Phase 5: Corps state persistence (HP only - position/formation reset each stage)
+var corps_states: Dictionary = {}  # corps_template_id → CorpsState dictionary
 
 # Deck modifications
 var deck_card_ids: Array[String] = []  # Current deck composition
@@ -75,6 +79,30 @@ func restore_unit_state(unit: Unit) -> void:
 
 	# NOTE: General cooldown is NOT restored - resets to 0 at the start of each battle
 	# This ensures all skills are available at the beginning of every new battle stage
+
+# Phase 5: Save corps state after battle
+func save_corps_state(corps: Corps) -> void:
+	var state_data = {
+		"template_id": corps.template_id,
+		"current_hp": corps.current_hp,
+		"max_hp": corps.max_hp,
+		"soldier_count": corps.soldier_count,
+		"general_id": corps.general.id if corps.general else null
+	}
+	corps_states[corps.template_id] = state_data
+
+# Phase 5: Restore corps state before battle
+func restore_corps_state(corps: Corps) -> void:
+	if not corps_states.has(corps.template_id):
+		return  # New corps, no state to restore
+
+	var state = corps_states[corps.template_id]
+	corps.current_hp = state.get("current_hp", corps.max_hp)
+	corps.max_hp = state.get("max_hp", corps.max_hp)
+	corps.soldier_count = state.get("soldier_count", corps.soldier_count)
+
+	# NOTE: Position and formation are NOT restored - they reset to spawn positions each stage
+	# NOTE: General cooldown is NOT restored - resets to 0 at the start of each battle
 
 # Apply run-level enhancement to units
 func apply_enhancement_to_units(enhancement: Dictionary, units: Array) -> void:

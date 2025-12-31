@@ -3,6 +3,7 @@
 #
 # 그리드 기반 군단 전투 UI.
 # TileGridUI, CommandPanel, MovementOverlay, CorpsDisplay 통합.
+# Phase 5D: SkillBar, CardHand 통합
 
 extends Control
 
@@ -15,6 +16,9 @@ const CommandPanel = preload("res://src/ui/battle/command_panel.gd")
 const MovementOverlay = preload("res://src/ui/battle/movement_overlay.gd")
 const CorpsDisplay = preload("res://src/ui/battle/corps_display.gd")
 const FormationSelectDialog = preload("res://src/ui/battle/formation_select_dialog.gd")
+const SkillBar = preload("res://src/ui/battle/skill_bar.gd")
+const CardHand = preload("res://src/ui/battle/card_hand.gd")
+const Card = preload("res://src/core/card.gd")
 
 ## 전투 매니저
 var battle_manager: BattleManager
@@ -24,6 +28,10 @@ var tile_grid: TileGridUI
 var command_panel: CommandPanel
 var movement_overlay: MovementOverlay
 var formation_dialog: FormationSelectDialog  # Phase 5C: 진형 선택 다이얼로그
+var skill_bar: SkillBar  # Phase 5D: 장수 스킬바
+var card_hand: CardHand  # Phase 5D: 카드 덱
+var card_toggle_button: Button  # Phase 5D: 카드 선택 UI 토글 버튼
+var global_turn_bar: ProgressBar  # Phase 5D: 글로벌 턴 타이머
 
 ## 군단 표시 관리
 var corps_displays: Dictionary = {}  # Corps -> CorpsDisplay
@@ -44,8 +52,21 @@ var resume_battle_button: Button  # Phase 5C: 전투 개시 버튼
 ## 결과 레이블
 var result_label: Label
 
+## BGM (injected from scene)
+@onready var battle_bgm: AudioStreamPlayer = get_node_or_null("BattleBGM")
+
+## Phase 5D: Card deck management
+var deck: Array[Card] = []
+var discard_pile: Array[Card] = []
+var global_turn_count: int = 0  # Track global turns for first-turn skip
+var card_selected_this_turn: bool = false  # Track if card was selected this turn
+
 
 func _ready() -> void:
+	# Setup BGM looping (if available)
+	if battle_bgm and battle_bgm.stream:
+		battle_bgm.stream.loop = true
+
 	_create_ui()
 
 	# Localization
@@ -53,7 +74,8 @@ func _ready() -> void:
 		resume_battle_button.text = DataManager.get_localized("UI_RESUME_BATTLE")
 
 	_setup_battle_manager()
-	_start_test_battle()
+	_initialize_deck()  # Phase 5D: 덱 초기화
+	_start_battle()
 
 
 func _create_ui() -> void:
@@ -131,6 +153,12 @@ func _create_ui() -> void:
 	# 전투 개시 버튼 (Phase 5C)
 	_create_resume_battle_button()
 
+	# Phase 5D: 글로벌 턴 타이머
+	_create_global_turn_timer()
+
+	# Phase 5D: 스킬바와 카드 핸드
+	_create_skill_and_card_ui()
+
 
 func _create_resume_battle_button() -> void:
 	resume_battle_button = Button.new()
@@ -201,6 +229,61 @@ func _create_info_panel() -> void:
 	vbox.add_child(info_label)
 
 
+func _create_global_turn_timer() -> void:
+	# Timer container - positioned above card hand
+	var timer_container = VBoxContainer.new()
+	timer_container.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	timer_container.offset_left = 340
+	timer_container.offset_right = -340
+	timer_container.offset_top = -280
+	timer_container.offset_bottom = -230
+	add_child(timer_container)
+
+	# Timer label
+	var timer_label = Label.new()
+	timer_label.text = DataManager.get_localized("UI_GLOBAL_TURN") if DataManager else "Global Turn"
+	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	timer_label.add_theme_font_size_override("font_size", 16)
+	timer_container.add_child(timer_label)
+
+	# Global turn timer bar
+	global_turn_bar = ProgressBar.new()
+	global_turn_bar.custom_minimum_size = Vector2(400, 24)
+	global_turn_bar.max_value = BattleManager.GLOBAL_TURN_INTERVAL
+	global_turn_bar.value = 0
+	global_turn_bar.show_percentage = false
+	timer_container.add_child(global_turn_bar)
+
+func _create_skill_and_card_ui() -> void:
+	# Skill bar on left side
+	skill_bar = SkillBar.new()
+	skill_bar.skill_activated.connect(_on_skill_activated)
+	add_child(skill_bar)
+
+	# Card hand - full screen overlay (positioning handled in CardHand._init())
+	card_hand = CardHand.new()
+	card_hand.z_index = 100  # Ensure card hand is on top of all other UI elements
+	card_hand.card_selected.connect(_on_card_selected)
+	add_child(card_hand)
+
+	# Card toggle button - always visible when card selection is active
+	card_toggle_button = Button.new()
+	card_toggle_button.text = "맵 확인"
+	card_toggle_button.custom_minimum_size = Vector2(300, 50)
+	card_toggle_button.add_theme_font_size_override("font_size", 18)
+	card_toggle_button.z_index = 101  # Above card hand
+	card_toggle_button.pressed.connect(_on_card_hand_toggle)
+
+	# Position at bottom center
+	card_toggle_button.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	card_toggle_button.offset_left = -150  # Half of width (300 / 2)
+	card_toggle_button.offset_right = 150
+	card_toggle_button.offset_top = -130  # Above bottom edge
+	card_toggle_button.offset_bottom = -80
+
+	card_toggle_button.visible = false  # Hidden initially
+	add_child(card_toggle_button)
+
 func _create_debug_buttons() -> void:
 	var debug_container = VBoxContainer.new()
 	debug_container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
@@ -243,10 +326,55 @@ func _setup_battle_manager() -> void:
 	battle_manager.global_turn_ready.connect(_on_global_turn_ready)
 
 
-func _start_test_battle() -> void:
-	print("CorpsBattleUI: Starting test battle...")
+func _start_battle() -> void:
+	# Phase 5: Check if GameManager has battle config (run-based battle)
+	if GameManager.current_run and GameManager.next_battle_config.has("map_id"):
+		var map_id = GameManager.next_battle_config["map_id"]
+		var ally_corps_data = GameManager.next_battle_config.get("ally_corps", [])
 
+		print("CorpsBattleUI: Starting run-based battle: ", map_id)
+		_start_run_battle(map_id, ally_corps_data)
+	else:
+		# Standalone test battle (no run active)
+		print("CorpsBattleUI: Starting standalone test battle")
+		_start_standalone_battle()
+
+func _start_run_battle(map_id: String, ally_corps_data: Array) -> void:
 	# 맵 로드
+	var battle_map = DataManager.create_battle_map(map_id)
+	if battle_map == null:
+		push_error("CorpsBattleUI: Failed to load battle map: " + map_id)
+		return
+
+	battle_manager.set_battle_map(battle_map)
+	tile_grid.setup(battle_map)
+	movement_overlay.set_battle_map(battle_map)
+
+	# 아군 군단 생성 (GameManager config 사용)
+	var ally_spawns = battle_map.ally_spawn_zones
+	for i in range(ally_corps_data.size()):
+		var corps_config = ally_corps_data[i]
+		var template_id = corps_config.get("template_id", "")
+		var general = corps_config.get("general", null)
+
+		var corps = DataManager.create_corps_instance(template_id, true, general)
+		if corps and i < ally_spawns.size():
+			battle_manager.add_corps(corps, ally_spawns[i])
+
+	# 적군 군단 생성 (고정 - 추후 맵 데이터에서 로드 가능)
+	var enemy_spawns = battle_map.enemy_spawn_zones
+	var enemy_templates = ["sword_corps", "archer_corps", "heavy_cavalry_corps"]
+	for i in range(mini(enemy_templates.size(), enemy_spawns.size())):
+		var enemy = DataManager.create_corps_instance(enemy_templates[i], false, null)
+		if enemy:
+			battle_manager.add_corps(enemy, enemy_spawns[i])
+
+	# 전투 시작 - 전투 준비 모드로 시작 (Phase 5C)
+	battle_manager.state = BattleManager.BattleState.PREPARING
+	battle_manager.battle_started.emit()
+
+func _start_standalone_battle() -> void:
+	# Standalone test battle (same as before)
 	var battle_map = DataManager.create_battle_map("stage_1_map")
 	if battle_map == null:
 		push_error("Failed to load battle map!")
@@ -296,6 +424,19 @@ func _on_battle_started() -> void:
 	# 군단 표시 생성
 	for corps in battle_manager.ally_corps + battle_manager.enemy_corps:
 		_create_corps_display(corps)
+
+	# Phase 5: Notify GameManager battle is ready (for run state restoration)
+	if GameManager.current_run:
+		GameManager.on_battle_ready(battle_manager, battle_manager.ally_corps)
+
+	# Phase 5D: Setup skill bar with ally corps
+	var ally_corps_with_generals: Array = []
+	for corps in battle_manager.ally_corps:
+		if corps.general:
+			ally_corps_with_generals.append(corps)
+
+	# Phase 5D: SkillBar now supports Corps
+	skill_bar.setup(ally_corps_with_generals)
 
 	# 스폰 존 하이라이트 (잠시 후 해제)
 	tile_grid.show_ally_spawn_zones()
@@ -592,19 +733,43 @@ func _on_movement_phase_ended() -> void:
 
 
 func _on_global_turn_ready() -> void:
-	print("CorpsBattleUI: Global turn ready - entering PREPARING mode")
+	global_turn_count += 1
+	card_selected_this_turn = false  # Reset card selection flag
+	print("CorpsBattleUI: Global turn ready - turn %d - entering PREPARING mode" % global_turn_count)
 	_update_state_label()
+
+	# Phase 5D: Show card selection UI starting from FIRST global turn
+	# (전투 시작 시의 준비 단계에서는 숨김, 첫 글로벌 턴부터 표시)
+	if global_turn_count >= 1 and card_hand:
+		print("CorpsBattleUI: Showing card selection UI (turn %d)" % global_turn_count)
+		card_hand.visible = true
+		card_hand.set_interactive(true)
+		card_toggle_button.visible = true
+		card_toggle_button.text = "맵 확인"
+	else:
+		print("CorpsBattleUI: Card hand not shown - count: %d, card_hand: %s" % [global_turn_count, card_hand != null])
 
 	# Phase 5C: PREPARING 모드에서 전투 개시 버튼 표시
 	if battle_manager.state == BattleManager.BattleState.PREPARING:
 		resume_battle_button.visible = true
+		# 첫 PREPARING(전투 시작)에서는 항상 활성화, 글로벌 턴에서는 카드 선택 후에만 활성화
+		if global_turn_count == 0:
+			resume_battle_button.disabled = false
+		else:
+			resume_battle_button.disabled = !card_selected_this_turn  # Disable if card not selected
 
 
 func _on_battle_ended(victory: bool) -> void:
-	var text = DataManager.get_localized("UI_RUN_VICTORY") if victory else DataManager.get_localized("UI_RUN_DEFEAT")
-	result_label.text = text
-	result_label.visible = true
-	print("CorpsBattleUI: Battle ended - %s" % text)
+	# Phase 5: Redirect to GameManager if run is active
+	if GameManager.current_run:
+		# Pass ally corps for state saving
+		GameManager.on_battle_ended(victory, battle_manager.ally_corps)
+	else:
+		# Standalone battle (no run active) - show result
+		var text = DataManager.get_localized("UI_BATTLE_VICTORY" if victory else "UI_BATTLE_DEFEAT")
+		result_label.text = text
+		result_label.visible = true
+		print("CorpsBattleUI: Battle ended - %s" % text)
 
 
 func _update_info_panel(corps: Corps) -> void:
@@ -661,6 +826,14 @@ func _process(delta: float) -> void:
 
 	_update_state_label()
 
+	# Phase 5D: Update global turn timer bar
+	if battle_manager and global_turn_bar:
+		global_turn_bar.value = battle_manager.global_turn_timer
+
+	# Phase 5D: Update skill bar buttons
+	if skill_bar:
+		skill_bar.update_all_buttons()
+
 
 func _on_force_victory() -> void:
 	for corps in battle_manager.enemy_corps.duplicate():
@@ -681,7 +854,14 @@ func _on_force_defeat() -> void:
 ## 전투 개시 버튼 클릭 (Phase 5C)
 func _on_resume_battle_pressed() -> void:
 	print("CorpsBattleUI: Resume battle button pressed")
-	battle_manager.resume_battle()
+
+	# If in global turn (card selection mode), call on_card_used() to transition state
+	if global_turn_count > 0:
+		battle_manager.on_card_used()
+	else:
+		# First PREPARING (battle start), just resume
+		battle_manager.resume_battle()
+
 	resume_battle_button.visible = false
 	_deselect_corps()
 
@@ -733,3 +913,118 @@ func _on_formation_dialog_cancelled() -> void:
 func _set_all_corps_displays_mouse_input(enabled: bool) -> void:
 	for display in corps_displays.values():
 		display.set_mouse_input_enabled(enabled)
+
+# ====================================
+# Phase 5D: Deck & Card System
+# ====================================
+
+func _initialize_deck() -> void:
+	# Phase 5D: Get deck from GameManager if run is active
+	var deck_composition: Array[String] = []
+
+	if GameManager.current_run:
+		deck_composition = GameManager.get_current_deck()
+		print("Deck loaded from run state: ", deck_composition.size(), " cards")
+	else:
+		# Standalone battle - use default starter deck
+		deck_composition = [
+			"card_aggressive_charge",
+			"card_aggressive_charge",
+			"card_aggressive_charge",
+			"card_iron_defense",
+			"card_iron_defense",
+			"card_field_medic",
+			"card_field_medic",
+			"card_intimidate",
+			"card_intimidate",
+			"card_sabotage"
+		]
+
+	for card_id in deck_composition:
+		var card = DataManager.create_card_instance(card_id)
+		if card:
+			deck.append(card)
+
+	# Shuffle deck
+	deck.shuffle()
+	print("Deck initialized with ", deck.size(), " cards")
+
+	# Draw initial hand (3 cards)
+	for i in range(3):
+		_draw_card()
+
+	# Cards start disabled - only enabled on global turn
+	card_hand.set_interactive(false)
+
+func _draw_card() -> void:
+	if deck.is_empty():
+		print("Deck is empty! Shuffling discard pile...")
+		# Reshuffle discard pile back into deck
+		deck = discard_pile.duplicate()
+		discard_pile.clear()
+		deck.shuffle()
+
+	if deck.is_empty():
+		print("No cards available to draw!")
+		return
+
+	var card = deck.pop_front()
+	card_hand.add_card(card)
+	print("Drew card: ", card.display_name)
+
+# ====================================
+# Phase 5D: Event Handlers
+# ====================================
+
+func _on_skill_activated(unit_or_corps) -> void:
+	# SkillBar는 Unit을 기대하지만, Corps를 전달받음
+	# Corps에 general이 있으면 스킬 실행
+	if unit_or_corps is Corps:
+		var corps = unit_or_corps as Corps
+		if corps.general:
+			print("CorpsBattleUI: Skill activated for ", corps.general.display_name, " (", corps.get_display_name(), ")")
+			battle_manager.execute_corps_skill(corps)
+	else:
+		# Unit (legacy)
+		print("CorpsBattleUI: Skill activated (Unit-based, not supported in Corps mode)")
+
+func _on_card_selected(card: Card) -> void:
+	print("CorpsBattleUI: Card selected: ", card.display_name)
+
+	# Execute card effect on Corps
+	card.execute_effect_corps(battle_manager.ally_corps, battle_manager.enemy_corps)
+
+	# Remove from hand and add to discard
+	card_hand.remove_card(card)
+	discard_pile.append(card)
+
+	# Draw new card
+	_draw_card()
+
+	# Mark card as selected
+	card_selected_this_turn = true
+
+	# Enable resume button
+	if resume_battle_button:
+		resume_battle_button.disabled = false
+
+	# Disable card interaction and hide card selection UI
+	card_hand.set_interactive(false)
+	card_hand.visible = false
+	card_toggle_button.visible = false
+
+	# Don't auto-resume - let user click resume button
+	print("CorpsBattleUI: Card effect applied. Click '전투 개시' to resume battle.")
+
+
+func _on_card_hand_toggle() -> void:
+	# Toggle card hand visibility
+	card_hand.visible = !card_hand.visible
+
+	# Update button text based on visibility
+	if card_hand.visible:
+		card_toggle_button.text = "맵 확인"
+	else:
+		card_toggle_button.text = "카드 선택"
+
+	print("CorpsBattleUI: Card hand toggled - visible: ", card_hand.visible)

@@ -54,7 +54,8 @@ func tick_cooldown() -> void:
 		if current_cooldown == 0:
 			print(display_name, "'s skill is ready!")
 
-func execute_skill_effect(caster: Unit, targets: Array[Unit]) -> void:
+# Phase 5D: Support both Unit and Corps (duck typing)
+func execute_skill_effect(caster, targets: Array) -> void:
 	if not is_skill_ready():
 		push_warning("Cannot execute skill - not ready!")
 		return
@@ -76,7 +77,8 @@ func execute_skill_effect(caster: Unit, targets: Array[Unit]) -> void:
 
 	use_skill()  # Start cooldown
 
-func _execute_damage_skill(caster: Unit, targets: Array[Unit], effect: Dictionary) -> void:
+# Phase 5D: Support both Unit and Corps
+func _execute_damage_skill(caster, targets: Array, effect: Dictionary) -> void:
 	var multiplier = effect.get("multiplier", 1.0)
 	var base_damage = caster.get_effective_attack()
 
@@ -97,7 +99,8 @@ func _execute_damage_skill(caster: Unit, targets: Array[Unit], effect: Dictionar
 		target.take_damage(damage)
 		print(caster.display_name, " skill dealt ", damage, " to ", target.display_name)
 
-func _execute_buff_skill(targets: Array[Unit], effect: Dictionary) -> void:
+# Phase 5D: Support both Unit and Corps
+func _execute_buff_skill(targets: Array, effect: Dictionary) -> void:
 	var buff_data = {
 		"id": skill.get("id", "") + "_buff",
 		"type": "buff",
@@ -114,7 +117,8 @@ func _execute_buff_skill(targets: Array[Unit], effect: Dictionary) -> void:
 		var buff = Buff.new(buff_data)
 		target.add_buff(buff)
 
-func _execute_debuff_skill(targets: Array[Unit], effect: Dictionary) -> void:
+# Phase 5D: Support both Unit and Corps
+func _execute_debuff_skill(targets: Array, effect: Dictionary) -> void:
 	var debuff_data = {
 		"id": skill.get("id", "") + "_debuff",
 		"type": "debuff",
@@ -131,7 +135,8 @@ func _execute_debuff_skill(targets: Array[Unit], effect: Dictionary) -> void:
 		var debuff = Buff.new(debuff_data)
 		target.add_buff(debuff)
 
-func _execute_heal_skill(targets: Array[Unit], effect: Dictionary) -> void:
+# Phase 5D: Support both Unit and Corps
+func _execute_heal_skill(targets: Array, effect: Dictionary) -> void:
 	var value = effect.get("value", 0)
 	var value_type = effect.get("value_type", "percent")
 

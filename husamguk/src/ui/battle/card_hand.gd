@@ -12,22 +12,56 @@ var card_displays: Array[CardDisplay] = []
 var card_container: HBoxContainer
 
 func _init() -> void:
-	custom_minimum_size = Vector2(0, 200)
+	# Full screen overlay
+	set_anchors_preset(Control.PRESET_FULL_RECT)
 
-	# Add background style
+	# Semi-transparent dark background overlay
 	var bg_style = StyleBoxFlat.new()
-	bg_style.bg_color = Color(0.1, 0.1, 0.15, 0.9)
-	bg_style.border_width_top = 2
-	bg_style.border_color = Color(0.6, 0.6, 0.7)
+	bg_style.bg_color = Color(0.0, 0.0, 0.0, 0.85)  # More opaque for better focus
 	add_theme_stylebox_override("panel", bg_style)
 
-	# Create inner HBoxContainer for cards
+	# Main container for card layout
+	var main_vbox = VBoxContainer.new()
+	main_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	main_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	add_child(main_vbox)
+
+	# Add spacer to push cards to center
+	var top_spacer = Control.new()
+	top_spacer.custom_minimum_size = Vector2(0, 0)
+	top_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main_vbox.add_child(top_spacer)
+
+	# Title label
+	var title_label = Label.new()
+	title_label.text = "전략 카드 선택"
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 32)
+	title_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.7))
+	main_vbox.add_child(title_label)
+
+	# Spacer between title and cards
+	main_vbox.add_child(_create_spacer(40))
+
+	# Card container (horizontal)
 	card_container = HBoxContainer.new()
 	card_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	card_container.add_theme_constant_override("separation", 10)
-	add_child(card_container)
+	card_container.add_theme_constant_override("separation", 20)
+	main_vbox.add_child(card_container)
 
-	# Don't set anchors in init - parent will handle positioning
+	# Add bottom spacer to center cards vertically
+	var bottom_spacer = Control.new()
+	bottom_spacer.custom_minimum_size = Vector2(0, 0)
+	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main_vbox.add_child(bottom_spacer)
+
+	# Start hidden
+	visible = false
+
+func _create_spacer(height: int) -> Control:
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, height)
+	return spacer
 
 func add_card(card: Card) -> void:
 	if hand.size() >= 5:
