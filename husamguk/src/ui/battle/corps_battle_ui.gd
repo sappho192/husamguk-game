@@ -691,22 +691,35 @@ func _on_formation_selected(formation: Formation) -> void:
 	if selected_corps == null:
 		return
 
+	# 현재 진형과 같은 진형을 선택한 경우 무시
+	if selected_corps.current_formation and formation.id == selected_corps.current_formation.id:
+		print("CorpsBattleUI: Same formation selected, ignoring")
+		return
+
 	print("CorpsBattleUI: Formation selected: %s for %s" % [
 		formation.get_display_name(), selected_corps.get_display_name()
 	])
 
-	# 진형 변경 명령 생성
-	var command = CorpsCommand.new(CorpsCommand.CommandType.CHANGE_FORMATION, selected_corps)
-	command.target_formation = formation
-	battle_manager.set_corps_command(selected_corps, command)
+	# PREPARING 모드에서는 즉시 진형 변경 적용
+	if battle_manager.state == BattleManager.BattleState.PREPARING:
+		selected_corps.set_formation(formation.id)
+		print("CorpsBattleUI: Formation changed immediately (PREPARING mode)")
 
-	# 명령 표시기 업데이트
-	if selected_corps in corps_displays:
-		var display = corps_displays[selected_corps]
-		if display and is_instance_valid(display):
-			display.show_command_indicator(CorpsCommand.CommandType.CHANGE_FORMATION)
+		# 명령 패널을 다시 열어서 추가 명령을 내릴 수 있게 함
+		command_panel.show_for_corps(selected_corps)
+	else:
+		# 일반 모드에서는 명령 큐에 추가
+		var command = CorpsCommand.new(CorpsCommand.CommandType.CHANGE_FORMATION, selected_corps)
+		command.target_formation = formation
+		battle_manager.set_corps_command(selected_corps, command)
 
-	_deselect_corps()
+		# 명령 표시기 업데이트
+		if selected_corps in corps_displays:
+			var display = corps_displays[selected_corps]
+			if display and is_instance_valid(display):
+				display.show_command_indicator(CorpsCommand.CommandType.CHANGE_FORMATION)
+
+		_deselect_corps()
 
 
 ## 진형 선택 다이얼로그 - 취소됨 (Phase 5C)

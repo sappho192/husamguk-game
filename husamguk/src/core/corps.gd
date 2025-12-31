@@ -121,8 +121,8 @@ func tick_atb(delta: float) -> void:
 	if not is_alive:
 		return
 
-	# ATB 증가 (스케일 팩터 40)
-	atb_current += get_effective_atb_speed() * delta * 40.0
+	# ATB 증가 (스케일 팩터 27 - 1.5배 느림)
+	atb_current += get_effective_atb_speed() * delta * 27.0
 
 	if atb_current >= atb_max:
 		atb_current = atb_max
