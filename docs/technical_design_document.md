@@ -14,7 +14,7 @@
 
 ## 2. 프로젝트 구조
 
-### 2.1 Phase 3D 구현 상태 (2025-12)
+### 2.1 Phase 5C 구현 상태 (2025-12)
 
 ```
 husamguk/                         # Godot 프로젝트 루트
@@ -25,32 +25,46 @@ husamguk/                         # Godot 프로젝트 루트
 │
 ├── src/                          # 게임 코드
 │   ├── autoload/                 # 싱글톤
-│   │   ├── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리
-│   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 씬 전환
-│   │   └── save_manager.gd       # ✅ 스텁 (Phase 4 구현 예정)
+│   │   ├── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리, 지형/맵/부대 로딩
+│   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 씬 전환, 웨이브 전투
+│   │   └── save_manager.gd       # ✅ 스텁 (Phase 7: 메타 프로그레션용)
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
 │   │   ├── general.gd            # ✅ 장수, 스킬 실행, 쿨다운
 │   │   ├── unit.gd               # ✅ ATB, 전투 로직, 특성 보너스
 │   │   ├── buff.gd               # ✅ 버프/디버프 시스템
 │   │   ├── card.gd               # ✅ 카드 효과 실행, 타겟팅
-│   │   └── run_state.gd          # ✅ 런 레벨 상태 지속성
+│   │   ├── run_state.gd          # ✅ 런 레벨 상태 지속성
+│   │   ├── terrain_tile.gd       # ✅ 지형 데이터, 스탯 수정자 (Phase 5A)
+│   │   ├── battle_map.gd         # ✅ 16×16 그리드, 스폰 존 (Phase 5A)
+│   │   ├── corps.gd              # ✅ 부대 (장수 + 병사), ATB, 공격 범위 (Phase 5B)
+│   │   ├── formation.gd          # ✅ 진형 스탯 수정자 (Phase 5B)
+│   │   └── corps_command.gd      # ✅ 명령 시스템 (5가지 타입) (Phase 5C)
 │   │
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd # ✅ 이중 레이어 타이밍, 상태 머신
+│   │   │   └── battle_manager.gd # ✅ 웨이브 시스템, 부대 배치, 명령 큐, 공격 범위, 상태 머신
 │   │   └── internal_affairs/
 │   │       └── internal_affairs_manager.gd  # ✅ 내정 이벤트 시스템
 │   │
+│   ├── tools/
+│   │   └── battle_simulator.gd   # ✅ Headless 전투 시뮬레이터
+│   │
 │   └── ui/
 │       ├── battle/
-│       │   ├── battle_ui.gd      # ✅ 메인 전투 컨트롤러
+│       │   ├── battle_ui.gd      # ✅ 메인 전투 컨트롤러 (유닛 기반)
 │       │   ├── unit_display.gd   # ✅ HP/ATB 바, 시각 피드백
 │       │   ├── skill_bar.gd      # ✅ 스킬 UI (왼쪽 사이드바)
 │       │   ├── skill_button.gd   # ✅ 개별 스킬 버튼
 │       │   ├── card_hand.gd      # ✅ 카드 핸드 UI (하단)
 │       │   ├── card_display.gd   # ✅ 개별 카드 표시
-│       │   └── placeholder_sprite.gd  # ✅ 플레이스홀더 그래픽
+│       │   ├── placeholder_sprite.gd  # ✅ 플레이스홀더 그래픽
+│       │   ├── tile_display.gd   # ✅ 단일 타일 UI (Phase 5A)
+│       │   ├── tile_grid_ui.gd   # ✅ 16×16 그리드 UI (Phase 5A)
+│       │   ├── corps_display.gd  # ✅ 부대 정보 오버레이 (Phase 5B)
+│       │   ├── command_panel.gd  # ✅ 명령 선택 UI (Phase 5C)
+│       │   ├── movement_overlay.gd  # ✅ 이동 범위 오버레이 (Phase 5C)
+│       │   └── corps_battle_ui.gd  # ✅ 부대 전투 통합 (Phase 5C)
 │       ├── internal_affairs/
 │       │   ├── internal_affairs_ui.gd  # ✅ 내정 선택 화면
 │       │   └── choice_button.gd  # ✅ 선택지 버튼
@@ -65,9 +79,11 @@ husamguk/                         # Godot 프로젝트 루트
 │
 ├── scenes/
 │   ├── main_menu.tscn            # ✅ 진입점
-│   ├── battle.tscn               # ✅ 전투 씬
+│   ├── battle.tscn               # ✅ 전투 씬 (웨이브 기반, Phase 4)
+│   ├── battle_simulator.tscn     # ✅ 전투 시뮬레이터 (headless)
 │   ├── internal_affairs.tscn     # ✅ 내정 씬
 │   ├── fateful_encounter.tscn    # ✅ 운명적 조우 씬 (Phase 3D)
+│   ├── corps_battle_test.tscn    # ✅ 부대 전투 테스트 씬 (Phase 5)
 │   ├── victory_screen.tscn       # ✅ 승리 화면
 │   └── defeat_screen.tscn        # ✅ 패배 화면
 │
@@ -96,9 +112,29 @@ husamguk/                         # Godot 프로젝트 루트
 │   ├── npcs/                     # ✅ Phase 3D - 운명적 조우
 │   │   ├── _schema.yaml          # ✅ NPC 스키마 정의
 │   │   └── fateful_encounter_npcs.yaml  # ✅ 5명 NPC (도선국사, 이제마, 원효, 의상, 최치원)
+│   ├── battles/                  # ✅ Phase 4 - 웨이브 시스템
+│   │   ├── _schema.yaml          # ✅ 전투 스키마 정의
+│   │   └── stage_battles.yaml    # ✅ 3개 스테이지 전투 정의
+│   ├── terrain/                  # ✅ Phase 5A - 지형 시스템
+│   │   ├── _schema.yaml          # ✅ 지형 스키마 정의
+│   │   └── base_terrain.yaml     # ✅ 6개 지형 타입
+│   ├── maps/                     # ✅ Phase 5A - 맵 데이터
+│   │   ├── _schema.yaml          # ✅ 맵 스키마 정의
+│   │   └── stage_maps.yaml       # ✅ 3개 스테이지 맵
+│   ├── corps/                    # ✅ Phase 5B - 부대 시스템
+│   │   ├── _schema.yaml          # ✅ 부대 스키마 정의
+│   │   └── base_corps.yaml       # ✅ 6개 부대 템플릿
+│   ├── formations/               # ✅ Phase 5B - 진형 시스템
+│   │   ├── _schema.yaml          # ✅ 진형 스키마 정의
+│   │   └── base_formations.yaml  # ✅ 5개 진형
 │   └── localization/
-│       ├── ko.yaml               # ✅ 한국어 (216 스트링, Phase 3D)
-│       └── en.yaml               # ✅ 영어 (216 스트링, Phase 3D)
+│       ├── ko.yaml               # ✅ 한국어 (283 스트링, Phase 5C)
+│       └── en.yaml               # ✅ 영어 (283 스트링, Phase 5C)
+│
+├── docs/                         # 설계 문서 & 가이드
+│   └── BATTLE_SIMULATOR.md       # ✅ 전투 시뮬레이터 사용 가이드
+├── simulation_config.yaml        # ✅ 전투 시뮬레이터 시나리오
+├── output/simulation/            # ✅ 시뮬레이터 출력 (CSV/JSON)
 │
 └── assets/
     └── audio/
@@ -106,8 +142,8 @@ husamguk/                         # Godot 프로젝트 루트
             └── battle_theme.ogg  # ✅ 전투 BGM (루핑)
 
 **범례:**
-- ✅ Phase 3 구현 완료
-- 🔲 향후 Phase 구현 예정 (Phase 4+)
+- ✅ Phase 5C 구현 완료
+- 🔲 향후 Phase 구현 예정 (Phase 6+)
 ```
 
 ### 2.2 전체 구조 (계획)
@@ -528,20 +564,263 @@ strings:
   NATION_HUBAEKJE: "후백제"
   NATION_TAEBONG: "태봉"
   NATION_SILLA: "신라"
-  
+
   # 장수
   GENERAL_GYEONHWON: "견훤"
   GENERAL_WANGGEON: "왕건"
-  
+
   # 스킬
   SKILL_FURY_OF_BAEKJE: "백제의 분노"
   SKILL_FURY_OF_BAEKJE_DESC: "단일 적에게 250%의 피해를 입힌다. 대상 HP가 50% 이상이면 추가 50% 피해."
-  
+
   # UI
   UI_START_RUN: "출정하기"
   UI_CONTINUE: "계속하기"
   UI_SETTINGS: "설정"
 ```
+
+### 4.8 전투 (battles/*.yaml) - Phase 4
+
+```yaml
+# data/battles/stage_battles.yaml
+battles:
+  - id: "stage_1_battle"
+    name_key: "BATTLE_STAGE_1"
+    difficulty: "tutorial"
+
+    waves:
+      - wave_number: 1
+        enemies:
+          - unit_id: "spearman"
+          - unit_id: "swordsman"
+
+      - wave_number: 2
+        enemies:
+          - unit_id: "spearman"
+          - unit_id: "archer"
+          - unit_id: "swordsman"
+        wave_rewards:
+          hp_recovery_percent: 10
+          global_turn_reset: true
+          buff_extension_turns: 1
+
+      - wave_number: 3
+        enemies:
+          - unit_id: "light_cavalry"
+          - unit_id: "archer"
+          - unit_id: "spearman"
+          - unit_id: "swordsman"
+            general_id: "enemy_general_1"  # 보스 웨이브
+        wave_rewards:
+          hp_recovery_percent: 20
+          global_turn_reset: true
+          buff_extension_turns: 2
+```
+
+**웨이브 보상 설명:**
+- `hp_recovery_percent`: 최대 HP 대비 회복 비율 (0-100)
+- `global_turn_reset`: 즉시 글로벌 턴 카드 드로우
+- `buff_extension_turns`: 활성 버프 지속시간 연장 턴 수
+
+### 4.9 지형 (terrain/*.yaml) - Phase 5A
+
+```yaml
+# data/terrain/base_terrain.yaml
+terrain:
+  - id: "plain"
+    name_key: "TERRAIN_PLAIN"
+    color: "#90EE90"  # 연한 초록
+    passable: true
+    movement_cost: 1.0
+    defense_modifier: 0
+    attack_modifier: 0
+    atb_modifier: 0
+
+  - id: "mountain"
+    name_key: "TERRAIN_MOUNTAIN"
+    color: "#8B4513"  # 갈색
+    passable: true
+    movement_cost: 2.5
+    defense_modifier: 30  # +30% 방어
+    attack_modifier: -10  # -10% 공격
+    atb_modifier: 0
+
+  - id: "forest"
+    name_key: "TERRAIN_FOREST"
+    color: "#228B22"  # 짙은 초록
+    passable: true
+    movement_cost: 1.5
+    defense_modifier: 20  # +20% 방어
+    attack_modifier: 0
+    atb_modifier: -0.05  # -5% ATB 속도
+
+  - id: "wall"
+    name_key: "TERRAIN_WALL"
+    color: "#696969"  # 회색
+    passable: false
+    movement_cost: 999
+    defense_modifier: 0
+    attack_modifier: 0
+    atb_modifier: 0
+```
+
+**지형 수정자 설명:**
+- `movement_cost`: 이동 비용 승수 (1.0 = 기본)
+- `defense_modifier`: 방어력 % 수정 (타일에 있을 때)
+- `attack_modifier`: 공격력 % 수정 (타일에서 공격 시)
+- `atb_modifier`: ATB 속도 평탄(고정값) 수정 (타일에 있을 때, %가 아닌 고정값)
+- ※ `attack_modifier`는 "해당 타일에서 공격을 시작할 때" 적용되며, `defense_modifier`와 `atb_modifier`는 "해당 타일 위에 서 있을 때" 적용된다는 차이가 있다.
+### 4.10 맵 (maps/*.yaml) - Phase 5A
+
+```yaml
+# data/maps/stage_maps.yaml
+maps:
+  - id: "stage_1_map"
+    name_key: "MAP_STAGE_1"
+    size: 16  # 16×16 그리드
+
+    # 지형 레이아웃 (16줄, 각 16개 ID)
+    terrain:
+      - ["plain", "plain", "plain", "mountain", ...]  # 행 0
+      - ["plain", "forest", "plain", "plain", ...]    # 행 1
+      # ... 총 16행
+
+    # 아군 부대 스폰 존 (Vector2i 좌표)
+    ally_spawn_zone:
+      - [0, 7]
+      - [0, 8]
+      - [1, 7]
+      - [1, 8]
+
+    # 적군 부대 스폰 존
+    enemy_spawn_zone:
+      - [15, 7]
+      - [15, 8]
+      - [14, 7]
+      - [14, 8]
+```
+
+**맵 구조:**
+- 16×16 타일 그리드
+- 각 타일은 지형 ID를 참조
+- 스폰 존은 부대 초기 배치 위치 정의
+
+### 4.11 부대 (corps/*.yaml) - Phase 5B
+
+```yaml
+# data/corps/base_corps.yaml
+corps:
+  - id: "spear_corps"
+    name_key: "CORPS_SPEAR"
+    category: "infantry"
+    soldier_count: 100
+    soldier_unit_id: "spearman"
+
+    base_stats:
+      hp_per_soldier: 10
+      attack_per_soldier: 2
+      defense: 30
+      atb_speed: 1.0
+      movement_range: 2
+      attack_range: 1  # 근접
+
+    available_formations:
+      - "default"
+      - "hakik"
+      - "bangwon"
+      - "jangsa"
+      - "eorin"
+
+    traits:  # 선택 사항, units와 동일 구조
+      - id: "anti_cavalry"
+        effect:
+          damage_bonus_vs: "cavalry"
+          bonus_percent: 50
+
+  - id: "archer_corps"
+    name_key: "CORPS_ARCHER"
+    category: "archer"
+    soldier_count: 80
+    soldier_unit_id: "archer"
+
+    base_stats:
+      hp_per_soldier: 8
+      attack_per_soldier: 3
+      defense: 15
+      atb_speed: 0.9
+      movement_range: 2
+      attack_range: 5  # 원거리
+
+    available_formations:
+      - "default"
+      - "hakik"
+      - "eorin"
+```
+
+**부대 특징:**
+- 부대 총 HP = `hp_per_soldier × (soldier_count + 장수 통솔력 보너스)`
+- 부대 총 공격 = `attack_per_soldier × 병사 수 + 지형/진형 수정자`
+- `attack_range`: 공격 가능 거리 (보병 1, 기병 2, 궁병 4-5)
+- 장수 통솔력: +1 병사/10 통솔력
+
+### 4.12 진형 (formations/*.yaml) - Phase 5B
+
+```yaml
+# data/formations/base_formations.yaml
+formations:
+  - id: "default"
+    name_key: "FORMATION_DEFAULT"
+    description_key: "FORMATION_DEFAULT_DESC"
+
+    modifiers:
+      attack_modifier: 0     # % 수정
+      defense_modifier: 0    # % 수정
+      atb_modifier: 0.0      # 평탄 ATB 수정
+      movement_modifier: 0   # 평탄 이동 타일 수 수정
+
+    category: ["infantry", "cavalry", "archer"]  # 모든 유닛 사용 가능
+
+  - id: "hakik"  # 학익진 (Crane Wing)
+    name_key: "FORMATION_HAKIK"
+    description_key: "FORMATION_HAKIK_DESC"
+
+    modifiers:
+      attack_modifier: 30    # +30% 공격
+      defense_modifier: -10  # -10% 방어
+      atb_modifier: 0.1      # +0.1 ATB 속도
+      movement_modifier: 0
+
+    category: ["infantry", "cavalry"]
+
+  - id: "bongsi"  # 봉시진 (Arrow Point)
+    name_key: "FORMATION_BONGSI"
+
+    modifiers:
+      attack_modifier: 50
+      defense_modifier: -30
+      atb_modifier: 0.2
+      movement_modifier: 1   # +1 이동 범위
+
+    category: ["cavalry"]  # 기병 전용
+
+  - id: "bangwon"  # 방원진 (Circular)
+    name_key: "FORMATION_BANGWON"
+
+    modifiers:
+      attack_modifier: -20
+      defense_modifier: 50
+      atb_modifier: -0.2
+      movement_modifier: -1  # -1 이동 범위
+
+    category: ["infantry"]
+```
+
+**진형 수정자 설명:**
+- `attack_modifier`: 공격력 % 증감
+- `defense_modifier`: 방어력 % 증감
+- `atb_modifier`: ATB 속도 평탄 증감 (0.1 = +10%)
+- `movement_modifier`: 이동 범위 타일 증감
+- `category`: 이 진형을 사용할 수 있는 부대 타입
 
 ---
 
@@ -780,18 +1059,85 @@ func load_portrait(path: String) -> Texture2D:
 - 플레이어가 1개 선택
 ```
 
-### Phase 4: 메타 프로그레션 🔲 다음 단계
+### Phase 4: 웨이브 시스템 & 전투 개선 ✅ 완료
 
 ```
 [구현 항목]
-🔲 SaveManager 완전 구현
+✅ 웨이브 기반 전투 시스템 (3-4 웨이브/스테이지)
+✅ 전투 데이터 스키마 및 YAML 정의 (data/battles/)
+✅ 웨이브 보상 (HP 회복, 글로벌 턴 리셋, 버프 연장)
+✅ 웨이브 UI (카운터, 전환 메시지)
+✅ ATB 속도 최적화 (4배 가속: ~2.5초/행동)
+✅ 웨이브별 동적 적 생성
+✅ 장수 쿨다운 스테이지 간 리셋
+
+[웨이브 구조]
+- 스테이지 1: 3 웨이브 (2, 3, 4 적)
+- 스테이지 2: 3 웨이브 (3, 3, 4 적)
+- 스테이지 3: 3 웨이브 (3, 4, 5 적) - 보스 장수 2명
+
+[테스트]
+✅ Battle Simulator (headless 밸런스 테스트)
+✅ 10배 가속 시뮬레이션
+✅ CSV/JSON 통계 출력
+```
+
+### Phase 5: 부대 & 그리드 시스템 ✅ 완료
+
+```
+[Phase 5A: 16×16 타일 기반 지형 그리드]
+✅ 6개 지형 타입 및 수정자
+✅ TerrainTile 및 BattleMap 클래스
+✅ 3개 스테이지 맵 (스폰 존 포함)
+✅ TileDisplay (40×40px) 및 TileGridUI (640×640px)
+✅ DataManager 지형/맵 로딩
+
+[Phase 5B: 부대 시스템]
+✅ Corps 클래스 (장수 + 병사, 그리드 배치)
+✅ 6개 부대 템플릿
+✅ Formation 클래스 (5개 진형)
+✅ 유닛 타입별 공격 범위 (보병: 1, 기병: 2, 궁병: 4-5)
+✅ CorpsDisplay 컴포넌트
+
+[Phase 5C: 명령 시스템으로 강화된 ATB]
+✅ CorpsCommand 클래스 (5가지 명령 타입)
+✅ CommandPanel UI (ATTACK, DEFEND, EVADE, WATCH, MOVE)
+✅ MovementOverlay (범위 강조, 목적지 선택)
+✅ 글로벌 턴 중 이동 단계 실행
+✅ BattleManager 명령 큐 및 실행
+✅ 공격 범위 검증
+✅ CorpsBattleUI 통합 (테스트 씬)
+✅ 67개 추가 로컬라이제이션 문자열 (→ 총 283개)
+
+[플레이 가능]
+✅ scenes/corps_battle_test.tscn - 16×16 그리드 부대 전술 전투
+✅ 완전한 명령 시스템 및 공격 범위 검증
+✅ 지형 효과 및 진형 수정자
+✅ 글로벌 턴 중 이동 단계
+```
+
+### Phase 6: 부대/그리드 시스템 통합 🔲 다음 단계
+
+```
+[계획된 기능]
+🔲 기존 웨이브 전투를 부대 기반으로 교체
+🔲 그리드/지형 시스템을 메인 전투 씬에 통합
+🔲 유닛 대신 부대를 타겟으로 하는 카드 시스템
+🔲 RunState에 부대 상태 저장 기능
+```
+
+### Phase 7: 메타 프로그레션 🔲 계획됨
+
+```
+[계획된 기능]
+🔲 SaveManager 완전 구현 (세이브/로드)
 🔲 메타 프로그레션 언락 (영구 업그레이드)
+🔲 플레이어 진행 추적
 🔲 스테이지별 적 스케일링
-🔲 추가 콘텐츠 (이벤트, 강화, 카드)
-🔲 진형 선택 시스템
-🔲 밸런스 조정 및 폴리시
 🔲 MOD 시스템 완전 구현
 🔲 AudioManager 구현
+🔲 추가 콘텐츠 (이벤트, 강화, 카드)
+🔲 밸런스 조정 및 폴리시
 ```
 
 ---
@@ -1259,3 +1605,11 @@ func _modify_unit_stat(effect: Dictionary) -> void:
 | 2025-12-30 | 로컬라이제이션 업데이트 (189 스트링) |
 | 2025-12-30 | Phase 1-3 로드맵 완료 상태 반영 |
 | 2025-12-30 | NPC 이름 변경: 중국 삼국지 인물 → 한국 역사 인물 (도선국사, 이제마, 원효, 의상, 최치원) |
+| 2025-12-31 | Phase 4 구현 완료 반영 (웨이브 시스템, ATB 최적화) |
+| 2025-12-31 | Phase 5A 구현 완료 반영 (16×16 지형 그리드 시스템) |
+| 2025-12-31 | Phase 5B 구현 완료 반영 (부대 시스템, 진형) |
+| 2025-12-31 | Phase 5C 구현 완료 반영 (명령 시스템, 이동 단계) |
+| 2025-12-31 | 새 데이터 스키마 추가 (battles, terrain, maps, corps, formations) |
+| 2025-12-31 | 프로젝트 구조 업데이트 (Phase 5C 상태) |
+| 2025-12-31 | 로컬라이제이션 업데이트 (283 스트링) |
+| 2025-12-31 | Phase 6-7 로드맵 추가 (부대 통합, 메타 프로그레션) |
