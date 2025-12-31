@@ -27,7 +27,7 @@ var enemy_units: Array[Unit] = []
 var action_queue: Array[Unit] = []  # Units waiting to act
 
 # Phase 2: Global turn system
-const GLOBAL_TURN_INTERVAL: float = 15.0  # seconds (Phase 5C: Changed from 10.0)
+const GLOBAL_TURN_INTERVAL: float = 4.0  # seconds
 var global_turn_timer: float = 0.0
 var global_turn_count: int = 0
 
@@ -639,15 +639,24 @@ func _execute_attack_command(command: CorpsCommand) -> bool:
 	var target = command.target_corps
 
 	if target == null or not target.is_alive:
-		# 대상이 죽었으면 사거리 내 새 타겟 찾기
+		# 대상이 죽었으면 새 타겟 찾기
+		# 1) 사거리 내 대상 우선
 		target = _find_target_in_range(attacker)
+
+		# 2) 사거리 내에 없으면 전체 맵에서 가장 가까운 적 찾기
 		if target == null:
-			print("BattleManager: %s has no targets in range (range: %d) - command removed" % [
-				attacker.get_display_name(), attacker.get_attack_range()
-			])
-			return true  # 대상이 없으면 명령 제거
+			target = _find_closest_enemy(attacker)
+
+		# 3) 적이 아예 없으면 명령 제거
+		if target == null:
+			print("BattleManager: %s has no enemies left - command removed" % attacker.get_display_name())
+			return true  # 명령 제거
+
 		# 새 타겟으로 명령 갱신
 		command.target_corps = target
+		print("BattleManager: %s switches target to %s" % [
+			attacker.get_display_name(), target.get_display_name()
+		])
 
 	# 사거리 확인
 	if attacker.is_target_in_range(target):
@@ -776,6 +785,17 @@ func _find_target_in_range(attacker: Corps) -> Corps:
 	return _find_closest_corps(attacker, in_range_targets)
 
 
+## 가장 가까운 적 찾기 (전체 맵 탐색)
+func _find_closest_enemy(attacker: Corps) -> Corps:
+	var targets = enemy_corps if attacker.is_ally else ally_corps
+	var alive_targets = targets.filter(func(c): return c.is_alive)
+
+	if alive_targets.is_empty():
+		return null
+
+	return _find_closest_corps(attacker, alive_targets)
+
+
 ## 아군/적군의 사거리 내 대상 목록 반환 (UI용)
 func get_attackable_targets(corps: Corps) -> Array:
 	if corps == null or not corps.is_alive:
@@ -790,7 +810,7 @@ func get_attackable_targets(corps: Corps) -> Array:
 func _manhattan_distance(a: Vector2i, b: Vector2i) -> int:
 	return abs(a.x - b.x) + abs(a.y - b.y)
 
-## 대상을 향해 이동 (Phase 5C: ATTACK 명령용)
+## 대상을 향해 이동 (Phase 5C: ATTACK 명령용 - BFS로 최적 경로 탐색)
 ## returns: 이동 성공 여부
 func _move_towards_target(attacker: Corps, target: Corps) -> bool:
 	if attacker == null or target == null:
@@ -800,11 +820,15 @@ func _move_towards_target(attacker: Corps, target: Corps) -> bool:
 	var target_pos = target.grid_position
 	var movement_range = attacker.get_movement_range()
 
-	# 이동 가능한 타일 중 대상에 가장 가까운 타일 찾기
-	var best_pos: Vector2i = current_pos
-	var best_distance = _manhattan_distance(current_pos, target_pos)
+	# BFS로 도달 가능한 모든 타일 탐색
+	var queue: Array = []  # [{pos: Vector2i, cost: float}]
+	var visited: Dictionary = {}  # Vector2i -> float (누적 이동 비용)
+	var reachable_tiles: Array = []  # [{pos: Vector2i, distance: int}]
 
-	# 4방향 탐색 (상하좌우)
+	queue.append({"pos": current_pos, "cost": 0.0})
+	visited[current_pos] = 0.0
+
+	# 4방향 탐색용
 	var directions = [
 		Vector2i(0, -1),  # 위
 		Vector2i(0, 1),   # 아래
@@ -812,36 +836,66 @@ func _move_towards_target(attacker: Corps, target: Corps) -> bool:
 		Vector2i(1, 0)    # 오른쪽
 	]
 
-	for dir in directions:
-		var new_pos = current_pos + dir
+	while not queue.is_empty():
+		var current = queue.pop_front()
+		var pos = current["pos"]
+		var cost = current["cost"]
 
-		# 맵 범위 확인
-		if battle_map != null and not battle_map.is_valid_position(new_pos):
+		# movement_range 초과하면 스킵
+		if cost > movement_range:
 			continue
 
-		# 이동 가능 확인 (통행 가능 + 점유되지 않음)
-		if battle_map != null and not battle_map.is_passable(new_pos):
-			continue
+		# 도달 가능한 타일 기록 (현재 위치 제외)
+		if pos != current_pos:
+			var distance = _manhattan_distance(pos, target_pos)
+			reachable_tiles.append({"pos": pos, "distance": distance})
 
-		if is_position_occupied(new_pos):
-			continue
+		# 4방향 탐색
+		for dir in directions:
+			var new_pos = pos + dir
 
-		# 이동 거리 확인 (1칸만 이동)
-		var move_cost = 1
-		if move_cost > movement_range:
-			continue
+			# 맵 범위 확인
+			if battle_map != null and not battle_map.is_valid_position(new_pos):
+				continue
 
-		# 대상까지 거리 계산
-		var distance = _manhattan_distance(new_pos, target_pos)
+			# 통행 가능 확인
+			if battle_map != null and not battle_map.is_passable(new_pos):
+				continue
 
-		# 더 가까운 위치면 갱신
-		if distance < best_distance:
-			best_pos = new_pos
-			best_distance = distance
+			# 점유 확인 (대상 위치는 제외)
+			if new_pos != target_pos and is_position_occupied(new_pos):
+				continue
 
-	# 이동할 위치가 현재 위치와 같으면 이동 불가
-	if best_pos == current_pos:
+			# 지형 비용 가져오기
+			var terrain_cost = 1.0
+			if battle_map != null:
+				var terrain = battle_map.get_terrain_at(new_pos)
+				if terrain:
+					terrain_cost = terrain.movement_cost
+
+			var new_cost = cost + terrain_cost
+
+			# movement_range 초과하면 스킵
+			if new_cost > movement_range:
+				continue
+
+			# 이미 방문했고 더 낮은 비용으로 도달했으면 스킵
+			if new_pos in visited and visited[new_pos] <= new_cost:
+				continue
+
+			# 방문 기록
+			visited[new_pos] = new_cost
+
+			# 큐에 추가
+			queue.append({"pos": new_pos, "cost": new_cost})
+
+	# 도달 가능한 타일 중 대상까지 거리가 가장 가까운 타일 찾기
+	if reachable_tiles.is_empty():
 		return false
+
+	reachable_tiles.sort_custom(func(a, b): return a["distance"] < b["distance"])
+	var best_tile = reachable_tiles[0]
+	var best_pos = best_tile["pos"]
 
 	# 이동 실행
 	corps_positions.erase(current_pos)

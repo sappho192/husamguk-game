@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d3qp8s0h2a5lx"]
 
-[ext_resource type="Script" path="res://src/ui/battle/corps_battle_ui.gd" id="1_corps"]
+[ext_resource type="Script" uid="uid://dwipoeejvyl1g" path="res://src/ui/battle/corps_battle_ui.gd" id="1_corps"]
 
 [node name="CorpsBattleTest" type="Control"]
 layout_mode = 3
