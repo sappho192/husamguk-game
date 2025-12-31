@@ -82,15 +82,19 @@ The game uses Godot's autoload pattern for global managers:
 
 **Critical:** Never access data files directly. Always query through `DataManager`.
 
-### Complete Game Flow (Phase 3D)
+### Complete Game Flow (Phase 6)
 
 ```
 Main Menu (scenes/main_menu.tscn)
   ↓ [Start New Run]
   ↓ GameManager.start_new_run() → creates RunState, loads Battle 1
   ↓
-Battle Stage 1 (scenes/battle.tscn)
-  ↓ [Victory] GameManager.on_battle_ended() → saves unit states to RunState
+Battle Stage 1 (scenes/corps_battle_test.tscn) # Phase 6: Corps-based wave battles
+  ↓ 16×16 grid tactical combat with 3 waves (2, 3, 4 corps)
+  ↓ 5 command types (ATTACK, DEFEND, EVADE, WATCH, MOVE)
+  ↓ Attack range validation, terrain effects, formations
+  ↓ Wave rewards (HP recovery, global turn reset, buff extension)
+  ↓ [Victory] GameManager.on_battle_ended() → saves corps states to RunState
   ↓
 Internal Affairs (scenes/internal_affairs.tscn)
   ↓ 3 governance choices from 4 categories (Military/Economic/Diplomatic/Personnel)
@@ -104,11 +108,13 @@ Fateful Encounter (scenes/fateful_encounter.tscn)  # Phase 3D: Narrative NPC enc
   ↓ RunState.current_stage += 1
   ↓
 Battle Stage 2
-  ↓ Units restored from RunState (HP, stats, buffs carry forward)
+  ↓ Corps restored from RunState (HP, stats, buffs carry forward)
   ↓ Enhancements applied
+  ↓ 3 waves (3, 3, 4 corps) - Medium difficulty
   ↓ [Victory] → Internal Affairs → Fateful Encounter
   ↓
 Battle Stage 3
+  ↓ 3 waves (3, 4, 5 corps) - Final boss with 2 generals
   ↓ [Victory or Defeat]
   ↓
 Victory/Defeat Screen (scenes/victory_screen.tscn or defeat_screen.tscn)
@@ -118,15 +124,15 @@ Victory/Defeat Screen (scenes/victory_screen.tscn or defeat_screen.tscn)
 Main Menu
 ```
 
-### Project Structure (Phase 4 Wave System)
+### Project Structure (Phase 6 Integration Complete)
 
 ```
 husamguk/
 ├── src/
 │   ├── autoload/                    # Global singletons
-│   │   ├── data_manager.gd          # ✅ YAML loading, battle data, NPC/theme filtering, localization
-│   │   ├── game_manager.gd          # ✅ Run orchestration, scene transitions, wave battles
-│   │   └── save_manager.gd          # ✅ Stub for Phase 4 meta-progression
+│   │   ├── data_manager.gd          # ✅ YAML loading, battle/NPC/terrain/corps data, localization
+│   │   ├── game_manager.gd          # ✅ Run orchestration, corps wave battles, scene transitions
+│   │   └── save_manager.gd          # ✅ Stub for Phase 7 meta-progression
 │   ├── core/                        # Data classes
 │   │   ├── unit.gd                  # ✅ ATB system (4x speed), buff management
 │   │   ├── general.gd               # ✅ Skill execution, cooldown tracking (resets each stage)
@@ -135,13 +141,13 @@ husamguk/
 │   │   └── run_state.gd             # ✅ Run-level state persistence
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd    # ✅ Wave system, dual-layer timing, state machine
+│   │   │   └── battle_manager.gd    # ✅ Corps wave system, grid positioning, command queue, dual-layer timing
 │   │   └── internal_affairs/
 │   │       └── internal_affairs_manager.gd  # ✅ Event system
 │   ├── tools/
 │   │   └── battle_simulator.gd      # ✅ Headless combat simulator
 │   └── ui/
-│       ├── battle/                  # ✅ SkillBar, CardHand, UnitDisplay, Wave UI
+│       ├── battle/                  # ✅ CorpsBattleUI, TileGrid, CommandPanel, MovementOverlay, Wave UI
 │       ├── internal_affairs/        # ✅ ChoiceButton, InternalAffairsUI
 │       ├── enhancement/             # ✅ EnhancementCard (reused by Fateful Encounter)
 │       ├── fateful_encounter/       # ✅ NPCPortraitDisplay, FatefulEncounterUI
@@ -151,7 +157,8 @@ husamguk/
 │
 ├── scenes/
 │   ├── main_menu.tscn               # ✅ Entry point
-│   ├── battle.tscn                  # ✅ Battle scene (wave-based)
+│   ├── corps_battle_test.tscn       # ✅ Main battle scene (corps-based waves, Phase 6)
+│   ├── battle.tscn                  # ✅ Legacy unit-based battle (deprecated)
 │   ├── battle_simulator.tscn        # ✅ Battle simulator (headless)
 │   ├── internal_affairs.tscn        # ✅ Governance choices
 │   ├── fateful_encounter.tscn       # ✅ Fateful Encounter (Phase 3D)
@@ -164,8 +171,12 @@ husamguk/
 │   ├── events/                      # ✅ 20 events YAML (4 categories)
 │   ├── enhancements/                # ✅ 14 enhancements YAML (with theme tags)
 │   ├── npcs/                        # ✅ 5 NPCs YAML (Phase 3D)
-│   ├── battles/                     # ✅ 3 battle definitions YAML (Phase 4 - Wave system)
-│   └── localization/                # ✅ Korean/English (216 strings each)
+│   ├── battles/                     # ✅ 6 battle definitions YAML (3 unit + 3 corps, Phase 6)
+│   ├── terrain/                     # ✅ 6 terrain types YAML (Phase 5A)
+│   ├── maps/                        # ✅ 3 stage maps YAML (Phase 5A)
+│   ├── corps/                       # ✅ 6 corps templates YAML (Phase 5B)
+│   ├── formations/                  # ✅ 5 formations YAML (Phase 5B)
+│   └── localization/                # ✅ Korean/English (283 strings each, Phase 6)
 ├── addons/yaml/                     # ✅ godot-yaml parser addon
 ├── assets/audio/                    # ✅ Battle BGM (looping)
 ├── docs/                            # ✅ Design documents & guides
@@ -176,8 +187,8 @@ husamguk/
 ```
 
 **Legend:**
-- ✅ Implemented (Phase 4 Wave system in progress)
-- 🔲 Not yet implemented (Phase 4 meta-progression)
+- ✅ Implemented (Phase 6 Integration complete)
+- 🔲 Not yet implemented (Phase 7 meta-progression)
 
 ### MOD System Architecture
 
@@ -314,13 +325,15 @@ All data schemas are in `_schema.yaml` files. Each schema includes:
 - Background color for visual theming
 - Portrait path (placeholder system in Phase 3D)
 
-### Battles (`data/battles/_schema.yaml`) - Phase 4
+### Battles (`data/battles/_schema.yaml`) - Phase 6
 - Wave-based battle definitions for each stage
+- Supports both unit-based and corps-based battles (template_id field)
 - Each battle has 3-4 waves with enemy composition
 - Wave structure:
-  - `enemies`: Array of unit IDs with optional general assignments
+  - `enemies`: Array with `id` (unit) OR `template_id` (corps) + optional general
   - `wave_rewards`: HP recovery %, global turn reset, buff extension
-- Example: Stage 1 has 3 waves (2→3→4 enemies), Stage 3 has 3 waves (3→4→5 enemies)
+- 6 battle definitions: 3 unit-based (legacy) + 3 corps-based (active)
+- Corps battles integrate with 16×16 grid maps and spawn zones
 - Supports boss waves with multiple generals
 
 ### Terrain (`data/terrain/_schema.yaml`) - Phase 5A
@@ -460,7 +473,7 @@ var name = "견훤"
 - ✅ Dynamic enemy spawning per wave
 - ✅ General cooldown reset between stages (fresh instances)
 
-**Phase 5 (Corps & Grid System)** 🔄 IN PROGRESS
+**Phase 5 (Corps & Grid System)** ✅ COMPLETE
 - ✅ Phase 5A: 16×16 tile-based terrain grid
   - ✅ 6 terrain types with modifiers (plain, mountain, forest, river, road, wall)
   - ✅ TerrainTile and BattleMap classes
@@ -482,13 +495,26 @@ var name = "견훤"
   - ✅ Attack range validation
   - ✅ CorpsBattleUI integration (test scene)
   - ✅ 67 additional localization strings (Korean + English → 283 total)
-- 🔲 Integration with existing wave battle system (replace unit-based with corps-based)
+
+**Phase 6 (Wave System Integration)** ✅ COMPLETE
+- ✅ Battle schema extended to support both unit and corps battles (template_id field)
+- ✅ 3 corps-based wave battle definitions (stage_1/2/3_corps_battle)
+- ✅ BattleManager extended with corps wave spawning and rewards
+- ✅ CorpsBattleUI wave UI integration (counter, transition messages)
+- ✅ Ally corps position reset between waves
+- ✅ Direct attack command (click ally → click enemy shortcut)
+- ✅ GameManager configured to use corps battles as main battle mode
+- ✅ Full integration with run system (Internal Affairs → Fateful Encounter → Corps Battle)
+
+**Phase 7 (Meta-Progression)** 🔲 PLANNED
 - 🔲 SaveManager implementation (save/load functionality)
 - 🔲 Meta-progression unlocks (permanent upgrades)
+- 🔲 Content expansion (more battles, events, enhancements)
+- 🔲 MOD system full implementation
 
 ## Implementation Status
 
-### ✅ Completed Components (Phase 5 Corps System)
+### ✅ Completed Components (Phase 6 Integration Complete)
 
 **Core Classes:**
 - `src/core/unit.gd` - ATB system (4x speed), buff management, effective stat calculation
@@ -503,9 +529,9 @@ var name = "견훤"
 - `src/core/corps_command.gd` - Command system (5 types) (Phase 5C)
 
 **Autoload Managers:**
-- `src/autoload/data_manager.gd` - YAML loading, battle data, NPC/theme filtering, localization, factory methods
-- `src/autoload/game_manager.gd` - Run orchestration, scene transitions, wave battle integration
-- `src/autoload/save_manager.gd` - Meta-progression stub (Phase 4)
+- `src/autoload/data_manager.gd` - YAML loading, battle/NPC/terrain/corps data, localization, factory methods
+- `src/autoload/game_manager.gd` - Run orchestration, corps wave battles, scene transitions
+- `src/autoload/save_manager.gd` - Meta-progression stub (Phase 7)
 
 **Systems:**
 - `src/systems/battle/battle_manager.gd` - Wave system, corps positioning, command queue, attack range, state machine (RUNNING/PAUSED_FOR_CARD/WAVE_TRANSITION/MOVEMENT_PHASE)
@@ -521,17 +547,17 @@ var name = "견훤"
 **Data Layer:**
 - All YAML data files:
   - 9 generals with skills (hubaekje.yaml, taebong.yaml, silla.yaml)
-  - 6 unit types (base_units.yaml)
+  - 6 unit types (base_units.yaml) - legacy
   - 13 cards (starter_deck.yaml, advanced_cards.yaml)
   - 20 events (military_events.yaml, economic_events.yaml, diplomatic_events.yaml, personnel_events.yaml)
   - 14 enhancements with theme tags (combat_enhancements.yaml)
   - 5 NPCs with dialogue (fateful_encounter_npcs.yaml)
-  - 3 battle definitions (stage_battles.yaml) - Phase 4 Wave system
+  - 6 battle definitions (stage_battles.yaml) - 3 unit (legacy) + 3 corps (active) - Phase 6
   - 6 terrain types (base_terrain.yaml) - Phase 5A
   - 3 stage maps (stage_maps.yaml) - Phase 5A
   - 6 corps templates (base_corps.yaml) - Phase 5B
   - 5 formations (base_formations.yaml) - Phase 5B
-  - 283 localization strings each language (ko.yaml, en.yaml)
+  - 283 localization strings each language (ko.yaml, en.yaml) - Phase 6
 
 **Critical Implementation Notes:**
 1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)
@@ -553,23 +579,23 @@ var name = "견훤"
 17. **Corps Attack Range** (Phase 5B): All attacks validate range before execution. Infantry (1), Cavalry (2), Archer (4-5). Use `corps.is_target_in_range(target)` to check. UI highlights only valid targets.
 18. **Corps Mouse Filter** (Phase 5C): All child elements in CorpsDisplay must have `mouse_filter = MOUSE_FILTER_IGNORE` to prevent blocking parent click events
 
-### 🔲 Not Yet Implemented (Phase 5+)
+**Critical Implementation Notes (Phase 6):**
+19. **Corps Wave Battles** (Phase 6): GameManager now uses `corps_battle_test.tscn` as the main battle scene. Wave spawning creates corps from templates, positions them on spawn zones, and applies wave rewards (HP recovery, turn reset, buff extension).
+20. **Direct Attack Shortcut** (Phase 6): Click ally corps → click enemy corps to queue ATTACK command without opening CommandPanel. UI highlights valid targets based on attack range.
+21. **Ally Position Reset** (Phase 6): Between waves, ally corps automatically return to initial spawn positions while retaining HP/stats/buffs.
 
-**Corps-Unit Integration:**
-- Replace unit-based wave battles with corps-based battles
-- Integrate grid/terrain system into main battle scene
-- Card system targeting for corps instead of units
+### 🔲 Not Yet Implemented (Phase 7+)
 
-**MOD System:**
+**Meta-Progression (Phase 7):**
+- SaveManager implementation (save/load)
+- Permanent unlocks across runs
+- Player progression tracking
+
+**MOD System (Phase 7+):**
 - MOD loading from `mods/` directory
 - Deep merge strategy
 - load_order priority handling
 - Asset override support
-
-**Meta-Progression:**
-- SaveManager implementation (save/load)
-- Permanent unlocks across runs
-- Player progression tracking
 
 ## Asset Placeholder Strategy
 

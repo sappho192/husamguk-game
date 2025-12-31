@@ -14,7 +14,7 @@
 
 ## 2. 프로젝트 구조
 
-### 2.1 Phase 5C 구현 상태 (2025-12)
+### 2.1 Phase 6 구현 상태 (2025-12)
 
 ```
 husamguk/                         # Godot 프로젝트 루트
@@ -26,7 +26,7 @@ husamguk/                         # Godot 프로젝트 루트
 ├── src/                          # 게임 코드
 │   ├── autoload/                 # 싱글톤
 │   │   ├── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리, 지형/맵/부대 로딩
-│   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 씬 전환, 웨이브 전투
+│   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 부대 웨이브 전투, 씬 전환
 │   │   └── save_manager.gd       # ✅ 스텁 (Phase 7: 메타 프로그레션용)
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
@@ -43,7 +43,7 @@ husamguk/                         # Godot 프로젝트 루트
 │   │
 │   ├── systems/
 │   │   ├── battle/
-│   │   │   └── battle_manager.gd # ✅ 웨이브 시스템, 부대 배치, 명령 큐, 공격 범위, 상태 머신
+│   │   │   └── battle_manager.gd # ✅ 부대 웨이브 시스템, 그리드 배치, 명령 큐, 공격 범위, 상태 머신
 │   │   └── internal_affairs/
 │   │       └── internal_affairs_manager.gd  # ✅ 내정 이벤트 시스템
 │   │
@@ -79,11 +79,11 @@ husamguk/                         # Godot 프로젝트 루트
 │
 ├── scenes/
 │   ├── main_menu.tscn            # ✅ 진입점
-│   ├── battle.tscn               # ✅ 전투 씬 (웨이브 기반, Phase 4)
+│   ├── corps_battle_test.tscn    # ✅ 메인 전투 씬 (부대 기반 웨이브, Phase 6)
+│   ├── battle.tscn               # ✅ 레거시 유닛 기반 전투 (deprecated)
 │   ├── battle_simulator.tscn     # ✅ 전투 시뮬레이터 (headless)
 │   ├── internal_affairs.tscn     # ✅ 내정 씬
 │   ├── fateful_encounter.tscn    # ✅ 운명적 조우 씬 (Phase 3D)
-│   ├── corps_battle_test.tscn    # ✅ 부대 전투 테스트 씬 (Phase 5)
 │   ├── victory_screen.tscn       # ✅ 승리 화면
 │   └── defeat_screen.tscn        # ✅ 패배 화면
 │
@@ -142,8 +142,8 @@ husamguk/                         # Godot 프로젝트 루트
             └── battle_theme.ogg  # ✅ 전투 BGM (루핑)
 
 **범례:**
-- ✅ Phase 5C 구현 완료
-- 🔲 향후 Phase 구현 예정 (Phase 6+)
+- ✅ Phase 6 구현 완료
+- 🔲 향후 Phase 구현 예정 (Phase 7+)
 ```
 
 ### 2.2 전체 구조 (계획)
@@ -1116,17 +1116,21 @@ func load_portrait(path: String) -> Texture2D:
 ✅ 글로벌 턴 중 이동 단계
 ```
 
-### Phase 6: 부대/그리드 시스템 통합 🔲 다음 단계
+### Phase 6: 부대/그리드 시스템 통합 ✅ 완료
 
 ```
-[계획된 기능]
-🔲 기존 웨이브 전투를 부대 기반으로 교체
-🔲 그리드/지형 시스템을 메인 전투 씬에 통합
-🔲 유닛 대신 부대를 타겟으로 하는 카드 시스템
-🔲 RunState에 부대 상태 저장 기능
+[완료된 기능]
+✅ 기존 웨이브 전투를 부대 기반으로 교체
+✅ 그리드/지형 시스템을 메인 전투 씬에 통합
+✅ BattleManager 부대 웨이브 생성 및 보상
+✅ CorpsBattleUI 웨이브 UI 통합
+✅ 웨이브 간 아군 부대 위치 리셋
+✅ 직접 공격 명령 (아군 → 적군 클릭 단축키)
+✅ GameManager 부대 전투를 메인 씬으로 설정
+✅ 런 시스템과 완전 통합
 ```
 
-### Phase 7: 메타 프로그레션 🔲 계획됨
+### Phase 7: 메타 프로그레션 🔲 다음 단계
 
 ```
 [계획된 기능]
@@ -1610,6 +1614,7 @@ func _modify_unit_stat(effect: Dictionary) -> void:
 | 2025-12-31 | Phase 5B 구현 완료 반영 (부대 시스템, 진형) |
 | 2025-12-31 | Phase 5C 구현 완료 반영 (명령 시스템, 이동 단계) |
 | 2025-12-31 | 새 데이터 스키마 추가 (battles, terrain, maps, corps, formations) |
-| 2025-12-31 | 프로젝트 구조 업데이트 (Phase 5C 상태) |
+| 2025-12-31 | Phase 6 구현 완료 반영 (부대 웨이브 시스템 통합) |
+| 2025-12-31 | 프로젝트 구조 업데이트 (Phase 6 상태) |
 | 2025-12-31 | 로컬라이제이션 업데이트 (283 스트링) |
-| 2025-12-31 | Phase 6-7 로드맵 추가 (부대 통합, 메타 프로그레션) |
+| 2025-12-31 | Phase 7 로드맵 추가 (메타 프로그레션) |

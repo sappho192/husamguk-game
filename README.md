@@ -25,7 +25,7 @@ godot project.godot
 - Press **F5** in Godot Editor to run the full game
 - Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 6 (Wave System Integration) In Progress ✅
+## Current Status: Phase 6 (Wave System Integration) Complete ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -88,7 +88,7 @@ godot project.godot
   - CorpsDisplay component with HP/ATB bars
   - 283 localization strings per language (Korean/English)
 
-**Phase 6 (Wave System Integration)** - In Progress:
+**Phase 6 (Wave System Integration)** - Complete:
 - ✅ Battle schema extended to support both unit and corps battles (template_id field)
 - ✅ 3 corps-based wave battle definitions (stage_1/2/3_corps_battle)
 - ✅ BattleManager extended with corps wave spawning and rewards
@@ -96,34 +96,48 @@ godot project.godot
 - ✅ Ally corps position reset between waves
 - ✅ Direct attack command (click ally → click enemy shortcut)
 - ✅ GameManager configured to use corps battles as main battle mode
-- 🔲 Meta-progression system (save/load)
+- ✅ Full integration of corps-based wave battles with run system
 
-**Next Steps:**
+**Phase 7 (Meta-Progression)** - Planned:
+- 🔲 SaveManager implementation (save/load functionality)
+- 🔲 Meta-progression unlocks (permanent upgrades across runs)
 - 🔲 Full run testing and balance tuning
-- 🔲 Meta-progression system (permanent unlocks)
 - 🔲 Content expansion (more battles, events, enhancements)
+- 🔲 MOD system full implementation
 
 **What's Playable:**
-- Full roguelite run: Main Menu → 3 Battle Stages (with waves) → Victory/Defeat
-- **Stage 1**: 3 waves (2, 3, 4 enemies) - Tutorial difficulty
-- **Stage 2**: 3 waves (3, 3, 4 enemies) - Medium difficulty
-- **Stage 3**: 3 waves (3, 4, 5 enemies) - Final boss with 2 generals
-- Between each stage: Internal Affairs (3 governance choices) → Fateful Encounter (meet 1 of 5 NPCs)
-- Wave rewards: HP recovery (10-20%), global turn reset, buff duration extension
-- NPCs offer themed enhancements matching their character
-- Unit HP, stats, and buffs carry forward through all battles
-- General skills reset to 0 cooldown at the start of each new stage
-- Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
+- Full roguelite run: Main Menu → 3 Battle Stages (corps-based waves) → Victory/Defeat
+- **Combat**: 16×16 grid tactical battles with corps (general + soldiers)
+  - 5 command types: ATTACK, DEFEND, EVADE, WATCH, MOVE
+  - Attack range validation (Infantry: 1, Cavalry: 2, Archer: 4-5)
+  - 5 formations with stat modifiers (학익진, 봉시진, 방원진, 장사진, 어린진)
+  - 6 terrain types affecting combat (plain, mountain, forest, river, road, wall)
+- **Wave System**: 3 waves per stage with dynamic enemy spawning
+  - **Stage 1**: 3 waves (2, 3, 4 corps) - Tutorial difficulty
+  - **Stage 2**: 3 waves (3, 3, 4 corps) - Medium difficulty
+  - **Stage 3**: 3 waves (3, 4, 5 corps) - Final boss with 2 generals
+  - Wave rewards: HP recovery (10-20%), global turn reset, buff extension
+  - Ally corps positions reset between waves
+- **Progression**: Internal Affairs → Fateful Encounter → Next Battle
+  - 20 internal affairs events (4 categories: Military, Economic, Diplomatic, Personnel)
+  - 5 NPCs offering themed enhancements (healing, mystic, tactical)
+  - Corps HP, stats, and buffs carry forward through all battles
+  - Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
 
 **Development Roadmap:**
-- Phase 6: Integration of corps/grid system with wave battles (replace unit-based with corps-based combat)
-- Phase 7: Meta-progression system (permanent unlocks, save/load) and content expansion (more battles, events, cards, enhancements)
+- ✅ Phase 6: Integration of corps/grid system with wave battles - **COMPLETE**
+- Phase 7: Meta-progression system (permanent unlocks, save/load) and content expansion
 - Post-Phase-7: Balance tuning and polish based on playtesting
-- Long-term: MOD system full implementation
+- Long-term: MOD system full implementation, additional content
 
-**Test Scenes:**
-- `scenes/battle.tscn` - Unit-based wave battle system (Phases 1-4, currently active)
-- `scenes/corps_battle_test.tscn` - Corps-based tactical combat on 16×16 grid (Phase 5 prototype)
+**Main Battle Scene:**
+- `scenes/corps_battle_test.tscn` - **Primary game mode** (Phase 6 integration)
+  - Corps-based wave battles on 16×16 grid
+  - Full run integration with Internal Affairs and Fateful Encounter
+  - GameManager uses this scene for all stage battles
+
+**Legacy Test Scene:**
+- `scenes/battle.tscn` - Unit-based wave battle system (Phases 1-4, deprecated)
 
 ## Documentation
 
