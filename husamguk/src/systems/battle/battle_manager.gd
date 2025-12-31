@@ -27,7 +27,7 @@ var enemy_units: Array[Unit] = []
 var action_queue: Array[Unit] = []  # Units waiting to act
 
 # Phase 2: Global turn system
-const GLOBAL_TURN_INTERVAL: float = 10.0  # seconds
+const GLOBAL_TURN_INTERVAL: float = 15.0  # seconds (Phase 5C: Changed from 10.0)
 var global_turn_timer: float = 0.0
 var global_turn_count: int = 0
 
@@ -227,13 +227,18 @@ func _process(delta: float) -> void:
 		BattleState.RUNNING:
 			# Only tick ATB and global timer when running
 			_update_atb(delta)
+			_update_corps_atb(delta)  # Phase 5C: Update corps ATB
 			_tick_global_turn_timer(delta)
 			_process_action_queue()
+			_process_corps_action_queue()  # Phase 5C: Process corps actions
 			_check_battle_end()
+		BattleState.PREPARING:
+			# Phase 5C: Preparation mode - pause all ATB, wait for player to set commands
+			pass
 		BattleState.PAUSED_FOR_CARD:
 			# Waiting for card selection - no updates
 			pass
-		BattleState.ENDED, BattleState.PREPARING:
+		BattleState.ENDED:
 			pass
 
 func _update_atb(delta: float) -> void:
@@ -255,6 +260,19 @@ func _process_action_queue() -> void:
 
 	# Phase 2: All units auto-attack (skills are triggered manually via UI)
 	_execute_auto_attack(unit)
+
+# Phase 5C: Process corps action queue
+func _process_corps_action_queue() -> void:
+	if corps_action_queue.is_empty():
+		return
+
+	var corps = corps_action_queue.pop_front()
+
+	if not corps.is_alive:
+		return
+
+	# Execute the corps' assigned command (or auto-attack if none)
+	process_immediate_command(corps)
 
 func _execute_auto_attack(attacker: Unit) -> void:
 	var targets = enemy_units if attacker.is_ally else ally_units
@@ -328,10 +346,12 @@ func _tick_global_turn_timer(delta: float) -> void:
 func _trigger_global_turn() -> void:
 	print("=== GLOBAL TURN ", global_turn_count, " ===")
 
-	# Phase 5C: Execute movement phase first (before card selection)
+	# Phase 5C: Execute movement phase first (before preparation)
 	_execute_movement_phase()
 
-	state = BattleState.PAUSED_FOR_CARD
+	# Phase 5C: Enter preparation mode (was PAUSED_FOR_CARD)
+	state = BattleState.PREPARING
+	print("BattleManager: Entering PREPARING state")
 
 	# Tick buff durations for all units (global turn based)
 	for unit in ally_units + enemy_units:
@@ -354,10 +374,14 @@ func _trigger_global_turn() -> void:
 
 	global_turn_ready.emit()
 
-func on_card_used() -> void:
-	# Called by UI after player selects and uses a card
-	print("Card used, resuming battle")
+func resume_battle() -> void:
+	# Called by UI when player clicks "Resume Battle" button after setting commands
+	print("BattleManager: Resuming battle from PREPARING state")
 	state = BattleState.RUNNING
+
+# Legacy: Keep for backward compatibility, but redirect to resume_battle
+func on_card_used() -> void:
+	resume_battle()
 
 # Phase 2: Execute unit skill (called from UI when player clicks skill icon)
 func execute_unit_skill(unit: Unit) -> void:
@@ -574,7 +598,7 @@ func cancel_corps_command(corps: Corps) -> void:
 			movement_commands.erase(cmd)
 		pending_commands.erase(corps)
 
-## 즉시 실행 가능한 명령 처리 (ATTACK, DEFEND, EVADE, WATCH)
+## 즉시 실행 가능한 명령 처리 (ATTACK, DEFEND, WATCH, CHANGE_FORMATION)
 func process_immediate_command(corps: Corps) -> void:
 	if corps not in pending_commands:
 		# 기본 명령: 공격
@@ -582,53 +606,79 @@ func process_immediate_command(corps: Corps) -> void:
 		return
 
 	var command: CorpsCommand = pending_commands[corps]
+	var should_remove_command = true  # 명령 제거 여부
 
 	match command.type:
 		CorpsCommand.CommandType.ATTACK:
-			_execute_attack_command(command)
+			# ATTACK 명령은 공격 성공 시에만 제거
+			should_remove_command = _execute_attack_command(command)
 		CorpsCommand.CommandType.DEFEND:
 			_execute_defend_command(command)
-		CorpsCommand.CommandType.EVADE:
-			_execute_evade_command(command)
 		CorpsCommand.CommandType.WATCH:
 			_execute_watch_command(command)
+		CorpsCommand.CommandType.CHANGE_FORMATION:
+			_execute_formation_change_command(command)
 		CorpsCommand.CommandType.MOVE:
 			# 이동 명령은 글로벌 턴에 실행됨 - 여기서는 대기
 			print("BattleManager: %s waiting for movement phase" % corps.get_display_name())
 			corps.reset_atb()
 			return
 
-	# 명령 실행 후 ATB 리셋 및 명령 제거
+	# 명령 실행 후 ATB 리셋
 	corps.reset_atb()
-	pending_commands.erase(corps)
-	command_executed.emit(command)
 
-## 공격 명령 실행
-func _execute_attack_command(command: CorpsCommand) -> void:
+	# 명령 제거 (ATTACK은 조건부)
+	if should_remove_command:
+		pending_commands.erase(corps)
+		command_executed.emit(command)
+
+## 공격 명령 실행 (Phase 5C: 이동 + 공격)
+## returns: 공격 성공 여부 (true면 명령 제거, false면 명령 유지)
+func _execute_attack_command(command: CorpsCommand) -> bool:
 	var attacker = command.source_corps
 	var target = command.target_corps
 
 	if target == null or not target.is_alive:
-		# 대상이 없으면 사거리 내 자동 타겟 선택
+		# 대상이 죽었으면 사거리 내 새 타겟 찾기
 		target = _find_target_in_range(attacker)
 		if target == null:
-			print("BattleManager: %s has no targets in range (range: %d)" % [
+			print("BattleManager: %s has no targets in range (range: %d) - command removed" % [
 				attacker.get_display_name(), attacker.get_attack_range()
 			])
-			return
+			return true  # 대상이 없으면 명령 제거
+		# 새 타겟으로 명령 갱신
+		command.target_corps = target
 
 	# 사거리 확인
-	if not attacker.is_target_in_range(target):
-		print("BattleManager: %s cannot attack %s - out of range (dist: %d, range: %d)" % [
-			attacker.get_display_name(), target.get_display_name(),
-			attacker.distance_to(target), attacker.get_attack_range()
+	if attacker.is_target_in_range(target):
+		# 사거리 내 - 즉시 공격
+		var damage = attacker.attack_target(target)
+		print("BattleManager: %s attacks %s for %d damage (range: %d)" % [
+			attacker.get_display_name(), target.get_display_name(), damage, attacker.get_attack_range()
 		])
-		return
-
-	var damage = attacker.attack_target(target)
-	print("BattleManager: %s attacks %s for %d damage (range: %d)" % [
-		attacker.get_display_name(), target.get_display_name(), damage, attacker.get_attack_range()
-	])
+		return true  # 공격 성공 - 명령 제거
+	else:
+		# 사거리 밖 - 대상을 향해 이동
+		var moved = _move_towards_target(attacker, target)
+		if moved:
+			print("BattleManager: %s moves toward %s (dist: %d -> %d)" % [
+				attacker.get_display_name(), target.get_display_name(),
+				attacker.distance_to(target) + 1, attacker.distance_to(target)
+			])
+			# 이동 후 사거리 확인 - 사거리 내에 들어왔으면 공격
+			if attacker.is_target_in_range(target):
+				var damage = attacker.attack_target(target)
+				print("BattleManager: %s attacks %s after moving for %d damage" % [
+					attacker.get_display_name(), target.get_display_name(), damage
+				])
+				return true  # 공격 성공 - 명령 제거
+			else:
+				return false  # 이동만 함 - 명령 유지
+		else:
+			print("BattleManager: %s cannot move toward %s - path blocked, command removed" % [
+				attacker.get_display_name(), target.get_display_name()
+			])
+			return true  # 이동 불가 - 명령 제거
 
 ## 방어 명령 실행
 func _execute_defend_command(command: CorpsCommand) -> void:
@@ -648,23 +698,25 @@ func _execute_defend_command(command: CorpsCommand) -> void:
 	print("BattleManager: %s is defending (+50%% DEF for 1 turn)" % corps.get_display_name())
 
 ## 회피 명령 실행
-func _execute_evade_command(command: CorpsCommand) -> void:
+## 진형 변경 명령 실행 (Phase 5C)
+func _execute_formation_change_command(command: CorpsCommand) -> void:
 	var corps = command.source_corps
-	# 회피 버프 적용 (ATB 속도 +0.3, 1턴)
-	var Buff = preload("res://src/core/buff.gd")
-	var evade_buff = Buff.new({
-		"id": "evade_command",
-		"type": "buff",
-		"stat": "atb_speed",
-		"value": 0.3,
-		"value_type": "flat",
-		"duration": 1,
-		"source": "command"
-	})
-	corps.add_buff(evade_buff)
-	print("BattleManager: %s is evading (+0.3 ATB speed for 1 turn)" % corps.get_display_name())
+	if command.target_formation == null:
+		push_warning("BattleManager: Formation change command without target formation")
+		corps.reset_atb()
+		return
 
-## 경계 명령 실행
+	# 진형 변경
+	corps.set_formation(command.target_formation)
+	print("BattleManager: %s changed formation to %s" % [
+		corps.get_display_name(),
+		command.target_formation.get_display_name()
+	])
+
+	corps.reset_atb()
+	command_executed.emit(command)
+
+## 경계 명령 실행 (Phase 5C)
 func _execute_watch_command(command: CorpsCommand) -> void:
 	var corps = command.source_corps
 	# 경계 상태는 별도 플래그로 관리 (TODO: 반격 시스템 구현)
@@ -737,6 +789,71 @@ func get_attackable_targets(corps: Corps) -> Array:
 ## 맨해튼 거리 계산
 func _manhattan_distance(a: Vector2i, b: Vector2i) -> int:
 	return abs(a.x - b.x) + abs(a.y - b.y)
+
+## 대상을 향해 이동 (Phase 5C: ATTACK 명령용)
+## returns: 이동 성공 여부
+func _move_towards_target(attacker: Corps, target: Corps) -> bool:
+	if attacker == null or target == null:
+		return false
+
+	var current_pos = attacker.grid_position
+	var target_pos = target.grid_position
+	var movement_range = attacker.get_movement_range()
+
+	# 이동 가능한 타일 중 대상에 가장 가까운 타일 찾기
+	var best_pos: Vector2i = current_pos
+	var best_distance = _manhattan_distance(current_pos, target_pos)
+
+	# 4방향 탐색 (상하좌우)
+	var directions = [
+		Vector2i(0, -1),  # 위
+		Vector2i(0, 1),   # 아래
+		Vector2i(-1, 0),  # 왼쪽
+		Vector2i(1, 0)    # 오른쪽
+	]
+
+	for dir in directions:
+		var new_pos = current_pos + dir
+
+		# 맵 범위 확인
+		if battle_map != null and not battle_map.is_valid_position(new_pos):
+			continue
+
+		# 이동 가능 확인 (통행 가능 + 점유되지 않음)
+		if battle_map != null and not battle_map.is_passable(new_pos):
+			continue
+
+		if is_position_occupied(new_pos):
+			continue
+
+		# 이동 거리 확인 (1칸만 이동)
+		var move_cost = 1
+		if move_cost > movement_range:
+			continue
+
+		# 대상까지 거리 계산
+		var distance = _manhattan_distance(new_pos, target_pos)
+
+		# 더 가까운 위치면 갱신
+		if distance < best_distance:
+			best_pos = new_pos
+			best_distance = distance
+
+	# 이동할 위치가 현재 위치와 같으면 이동 불가
+	if best_pos == current_pos:
+		return false
+
+	# 이동 실행
+	corps_positions.erase(current_pos)
+
+	var new_terrain: TerrainTile = null
+	if battle_map != null:
+		new_terrain = battle_map.get_terrain_at(best_pos)
+
+	attacker.set_grid_position(best_pos, new_terrain)
+	corps_positions[best_pos] = attacker
+
+	return true
 
 # ====================================
 # Phase 5C: Movement Phase

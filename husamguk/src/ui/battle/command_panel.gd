@@ -23,13 +23,12 @@ var _command_buttons: Dictionary = {}  # CommandType -> Button
 var _cancel_button: Button
 var _vbox: VBoxContainer
 
-## 버튼 색상
+## 버튼 색상 (Phase 5C)
 const BUTTON_COLORS = {
-	CorpsCommand.CommandType.ATTACK: Color(0.8, 0.3, 0.3),   # 빨강
-	CorpsCommand.CommandType.DEFEND: Color(0.3, 0.5, 0.8),   # 파랑
-	CorpsCommand.CommandType.EVADE: Color(0.3, 0.7, 0.5),    # 초록
-	CorpsCommand.CommandType.WATCH: Color(0.7, 0.6, 0.3),    # 노랑
-	CorpsCommand.CommandType.MOVE: Color(0.6, 0.4, 0.7),     # 보라
+	CorpsCommand.CommandType.ATTACK: Color(0.8, 0.3, 0.3),         # 빨강
+	CorpsCommand.CommandType.DEFEND: Color(0.3, 0.5, 0.8),         # 파랑
+	CorpsCommand.CommandType.WATCH: Color(0.7, 0.6, 0.3),          # 노랑
+	CorpsCommand.CommandType.CHANGE_FORMATION: Color(0.6, 0.4, 0.7), # 보라
 }
 
 
@@ -86,12 +85,12 @@ func _ready() -> void:
 
 
 func _create_command_buttons() -> void:
+	# Phase 5C: 새로운 명령 시스템
 	var command_types = [
 		CorpsCommand.CommandType.ATTACK,
 		CorpsCommand.CommandType.DEFEND,
-		CorpsCommand.CommandType.EVADE,
 		CorpsCommand.CommandType.WATCH,
-		CorpsCommand.CommandType.MOVE,
+		CorpsCommand.CommandType.CHANGE_FORMATION,
 	]
 
 	for cmd_type in command_types:
@@ -127,12 +126,10 @@ func _get_command_localization_key(cmd_type: CorpsCommand.CommandType) -> String
 			return "COMMAND_ATTACK"
 		CorpsCommand.CommandType.DEFEND:
 			return "COMMAND_DEFEND"
-		CorpsCommand.CommandType.EVADE:
-			return "COMMAND_EVADE"
 		CorpsCommand.CommandType.WATCH:
 			return "COMMAND_WATCH"
-		CorpsCommand.CommandType.MOVE:
-			return "COMMAND_MOVE"
+		CorpsCommand.CommandType.CHANGE_FORMATION:
+			return "COMMAND_CHANGE_FORMATION"
 	return "COMMAND_UNKNOWN"
 
 

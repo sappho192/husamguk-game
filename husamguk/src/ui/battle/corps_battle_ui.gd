@@ -8,11 +8,13 @@ extends Control
 
 const Corps = preload("res://src/core/corps.gd")
 const CorpsCommand = preload("res://src/core/corps_command.gd")
+const Formation = preload("res://src/core/formation.gd")
 const BattleMap = preload("res://src/core/battle_map.gd")
 const TileGridUI = preload("res://src/ui/battle/tile_grid_ui.gd")
 const CommandPanel = preload("res://src/ui/battle/command_panel.gd")
 const MovementOverlay = preload("res://src/ui/battle/movement_overlay.gd")
 const CorpsDisplay = preload("res://src/ui/battle/corps_display.gd")
+const FormationSelectDialog = preload("res://src/ui/battle/formation_select_dialog.gd")
 
 ## 전투 매니저
 var battle_manager: BattleManager
@@ -21,6 +23,7 @@ var battle_manager: BattleManager
 var tile_grid: TileGridUI
 var command_panel: CommandPanel
 var movement_overlay: MovementOverlay
+var formation_dialog: FormationSelectDialog  # Phase 5C: 진형 선택 다이얼로그
 
 ## 군단 표시 관리
 var corps_displays: Dictionary = {}  # Corps -> CorpsDisplay
@@ -36,6 +39,7 @@ var selection_state: SelectionState = SelectionState.NONE
 var info_panel: PanelContainer
 var info_label: Label
 var state_label: Label
+var resume_battle_button: Button  # Phase 5C: 전투 개시 버튼
 
 ## 결과 레이블
 var result_label: Label
@@ -43,6 +47,11 @@ var result_label: Label
 
 func _ready() -> void:
 	_create_ui()
+
+	# Localization
+	if DataManager:
+		resume_battle_button.text = DataManager.get_localized("UI_RESUME_BATTLE")
+
 	_setup_battle_manager()
 	_start_test_battle()
 
@@ -76,6 +85,12 @@ func _create_ui() -> void:
 	command_panel.command_selected.connect(_on_command_selected)
 	command_panel.command_cancelled.connect(_on_command_cancelled)
 	add_child(command_panel)
+
+	# 진형 선택 다이얼로그 (Phase 5C)
+	formation_dialog = FormationSelectDialog.new()
+	formation_dialog.formation_selected.connect(_on_formation_selected)
+	formation_dialog.cancelled.connect(_on_formation_dialog_cancelled)
+	add_child(formation_dialog)
 
 	# 이동 오버레이 컨트롤러
 	movement_overlay = MovementOverlay.new()
@@ -112,6 +127,40 @@ func _create_ui() -> void:
 
 	# 디버그 버튼
 	_create_debug_buttons()
+
+	# 전투 개시 버튼 (Phase 5C)
+	_create_resume_battle_button()
+
+
+func _create_resume_battle_button() -> void:
+	resume_battle_button = Button.new()
+	resume_battle_button.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	resume_battle_button.offset_left = -100
+	resume_battle_button.offset_right = 100
+	resume_battle_button.offset_top = -80
+	resume_battle_button.offset_bottom = -30
+	resume_battle_button.custom_minimum_size = Vector2(200, 50)
+	resume_battle_button.add_theme_font_size_override("font_size", 20)
+	resume_battle_button.text = "전투 개시"  # Will be localized in _ready()
+	resume_battle_button.pressed.connect(_on_resume_battle_pressed)
+	resume_battle_button.visible = false  # 초기에는 숨김
+
+	# 버튼 스타일
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.3, 0.7, 0.3, 0.9)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(12)
+	resume_battle_button.add_theme_stylebox_override("normal", style)
+
+	var hover_style = style.duplicate()
+	hover_style.bg_color = Color(0.4, 0.8, 0.4, 0.9)
+	resume_battle_button.add_theme_stylebox_override("hover", hover_style)
+
+	var pressed_style = style.duplicate()
+	pressed_style.bg_color = Color(0.2, 0.6, 0.2, 0.9)
+	resume_battle_button.add_theme_stylebox_override("pressed", pressed_style)
+
+	add_child(resume_battle_button)
 
 
 func _create_info_panel() -> void:
@@ -235,13 +284,13 @@ func _start_test_battle() -> void:
 		battle_manager.add_corps(enemy2, enemy_spawns[1])
 		battle_manager.add_corps(enemy3, enemy_spawns[2])
 
-	# 전투 시작
-	battle_manager.state = BattleManager.BattleState.RUNNING
+	# 전투 시작 - 전투 준비 모드로 시작 (Phase 5C)
+	battle_manager.state = BattleManager.BattleState.PREPARING
 	battle_manager.battle_started.emit()
 
 
 func _on_battle_started() -> void:
-	print("CorpsBattleUI: Battle started!")
+	print("CorpsBattleUI: Battle started in PREPARING mode!")
 	_update_state_label()
 
 	# 군단 표시 생성
@@ -254,6 +303,10 @@ func _on_battle_started() -> void:
 	await get_tree().create_timer(1.5).timeout
 	if is_inside_tree():
 		tile_grid.clear_all_highlights()
+
+		# Phase 5C: 전투 시작 시 전투 개시 버튼 표시
+		if battle_manager.state == BattleManager.BattleState.PREPARING:
+			resume_battle_button.visible = true
 
 
 func _create_corps_display(corps: Corps) -> void:
@@ -270,8 +323,9 @@ func _create_corps_display(corps: Corps) -> void:
 
 	corps_displays[corps] = display
 
-	# 위치 변경 시그널 연결
+	# 시그널 연결
 	corps.position_changed.connect(_on_corps_position_changed.bind(corps))
+	corps.destroyed.connect(_on_corps_destroyed_ui.bind(corps))
 
 
 func _on_corps_position_changed(old_pos: Vector2i, new_pos: Vector2i, corps: Corps) -> void:
@@ -289,6 +343,20 @@ func _on_corps_position_changed(old_pos: Vector2i, new_pos: Vector2i, corps: Cor
 	if new_tile:
 		display.position = Vector2.ZERO
 		new_tile.add_child(display)
+
+
+func _on_corps_destroyed_ui(corps: Corps) -> void:
+	print("CorpsBattleUI: Corps destroyed UI cleanup: %s" % corps.get_display_name())
+
+	# 현재 선택된 군단이면 선택 해제
+	if selected_corps == corps:
+		_deselect_corps()
+
+	# Display 제거
+	var display = corps_displays.get(corps)
+	if display:
+		display.queue_free()
+		corps_displays.erase(corps)
 
 
 func _on_corps_clicked(corps: Corps) -> void:
@@ -311,18 +379,26 @@ func _on_corps_clicked(corps: Corps) -> void:
 
 
 func _select_corps(corps: Corps) -> void:
+	# 파괴된 군단은 선택 불가
+	if corps == null or not corps.is_alive:
+		return
+
 	# 이전 선택 해제
 	if selected_corps != null and selected_corps in corps_displays:
-		corps_displays[selected_corps].set_selected(false)
+		var prev_display = corps_displays[selected_corps]
+		if prev_display and is_instance_valid(prev_display):
+			prev_display.set_selected(false)
 
 	selected_corps = corps
 
 	if corps != null and corps in corps_displays:
-		corps_displays[corps].set_selected(true)
+		var display = corps_displays[corps]
+		if display and is_instance_valid(display):
+			display.set_selected(true)
 		_update_info_panel(corps)
 
-		# ATB가 차 있으면 명령 패널 표시
-		if corps.atb_current >= corps.atb_max:
+		# Phase 5C: PREPARING 상태일 때만 명령 패널 표시 (ATB 무관)
+		if battle_manager.state == BattleManager.BattleState.PREPARING:
 			command_panel.show_for_corps(corps)
 			selection_state = SelectionState.SELECTING_COMMAND
 		else:
@@ -357,7 +433,9 @@ func _on_tile_hovered(grid_pos: Vector2i) -> void:
 
 func _deselect_corps() -> void:
 	if selected_corps != null and selected_corps in corps_displays:
-		corps_displays[selected_corps].set_selected(false)
+		var display = corps_displays[selected_corps]
+		if display and is_instance_valid(display):
+			display.set_selected(false)
 	selected_corps = null
 	command_panel.hide_panel()
 	selection_state = SelectionState.NONE
@@ -373,30 +451,46 @@ func _on_command_selected(command_type: CorpsCommand.CommandType) -> void:
 
 	match command_type:
 		CorpsCommand.CommandType.ATTACK:
-			# 공격 대상 선택 모드
+			# Phase 5C: 공격 대상 선택 모드 (대상을 향해 이동 및 공격)
 			selection_state = SelectionState.SELECTING_TARGET
-			_highlight_attack_targets()
+			_highlight_all_enemies()
 			command_panel.hide_panel()
 
-		CorpsCommand.CommandType.MOVE:
-			# 이동 위치 선택 모드
-			print("CorpsBattleUI: Starting MOVE selection for %s" % selected_corps.get_display_name())
-			selection_state = SelectionState.SELECTING_MOVE
-			# 군단 표시의 마우스 입력 비활성화 (타일 클릭을 위해)
-			_set_all_corps_displays_mouse_input(false)
-			movement_overlay.set_occupied_positions(battle_manager.get_all_occupied_positions())
-			movement_overlay.start_selection(selected_corps)
-			movement_overlay.debug_print_reachable_tiles()
-			command_panel.hide_panel()
-
-		CorpsCommand.CommandType.DEFEND, CorpsCommand.CommandType.EVADE, CorpsCommand.CommandType.WATCH:
-			# 즉시 실행 명령
+		CorpsCommand.CommandType.DEFEND, CorpsCommand.CommandType.WATCH:
+			# Phase 5C: 즉시 명령 설정 (현재 위치 사수)
 			var command = CorpsCommand.new(command_type, selected_corps)
 			battle_manager.set_corps_command(selected_corps, command)
-			battle_manager.process_immediate_command(selected_corps)
+
+			# 명령 표시기 업데이트
+			if selected_corps in corps_displays:
+				var display = corps_displays[selected_corps]
+				if display and is_instance_valid(display):
+					display.show_command_indicator(command_type)
+
 			_deselect_corps()
 
+		CorpsCommand.CommandType.CHANGE_FORMATION:
+			# Phase 5C: 진형 선택 다이얼로그 표시
+			formation_dialog.show_for_corps(selected_corps)
+			command_panel.hide_panel()
 
+
+## Phase 5C: 모든 적군을 하이라이트 (사거리 무관)
+func _highlight_all_enemies() -> void:
+	var enemy_positions: Array = []
+	for corps in battle_manager.enemy_corps:
+		if corps.is_alive:
+			enemy_positions.append(corps.grid_position)
+
+	if enemy_positions.is_empty():
+		print("CorpsBattleUI: No enemies available")
+		state_label.text = "No enemies!"
+		return
+
+	tile_grid.highlight_attack_tiles(enemy_positions)
+
+
+## Legacy: 사거리 내 대상만 하이라이트 (사용 안 함)
 func _highlight_attack_targets() -> void:
 	if selected_corps == null:
 		return
@@ -419,18 +513,20 @@ func _execute_attack_on_target(target: Corps) -> void:
 	if selected_corps == null:
 		return
 
-	# 사거리 확인
-	if not selected_corps.is_target_in_range(target):
-		print("CorpsBattleUI: Target out of range (dist: %d, range: %d)" % [
-			selected_corps.distance_to(target), selected_corps.get_attack_range()
-		])
-		state_label.text = DataManager.get_localized("UI_TARGET_OUT_OF_RANGE") if DataManager else "Target out of range!"
-		return
-
+	# Phase 5C: 사거리 무관하게 공격 명령 설정 (자동으로 이동 후 공격)
 	var command = CorpsCommand.new(CorpsCommand.CommandType.ATTACK, selected_corps)
 	command.set_as_attack(target)
 	battle_manager.set_corps_command(selected_corps, command)
-	battle_manager.process_immediate_command(selected_corps)
+
+	# 명령 표시기 업데이트
+	if selected_corps in corps_displays:
+		var display = corps_displays[selected_corps]
+		if display and is_instance_valid(display):
+			display.show_command_indicator(CorpsCommand.CommandType.ATTACK)
+
+	print("CorpsBattleUI: Set ATTACK command for %s -> %s" % [
+		selected_corps.get_display_name(), target.get_display_name()
+	])
 
 	tile_grid.clear_all_highlights()
 	_deselect_corps()
@@ -450,7 +546,9 @@ func _on_movement_selected(destination: Vector2i) -> void:
 
 	# 명령 표시기 업데이트
 	if selected_corps in corps_displays:
-		corps_displays[selected_corps].show_command_indicator(CorpsCommand.CommandType.MOVE)
+		var display = corps_displays[selected_corps]
+		if display and is_instance_valid(display):
+			display.show_command_indicator(CorpsCommand.CommandType.MOVE)
 
 	# 군단 표시의 마우스 입력 재활성화
 	_set_all_corps_displays_mouse_input(true)
@@ -469,16 +567,18 @@ func _on_movement_cancelled() -> void:
 func _on_corps_action_ready(corps: Corps) -> void:
 	print("CorpsBattleUI: Corps action ready: %s" % corps.get_display_name())
 
-	# 아군이면 자동 선택
-	if corps.is_ally:
-		_select_corps(corps)
+	# Phase 5C: PREPARING 모드에서만 자동 선택 (RUNNING 중에는 명령에 따라 자동 행동)
+	# RUNNING 모드에서는 더 이상 ATB 차면 명령 패널을 열지 않음
+	pass
 
 
 func _on_command_executed(command: CorpsCommand) -> void:
 	# 명령 표시기 숨기기
 	var corps = command.source_corps
 	if corps in corps_displays:
-		corps_displays[corps].hide_command_indicator()
+		var display = corps_displays[corps]
+		if display and is_instance_valid(display):
+			display.hide_command_indicator()
 
 
 func _on_movement_phase_started() -> void:
@@ -492,8 +592,12 @@ func _on_movement_phase_ended() -> void:
 
 
 func _on_global_turn_ready() -> void:
-	print("CorpsBattleUI: Global turn ready")
+	print("CorpsBattleUI: Global turn ready - entering PREPARING mode")
 	_update_state_label()
+
+	# Phase 5C: PREPARING 모드에서 전투 개시 버튼 표시
+	if battle_manager.state == BattleManager.BattleState.PREPARING:
+		resume_battle_button.visible = true
 
 
 func _on_battle_ended(victory: bool) -> void:
@@ -536,6 +640,8 @@ func _update_state_label() -> void:
 
 	var state_text = ""
 	match battle_manager.state:
+		BattleManager.BattleState.PREPARING:
+			state_text = DataManager.get_localized("BATTLE_STATE_PREPARING")
 		BattleManager.BattleState.RUNNING:
 			state_text = DataManager.get_localized("BATTLE_STATE_RUNNING")
 		BattleManager.BattleState.PAUSED_FOR_CARD:
@@ -570,6 +676,44 @@ func _on_force_defeat() -> void:
 		corps.is_alive = false
 		corps.destroyed.emit()
 	battle_manager._check_corps_battle_end()
+
+
+## 전투 개시 버튼 클릭 (Phase 5C)
+func _on_resume_battle_pressed() -> void:
+	print("CorpsBattleUI: Resume battle button pressed")
+	battle_manager.resume_battle()
+	resume_battle_button.visible = false
+	_deselect_corps()
+
+
+## 진형 선택 다이얼로그 - 진형 선택됨 (Phase 5C)
+func _on_formation_selected(formation: Formation) -> void:
+	if selected_corps == null:
+		return
+
+	print("CorpsBattleUI: Formation selected: %s for %s" % [
+		formation.get_display_name(), selected_corps.get_display_name()
+	])
+
+	# 진형 변경 명령 생성
+	var command = CorpsCommand.new(CorpsCommand.CommandType.CHANGE_FORMATION, selected_corps)
+	command.target_formation = formation
+	battle_manager.set_corps_command(selected_corps, command)
+
+	# 명령 표시기 업데이트
+	if selected_corps in corps_displays:
+		var display = corps_displays[selected_corps]
+		if display and is_instance_valid(display):
+			display.show_command_indicator(CorpsCommand.CommandType.CHANGE_FORMATION)
+
+	_deselect_corps()
+
+
+## 진형 선택 다이얼로그 - 취소됨 (Phase 5C)
+func _on_formation_dialog_cancelled() -> void:
+	# 명령 패널 다시 표시
+	if selected_corps != null:
+		command_panel.show_for_corps(selected_corps)
 
 
 ## 모든 군단 표시의 마우스 입력 활성화/비활성화

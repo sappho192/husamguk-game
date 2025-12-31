@@ -234,6 +234,7 @@ strings:
   # === Victory/Defeat Screens ===
   UI_RUN_VICTORY: "RUN VICTORY!"
   UI_RUN_DEFEAT: "RUN DEFEAT"
+  UI_RESUME_BATTLE: "Resume Battle"
   UI_STAGES_CLEARED: "Stages Cleared"
   UI_BATTLES_WON: "Battles Won"
   UI_CHOICES_MADE: "Governance Choices"
@@ -334,13 +335,15 @@ strings:
   # === Command System (Phase 5C) ===
   COMMAND_PANEL_TITLE: "Select Command"
   COMMAND_ATTACK: "Attack"
-  COMMAND_ATTACK_DESC: "Attack the selected enemy corps."
+  COMMAND_ATTACK_DESC: "Move toward and attack the designated enemy corps."
   COMMAND_DEFEND: "Defend"
-  COMMAND_DEFEND_DESC: "Take a defensive stance. DEF +50% (1 turn)"
+  COMMAND_DEFEND_DESC: "Hold current position."
   COMMAND_EVADE: "Evade"
   COMMAND_EVADE_DESC: "Perform evasive maneuvers. ATB speed +0.3 (1 turn)"
   COMMAND_WATCH: "Watch"
-  COMMAND_WATCH_DESC: "Watch for enemy movement and prepare to counterattack."
+  COMMAND_WATCH_DESC: "Hold current position, switching to attack mode when enemies approach within range."
+  COMMAND_CHANGE_FORMATION: "Change Formation"
+  COMMAND_CHANGE_FORMATION_DESC: "Change the corps formation."
   COMMAND_MOVE: "Move"
   COMMAND_MOVE_DESC: "Move to the selected tile. (Executes on global turn)"
   COMMAND_CANCEL: "Cancel"
@@ -352,6 +355,7 @@ strings:
   MOVEMENT_QUEUED: "Movement command queued"
 
   # Battle states
+  BATTLE_STATE_PREPARING: "Preparing for battle"
   BATTLE_STATE_RUNNING: "Battle in progress"
   BATTLE_STATE_PAUSED: "Card selection"
   BATTLE_STATE_MOVEMENT: "Movement phase"

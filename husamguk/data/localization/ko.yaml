@@ -234,6 +234,7 @@ strings:
   # === 승리/패배 화면 ===
   UI_RUN_VICTORY: "승리!"
   UI_RUN_DEFEAT: "패배"
+  UI_RESUME_BATTLE: "전투 개시"
   UI_STAGES_CLEARED: "클리어한 스테이지"
   UI_BATTLES_WON: "승리한 전투"
   UI_CHOICES_MADE: "내정 선택"
@@ -334,13 +335,15 @@ strings:
   # === 명령 시스템 (Phase 5C) ===
   COMMAND_PANEL_TITLE: "명령 선택"
   COMMAND_ATTACK: "공격"
-  COMMAND_ATTACK_DESC: "선택한 적 군단을 공격합니다."
-  COMMAND_DEFEND: "방어"
-  COMMAND_DEFEND_DESC: "방어 태세를 취합니다. 방어력 +50% (1턴)"
+  COMMAND_ATTACK_DESC: "지정한 적 군단을 향해 이동하며 공격합니다."
+  COMMAND_DEFEND: "수비"
+  COMMAND_DEFEND_DESC: "현재 위치를 사수합니다."
   COMMAND_EVADE: "회피"
   COMMAND_EVADE_DESC: "회피 기동을 수행합니다. ATB 속도 +0.3 (1턴)"
   COMMAND_WATCH: "경계"
-  COMMAND_WATCH_DESC: "적의 이동을 감시하며 반격을 준비합니다."
+  COMMAND_WATCH_DESC: "현재 위치를 사수하며, 사거리 내 적 접근 시 공격 모드로 전환합니다."
+  COMMAND_CHANGE_FORMATION: "진형 변경"
+  COMMAND_CHANGE_FORMATION_DESC: "군단의 진형을 변경합니다."
   COMMAND_MOVE: "이동"
   COMMAND_MOVE_DESC: "선택한 타일로 이동합니다. (글로벌 턴에 실행)"
   COMMAND_CANCEL: "취소"
@@ -352,6 +355,7 @@ strings:
   MOVEMENT_QUEUED: "이동 명령 대기 중"
 
   # 전투 상태
+  BATTLE_STATE_PREPARING: "전투 준비 중"
   BATTLE_STATE_RUNNING: "전투 중"
   BATTLE_STATE_PAUSED: "카드 선택 대기"
   BATTLE_STATE_MOVEMENT: "이동 페이즈"

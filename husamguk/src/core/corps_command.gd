@@ -9,13 +9,13 @@ extends RefCounted
 
 const Corps = preload("res://src/core/corps.gd")
 
-## 명령 유형
+## 명령 유형 (Phase 5C: Redesigned command system)
 enum CommandType {
-	ATTACK,   # 공격: 대상 군단에 피해
-	DEFEND,   # 방어: 다음 턴까지 방어력 증가
-	EVADE,    # 회피: 다음 공격 회피 확률 증가
-	WATCH,    # 경계: 적 이동 시 반격
-	MOVE      # 이동: 지정 타일로 이동 (글로벌 턴에 실행)
+	ATTACK,            # 공격: 지정한 적 군단을 향해 이동 및 공격
+	DEFEND,            # 수비: 현재 위치를 사수
+	WATCH,             # 경계: 현재 위치 사수 + 사거리 내 적 접근 시 공격 모드로 전환
+	CHANGE_FORMATION,  # 진형 변경: 현재 군단의 진형을 변경
+	MOVE               # 이동: 지정 타일로 이동 (내부 사용, 글로벌 턴에 실행)
 }
 
 ## 명령 유형
@@ -24,11 +24,14 @@ var type: CommandType = CommandType.ATTACK
 ## 명령을 내린 군단
 var source_corps: Corps = null
 
-## 대상 군단 (ATTACK, WATCH 등)
+## 대상 군단 (ATTACK)
 var target_corps: Corps = null
 
-## 대상 위치 (MOVE)
+## 대상 위치 (MOVE - 내부 사용)
 var target_position: Vector2i = Vector2i(-1, -1)
+
+## 대상 진형 (CHANGE_FORMATION) - Formation instance
+var target_formation = null
 
 ## 명령 생성 시간 (우선순위용)
 var created_at: float = 0.0
@@ -59,20 +62,20 @@ func set_as_defend() -> CorpsCommand:
 	return self
 
 
-## 회피 명령으로 설정
-func set_as_evade() -> CorpsCommand:
-	type = CommandType.EVADE
-	return self
-
-
 ## 경계 명령으로 설정
-func set_as_watch(target: Corps = null) -> CorpsCommand:
+func set_as_watch() -> CorpsCommand:
 	type = CommandType.WATCH
-	target_corps = target
 	return self
 
 
-## 이동 명령으로 설정
+## 진형 변경 명령으로 설정
+func set_as_change_formation(formation) -> CorpsCommand:
+	type = CommandType.CHANGE_FORMATION
+	target_formation = formation
+	return self
+
+
+## 이동 명령으로 설정 (내부 사용)
 func set_as_move(destination: Vector2i) -> CorpsCommand:
 	type = CommandType.MOVE
 	target_position = destination
@@ -88,10 +91,10 @@ func get_type_name() -> String:
 			return "ATTACK"
 		CommandType.DEFEND:
 			return "DEFEND"
-		CommandType.EVADE:
-			return "EVADE"
 		CommandType.WATCH:
 			return "WATCH"
+		CommandType.CHANGE_FORMATION:
+			return "CHANGE_FORMATION"
 		CommandType.MOVE:
 			return "MOVE"
 	return "UNKNOWN"
@@ -104,10 +107,10 @@ func get_type_localization_key() -> String:
 			return "COMMAND_ATTACK"
 		CommandType.DEFEND:
 			return "COMMAND_DEFEND"
-		CommandType.EVADE:
-			return "COMMAND_EVADE"
 		CommandType.WATCH:
 			return "COMMAND_WATCH"
+		CommandType.CHANGE_FORMATION:
+			return "COMMAND_CHANGE_FORMATION"
 		CommandType.MOVE:
 			return "COMMAND_MOVE"
 	return "COMMAND_UNKNOWN"
@@ -136,6 +139,9 @@ func is_valid() -> bool:
 			if target_corps == null:
 				return false
 			if not target_corps.is_alive:
+				return false
+		CommandType.CHANGE_FORMATION:
+			if target_formation == null:
 				return false
 		CommandType.MOVE:
 			if target_position == Vector2i(-1, -1):
