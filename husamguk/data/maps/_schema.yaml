@@ -1,0 +1,144 @@
+# Battle Map Schema
+# 전투 맵 레이아웃 정의
+# Phase 5A: 전투 지형 시스템
+
+_schema:
+  version: "1.0.0"
+  description: "전투 맵 레이아웃 정의. 16x16 그리드 기반 지형 배치."
+
+schema:
+  map:
+    id:
+      type: string
+      required: true
+      description: "맵 고유 ID"
+      example: "stage_1_map"
+
+    name_key:
+      type: string
+      required: true
+      description: "맵 이름 로컬라이제이션 키"
+      example: "MAP_STAGE_1"
+
+    description_key:
+      type: string
+      required: false
+      description: "맵 설명 로컬라이제이션 키"
+
+    size:
+      type: object
+      required: true
+      description: "맵 크기 (타일 단위)"
+      properties:
+        width:
+          type: integer
+          required: true
+          default: 16
+          description: "맵 가로 크기"
+        height:
+          type: integer
+          required: true
+          default: 16
+          description: "맵 세로 크기"
+
+    terrain_grid:
+      type: string
+      required: true
+      description: |
+        지형 그리드를 나타내는 멀티라인 문자열.
+        각 문자는 지형 타입의 char_code에 대응:
+        P = plain (평야)
+        M = mountain (산악)
+        F = forest (숲)
+        R = river (강)
+        D = road (도로)
+        W = wall (성벽)
+        행은 줄바꿈으로 구분, 각 행은 width 글자로 구성.
+      example: |
+        PPPPPPPPPPPPPPPP
+        PPFFPPMMPPFFPPPP
+        ...
+
+    ally_spawn_zones:
+      type: array
+      required: true
+      items:
+        type: object
+        properties:
+          x:
+            type: integer
+            description: "X 좌표 (0-15)"
+          y:
+            type: integer
+            description: "Y 좌표 (0-15, 0이 상단)"
+      description: "아군 배치 가능 좌표 목록. 전투 시작 시 아군 배치에 사용."
+
+    enemy_spawn_zones:
+      type: array
+      required: true
+      items:
+        type: object
+        properties:
+          x:
+            type: integer
+            description: "X 좌표 (0-15)"
+          y:
+            type: integer
+            description: "Y 좌표 (0-15, 0이 상단)"
+      description: "적군 스폰 좌표 목록. 웨이브별 적 배치에 사용."
+
+    special_tiles:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          x:
+            type: integer
+          y:
+            type: integer
+          type:
+            type: string
+            enum: ["objective", "heal_zone", "trap"]
+          data:
+            type: object
+      description: "특수 타일 목록 (목표 지점, 치유 지역 등)"
+
+example:
+  maps:
+    - id: "stage_1_map"
+      name_key: "MAP_STAGE_1"
+      description_key: "MAP_STAGE_1_DESC"
+      size:
+        width: 16
+        height: 16
+      terrain_grid: |
+        PPPPPPPPPPPPPPPP
+        PPPPFFPPPPFFPPPP
+        PPFFFFFPPFFFFPPP
+        PPPFFPPPPPPFFPPP
+        PPPPPPMMMMPPPPPP
+        PPPPPMMMMMMPPPPP
+        PPPPPMMMMMMPPPPP
+        PPPPPPMMMMPPPPPP
+        PPRRRRRRRRRRRRPP
+        PPRRRRRRRRRRRPPP
+        PPPPPPPPPPPPPPPP
+        PPPPPPPPPPPPPPPP
+        PPPPFFPPPPFFPPPP
+        PPFFFFFPPFFFFPPP
+        PPPFFPPPPPPFFPPP
+        PPPPPPPPPPPPPPPP
+      ally_spawn_zones:
+        - { x: 2, y: 14 }
+        - { x: 4, y: 14 }
+        - { x: 6, y: 14 }
+        - { x: 8, y: 14 }
+        - { x: 10, y: 14 }
+        - { x: 12, y: 14 }
+      enemy_spawn_zones:
+        - { x: 4, y: 1 }
+        - { x: 6, y: 1 }
+        - { x: 8, y: 1 }
+        - { x: 10, y: 1 }
+        - { x: 12, y: 1 }

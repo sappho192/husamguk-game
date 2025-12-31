@@ -278,3 +278,88 @@ strings:
   NPC_CHOICHIWON_GREETING: "세상을 등지고 은거하는 자, 최치원이라 하오."
   NPC_CHOICHIWON_DIALOGUE: "난세를 헤쳐나가려면 지혜와 책략이 필요하오. 비록 세상을 떠났으나, 그대에게 계책을 전하리다."
   NPC_CHOICHIWON_OFFER: "지혜의 길을 선택하시오."
+
+  # === 지형 시스템 (Phase 5A) ===
+  TERRAIN_PLAIN: "평야"
+  TERRAIN_PLAIN_DESC: "특별한 효과가 없는 기본 지형입니다."
+  TERRAIN_MOUNTAIN: "산악"
+  TERRAIN_MOUNTAIN_DESC: "방어력 +30%, 공격력 -10%, 이동 비용 2.5배. 높은 지형에서 방어에 유리합니다."
+  TERRAIN_FOREST: "숲"
+  TERRAIN_FOREST_DESC: "방어력 +20%, ATB -5%, 이동 비용 1.5배. 숲에 숨어 방어할 수 있습니다."
+  TERRAIN_RIVER: "강"
+  TERRAIN_RIVER_DESC: "방어력 -20%, 공격력 -10%, 이동 비용 3배. 강을 건너는 것은 위험합니다."
+  TERRAIN_ROAD: "도로"
+  TERRAIN_ROAD_DESC: "방어력 -10%, ATB +5%, 이동 비용 0.5배. 빠르게 이동할 수 있지만 방어에 취약합니다."
+  TERRAIN_WALL: "성벽"
+  TERRAIN_WALL_DESC: "통과할 수 없는 장애물입니다."
+
+  # === 전투 맵 (Phase 5A) ===
+  MAP_STAGE_1: "평야 전투"
+  MAP_STAGE_1_DESC: "넓은 평야에서 벌어지는 첫 번째 전투입니다."
+  MAP_STAGE_2: "산악 전투"
+  MAP_STAGE_2_DESC: "산악 지형을 활용한 전투입니다. 지형을 활용하세요."
+  MAP_STAGE_3: "강 건너 전투"
+  MAP_STAGE_3_DESC: "강을 사이에 두고 벌어지는 결전입니다."
+
+  # === 군단 시스템 (Phase 5B) ===
+
+  # 군단 템플릿
+  CORPS_SPEAR: "창병 군단"
+  CORPS_SPEAR_DESC: "창을 든 보병으로 구성된 군단. 기병에게 강합니다."
+  CORPS_SWORD: "검병 군단"
+  CORPS_SWORD_DESC: "검을 든 보병으로 구성된 군단. 공방 균형이 좋습니다."
+  CORPS_LIGHT_CAVALRY: "경기병 군단"
+  CORPS_LIGHT_CAVALRY_DESC: "빠른 기병으로 구성된 군단. 기동력이 뛰어납니다."
+  CORPS_HEAVY_CAVALRY: "중기병 군단"
+  CORPS_HEAVY_CAVALRY_DESC: "무장한 기병으로 구성된 군단. 돌파력이 뛰어납니다."
+  CORPS_ARCHER: "궁병 군단"
+  CORPS_ARCHER_DESC: "활을 든 병사로 구성된 군단. 원거리 공격이 가능합니다."
+  CORPS_CROSSBOW: "노병 군단"
+  CORPS_CROSSBOW_DESC: "석궁을 든 병사로 구성된 군단. 관통력이 높습니다."
+
+  # 진형
+  FORMATION_DEFAULT: "기본 진형"
+  FORMATION_DEFAULT_DESC: "특별한 수정치가 없는 기본 배치입니다."
+  FORMATION_HAKIK: "학익진"
+  FORMATION_HAKIK_DESC: "학이 날개를 펼친 형태. 공격력 +30%, 방어력 -10%, ATB +0.1. 측면 공격 보너스."
+  FORMATION_BONGSI: "봉시진"
+  FORMATION_BONGSI_DESC: "화살촉 모양 돌격 진형. 공격력 +50%, 방어력 -30%, ATB +0.2, 이동 +1. 돌격 보너스."
+  FORMATION_BANGWON: "방원진"
+  FORMATION_BANGWON_DESC: "사방을 둘러싼 원형 방어 진형. 공격력 -20%, 방어력 +50%, ATB -0.2, 이동 -1. 원거리 저항."
+  FORMATION_JANGSA: "장사진"
+  FORMATION_JANGSA_DESC: "뱀처럼 길게 늘어선 기동 진형. 방어력 -15%, ATB +0.15, 이동 +2. 퇴각 보너스."
+  FORMATION_EORIN: "어린진"
+  FORMATION_EORIN_DESC: "물고기 비늘처럼 겹겹이 배치한 균형 진형. 공격력 +15%, 방어력 +15%."
+
+  # === 명령 시스템 (Phase 5C) ===
+  COMMAND_PANEL_TITLE: "명령 선택"
+  COMMAND_ATTACK: "공격"
+  COMMAND_ATTACK_DESC: "선택한 적 군단을 공격합니다."
+  COMMAND_DEFEND: "방어"
+  COMMAND_DEFEND_DESC: "방어 태세를 취합니다. 방어력 +50% (1턴)"
+  COMMAND_EVADE: "회피"
+  COMMAND_EVADE_DESC: "회피 기동을 수행합니다. ATB 속도 +0.3 (1턴)"
+  COMMAND_WATCH: "경계"
+  COMMAND_WATCH_DESC: "적의 이동을 감시하며 반격을 준비합니다."
+  COMMAND_MOVE: "이동"
+  COMMAND_MOVE_DESC: "선택한 타일로 이동합니다. (글로벌 턴에 실행)"
+  COMMAND_CANCEL: "취소"
+
+  # 이동 관련
+  MOVEMENT_SELECT_DESTINATION: "이동할 위치를 선택하세요"
+  MOVEMENT_OUT_OF_RANGE: "이동 범위를 벗어났습니다"
+  MOVEMENT_BLOCKED: "해당 위치로 이동할 수 없습니다"
+  MOVEMENT_QUEUED: "이동 명령 대기 중"
+
+  # 전투 상태
+  BATTLE_STATE_RUNNING: "전투 중"
+  BATTLE_STATE_PAUSED: "카드 선택 대기"
+  BATTLE_STATE_MOVEMENT: "이동 페이즈"
+  BATTLE_STATE_WAVE_TRANSITION: "웨이브 전환 중"
+
+  # 군단 정보 패널
+  UI_CORPS_INFO: "군단 정보"
+  UI_CORPS_SELECT_TARGET: "공격 대상 선택"
+  UI_CORPS_SELECT_MOVE: "이동 위치 선택"
+  UI_NO_TARGETS_IN_RANGE: "사거리 내 대상 없음!"
+  UI_TARGET_OUT_OF_RANGE: "대상이 사거리 밖입니다!"

@@ -202,9 +202,9 @@ generals:
       combat: 90  # Overrides base 95, keeps other stats
 ```
 
-## Combat System: Dual-Layer Design + Wave System
+## Combat System: Dual-Layer Design + Wave System + Grid-Based Corps
 
-The combat system has **two independent timing layers** + **wave-based encounters**:
+The combat system has **two independent timing layers** + **wave-based encounters** + **16×16 grid tactical positioning** (Phase 5):
 
 ### Layer 1: Individual Unit ATB
 - Each unit has an ATB gauge (0-100)
@@ -241,13 +241,40 @@ The combat system has **two independent timing layers** + **wave-based encounter
 - UI displays: Wave counter (top center), transition messages (center screen)
 - Enemy units dynamically spawned per wave (previous wave enemies cleared)
 
+### Grid-Based Corps System (Phase 5)
+- **16×16 tile grid** with terrain effects (plain, mountain, forest, river, road, wall)
+- **Corps = General + Soldiers**: One corps occupies one tile
+  - Corps templates define soldier type, count, stats, formations
+  - Generals assigned to corps provide leadership bonuses (+1 soldier per 10 leadership)
+- **Attack Range** by unit type:
+  - Infantry: Range 1 (melee)
+  - Cavalry: Range 2 (charge distance)
+  - Archer: Range 4-5 (ranged)
+- **5 Command Types** (selected when ATB fills):
+  - ATTACK: Target enemy corps within range
+  - DEFEND: +50% DEF for 1 turn
+  - EVADE: +0.3 ATB speed for 1 turn
+  - WATCH: Counterattack readiness (TODO)
+  - MOVE: Queue movement for next global turn
+- **5 Formations** (stat modifiers only, not spatial):
+  - 학익진 (Crane Wing): +30% ATK, -10% DEF, +0.1 ATB
+  - 봉시진 (Arrow Point): +50% ATK, -30% DEF, +0.2 ATB, +1 MOV
+  - 방원진 (Circular): -20% ATK, +50% DEF, -0.2 ATB, -1 MOV
+  - 장사진 (Serpent): -15% DEF, +0.15 ATB, +2 MOV
+  - 어린진 (Fish Scale): +15% ATK, +15% DEF
+- **Movement Phase**: MOVE commands execute during global turns (after card selection)
+- **Terrain Effects**: Plains (neutral), Mountains (+DEF), Forest (+DEF, -ATB), River (-DEF, slow), Road (+ATB, -DEF), Wall (impassable)
+
 **Why This Matters:** State management must handle:
-- Three pause states: RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION
+- Four pause states: RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION, MOVEMENT_PHASE
 - ATB continues during normal combat
 - Skills usable anytime (cooldown-based)
 - Card effects that modify buffs/ATB speeds
 - Wave transitions with reward application
 - General instance recreation between stages (cooldown reset)
+- Corps positioning on grid (one corps per tile)
+- Attack range validation before attacks
+- Command queuing and execution
 
 ## Data Schema System
 
@@ -295,6 +322,29 @@ All data schemas are in `_schema.yaml` files. Each schema includes:
   - `wave_rewards`: HP recovery %, global turn reset, buff extension
 - Example: Stage 1 has 3 waves (2→3→4 enemies), Stage 3 has 3 waves (3→4→5 enemies)
 - Supports boss waves with multiple generals
+
+### Terrain (`data/terrain/_schema.yaml`) - Phase 5A
+- 6 terrain types with visual and mechanical effects
+- Properties: color, movement_cost, defense/attack/atb modifiers, passable flag
+- Examples: Plain (neutral), Mountain (+30% DEF, -10% ATK, 2.5× cost), Forest (+20% DEF, -5% ATB, 1.5× cost), River (-20% DEF, -10% ATK, 3× cost), Road (-10% DEF, +5% ATB, 0.5× cost), Wall (impassable)
+
+### Maps (`data/maps/_schema.yaml`) - Phase 5A
+- 16×16 grid layouts with terrain IDs
+- Spawn zones for ally and enemy corps (Vector2i arrays)
+- Example: stage_1_map has central plains with mountain flanks
+
+### Corps (`data/corps/_schema.yaml`) - Phase 5B
+- Corps templates: ID, category (infantry/cavalry/archer), soldier count, soldier unit ID
+- Base stats: hp_per_soldier, attack_per_soldier, defense, atb_speed, movement_range, **attack_range**
+- Available formations (array of formation IDs)
+- Traits (optional, same as unit traits)
+- General's leadership adds +1 soldier per 10 points
+
+### Formations (`data/formations/_schema.yaml`) - Phase 5B
+- Formation definitions with stat modifiers (NOT spatial positioning)
+- Modifiers: attack_modifier (%), defense_modifier (%), atb_modifier (flat), movement_modifier (flat)
+- Category restrictions (which unit types can use this formation)
+- 5 base formations: default, hakik, bongsi, bangwon, jangsa, eorin
 
 ### Nations
 - **Hubaekje** (견훤): Aggressive, faster ATB
@@ -401,7 +451,7 @@ var name = "견훤"
 - ✅ 27 additional localization strings (Korean + English → 216 total)
 - ✅ DataManager NPC loading and theme filtering API
 
-**Phase 4 (Wave System & Combat Improvements)** 🔄 IN PROGRESS
+**Phase 4 (Wave System & Combat Improvements)** ✅ COMPLETE
 - ✅ Wave-based battle system (3-4 waves per stage)
 - ✅ Battle data schema and YAML definitions (data/battles/)
 - ✅ Wave rewards (HP recovery, global turn reset, buff extension)
@@ -409,13 +459,36 @@ var name = "견훤"
 - ✅ ATB speed optimization (4x faster: 2.5s → from 10s per action)
 - ✅ Dynamic enemy spawning per wave
 - ✅ General cooldown reset between stages (fresh instances)
+
+**Phase 5 (Corps & Grid System)** 🔄 IN PROGRESS
+- ✅ Phase 5A: 16×16 tile-based terrain grid
+  - ✅ 6 terrain types with modifiers (plain, mountain, forest, river, road, wall)
+  - ✅ TerrainTile and BattleMap classes
+  - ✅ 3 stage maps with spawn zones
+  - ✅ TileDisplay (40×40px) and TileGridUI (640×640px) components
+  - ✅ DataManager terrain/map loading
+- ✅ Phase 5B: Corps system
+  - ✅ Corps class (general + soldiers, positioning on grid)
+  - ✅ 6 corps templates (spear, sword, light/heavy cavalry, archer, crossbow)
+  - ✅ Formation class (5 formations: 학익진, 봉시진, 방원진, 장사진, 어린진)
+  - ✅ Attack range by unit type (Infantry: 1, Cavalry: 2, Archer: 4-5)
+  - ✅ CorpsDisplay component (HP/ATB bars, soldier count)
+- ✅ Phase 5C: Enhanced ATB with commands
+  - ✅ CorpsCommand class (5 command types)
+  - ✅ CommandPanel UI (ATTACK, DEFEND, EVADE, WATCH, MOVE)
+  - ✅ MovementOverlay (range highlighting, destination selection)
+  - ✅ Movement phase execution during global turns
+  - ✅ BattleManager command queue and execution
+  - ✅ Attack range validation
+  - ✅ CorpsBattleUI integration (test scene)
+  - ✅ 67 additional localization strings (Korean + English → 283 total)
+- 🔲 Integration with existing wave battle system (replace unit-based with corps-based)
 - 🔲 SaveManager implementation (save/load functionality)
 - 🔲 Meta-progression unlocks (permanent upgrades)
-- 🔲 Additional content balancing
 
 ## Implementation Status
 
-### ✅ Completed Components (Phase 4 Wave System)
+### ✅ Completed Components (Phase 5 Corps System)
 
 **Core Classes:**
 - `src/core/unit.gd` - ATB system (4x speed), buff management, effective stat calculation
@@ -423,6 +496,11 @@ var name = "견훤"
 - `src/core/buff.gd` - Stat modification (buffs/debuffs) with duration tracking
 - `src/core/card.gd` - Card effect execution, targeting, penalty system
 - `src/core/run_state.gd` - Run-level state persistence (unit states, deck, enhancements, event flags)
+- `src/core/terrain_tile.gd` - Terrain data with stat modifiers (Phase 5A)
+- `src/core/battle_map.gd` - 16×16 grid with spawn zones (Phase 5A)
+- `src/core/corps.gd` - Corps (general + soldiers), ATB, attack range (Phase 5B)
+- `src/core/formation.gd` - Formation stat modifiers (Phase 5B)
+- `src/core/corps_command.gd` - Command system (5 types) (Phase 5C)
 
 **Autoload Managers:**
 - `src/autoload/data_manager.gd` - YAML loading, battle data, NPC/theme filtering, localization, factory methods
@@ -430,11 +508,12 @@ var name = "견훤"
 - `src/autoload/save_manager.gd` - Meta-progression stub (Phase 4)
 
 **Systems:**
-- `src/systems/battle/battle_manager.gd` - Wave system, dual-layer timing, state machine (RUNNING/PAUSED_FOR_CARD/WAVE_TRANSITION)
+- `src/systems/battle/battle_manager.gd` - Wave system, corps positioning, command queue, attack range, state machine (RUNNING/PAUSED_FOR_CARD/WAVE_TRANSITION/MOVEMENT_PHASE)
 - `src/systems/internal_affairs/internal_affairs_manager.gd` - Event selection, effect execution
 
 **UI Components:**
-- Battle: `battle_ui.gd`, `unit_display.gd`, `skill_bar.gd`, `skill_button.gd`, `card_hand.gd`, `card_display.gd`
+- Battle (Unit-based): `battle_ui.gd`, `unit_display.gd`, `skill_bar.gd`, `skill_button.gd`, `card_hand.gd`, `card_display.gd`
+- Battle (Corps-based): `tile_display.gd`, `tile_grid_ui.gd`, `corps_display.gd`, `command_panel.gd`, `movement_overlay.gd`, `corps_battle_ui.gd` (Phase 5)
 - Internal Affairs: `internal_affairs_ui.gd`, `choice_button.gd`
 - Fateful Encounter: `fateful_encounter_ui.gd`, `npc_portrait_display.gd`, `enhancement_card.gd` (reused)
 - Menus: `main_menu_ui.gd`, `victory_ui.gd`, `defeat_ui.gd`
@@ -448,7 +527,11 @@ var name = "견훤"
   - 14 enhancements with theme tags (combat_enhancements.yaml)
   - 5 NPCs with dialogue (fateful_encounter_npcs.yaml)
   - 3 battle definitions (stage_battles.yaml) - Phase 4 Wave system
-  - 216 localization strings each language (ko.yaml, en.yaml)
+  - 6 terrain types (base_terrain.yaml) - Phase 5A
+  - 3 stage maps (stage_maps.yaml) - Phase 5A
+  - 6 corps templates (base_corps.yaml) - Phase 5B
+  - 5 formations (base_formations.yaml) - Phase 5B
+  - 283 localization strings each language (ko.yaml, en.yaml)
 
 **Critical Implementation Notes:**
 1. **godot-yaml API**: Uses `YAML.parse()` with `has_error()` and `get_data()` methods (fimbul-works version)
@@ -467,12 +550,15 @@ var name = "견훤"
 14. **Debug Force Victory/Defeat**: Use direct HP/alive manipulation instead of `take_damage()` to bypass defense calculations
 15. **Wave UI Duplication Fix**: In wave battles, `_on_battle_started()` only creates enemy UI if `total_waves == 0` (standalone test), otherwise `_on_wave_started()` creates enemy UI
 16. **ATB Speed Scale Factor**: Set to 40 in `unit.gd:62` for ~2.5s per action (4x faster than original 10s)
+17. **Corps Attack Range** (Phase 5B): All attacks validate range before execution. Infantry (1), Cavalry (2), Archer (4-5). Use `corps.is_target_in_range(target)` to check. UI highlights only valid targets.
+18. **Corps Mouse Filter** (Phase 5C): All child elements in CorpsDisplay must have `mouse_filter = MOUSE_FILTER_IGNORE` to prevent blocking parent click events
 
-### 🔲 Not Yet Implemented (Phase 4+)
+### 🔲 Not Yet Implemented (Phase 5+)
 
-**Formation System:**
-- Pre-battle formation selection UI
-- Front/back positioning logic (currently hardcoded in unit data)
+**Corps-Unit Integration:**
+- Replace unit-based wave battles with corps-based battles
+- Integrate grid/terrain system into main battle scene
+- Card system targeting for corps instead of units
 
 **MOD System:**
 - MOD loading from `mods/` directory

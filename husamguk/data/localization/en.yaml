@@ -278,3 +278,88 @@ strings:
   NPC_CHOICHIWON_GREETING: "I am Choi Chi-won, one who has turned away from the world."
   NPC_CHOICHIWON_DIALOGUE: "To navigate these troubled times requires wisdom and strategy. Though I have withdrawn from the world, I shall share my counsel with you."
   NPC_CHOICHIWON_OFFER: "Choose the path of wisdom."
+
+  # === Terrain System (Phase 5A) ===
+  TERRAIN_PLAIN: "Plain"
+  TERRAIN_PLAIN_DESC: "Basic terrain with no special effects."
+  TERRAIN_MOUNTAIN: "Mountain"
+  TERRAIN_MOUNTAIN_DESC: "Defense +30%, Attack -10%, Movement cost x2.5. Advantageous for defense."
+  TERRAIN_FOREST: "Forest"
+  TERRAIN_FOREST_DESC: "Defense +20%, ATB -5%, Movement cost x1.5. Hide in the forest for protection."
+  TERRAIN_RIVER: "River"
+  TERRAIN_RIVER_DESC: "Defense -20%, Attack -10%, Movement cost x3. Crossing rivers is dangerous."
+  TERRAIN_ROAD: "Road"
+  TERRAIN_ROAD_DESC: "Defense -10%, ATB +5%, Movement cost x0.5. Fast movement but vulnerable."
+  TERRAIN_WALL: "Wall"
+  TERRAIN_WALL_DESC: "Impassable obstacle."
+
+  # === Battle Maps (Phase 5A) ===
+  MAP_STAGE_1: "Plains Battle"
+  MAP_STAGE_1_DESC: "The first battle takes place on wide plains."
+  MAP_STAGE_2: "Mountain Battle"
+  MAP_STAGE_2_DESC: "A battle utilizing mountain terrain. Use the terrain to your advantage."
+  MAP_STAGE_3: "River Crossing Battle"
+  MAP_STAGE_3_DESC: "The decisive battle across the river."
+
+  # === Corps System (Phase 5B) ===
+
+  # Corps Templates
+  CORPS_SPEAR: "Spear Corps"
+  CORPS_SPEAR_DESC: "A corps of spearmen. Strong against cavalry."
+  CORPS_SWORD: "Sword Corps"
+  CORPS_SWORD_DESC: "A corps of swordsmen. Well-balanced offense and defense."
+  CORPS_LIGHT_CAVALRY: "Light Cavalry Corps"
+  CORPS_LIGHT_CAVALRY_DESC: "A corps of light cavalry. Excellent mobility."
+  CORPS_HEAVY_CAVALRY: "Heavy Cavalry Corps"
+  CORPS_HEAVY_CAVALRY_DESC: "A corps of heavy cavalry. Excellent breakthrough power."
+  CORPS_ARCHER: "Archer Corps"
+  CORPS_ARCHER_DESC: "A corps of archers. Capable of ranged attacks."
+  CORPS_CROSSBOW: "Crossbow Corps"
+  CORPS_CROSSBOW_DESC: "A corps of crossbowmen. High armor penetration."
+
+  # Formations
+  FORMATION_DEFAULT: "Default Formation"
+  FORMATION_DEFAULT_DESC: "Basic formation with no stat modifiers."
+  FORMATION_HAKIK: "Crane Wing Formation"
+  FORMATION_HAKIK_DESC: "V-shaped formation like crane wings. ATK +30%, DEF -10%, ATB +0.1. Flanking bonus."
+  FORMATION_BONGSI: "Arrow Point Formation"
+  FORMATION_BONGSI_DESC: "Arrow-shaped charge formation. ATK +50%, DEF -30%, ATB +0.2, MOV +1. Charge bonus."
+  FORMATION_BANGWON: "Circular Defense Formation"
+  FORMATION_BANGWON_DESC: "Circular defensive formation. ATK -20%, DEF +50%, ATB -0.2, MOV -1. Ranged resistance."
+  FORMATION_JANGSA: "Serpent Formation"
+  FORMATION_JANGSA_DESC: "Long serpent-like mobile formation. DEF -15%, ATB +0.15, MOV +2. Retreat bonus."
+  FORMATION_EORIN: "Fish Scale Formation"
+  FORMATION_EORIN_DESC: "Layered formation like fish scales. ATK +15%, DEF +15%."
+
+  # === Command System (Phase 5C) ===
+  COMMAND_PANEL_TITLE: "Select Command"
+  COMMAND_ATTACK: "Attack"
+  COMMAND_ATTACK_DESC: "Attack the selected enemy corps."
+  COMMAND_DEFEND: "Defend"
+  COMMAND_DEFEND_DESC: "Take a defensive stance. DEF +50% (1 turn)"
+  COMMAND_EVADE: "Evade"
+  COMMAND_EVADE_DESC: "Perform evasive maneuvers. ATB speed +0.3 (1 turn)"
+  COMMAND_WATCH: "Watch"
+  COMMAND_WATCH_DESC: "Watch for enemy movement and prepare to counterattack."
+  COMMAND_MOVE: "Move"
+  COMMAND_MOVE_DESC: "Move to the selected tile. (Executes on global turn)"
+  COMMAND_CANCEL: "Cancel"
+
+  # Movement related
+  MOVEMENT_SELECT_DESTINATION: "Select destination"
+  MOVEMENT_OUT_OF_RANGE: "Out of movement range"
+  MOVEMENT_BLOCKED: "Cannot move to that position"
+  MOVEMENT_QUEUED: "Movement command queued"
+
+  # Battle states
+  BATTLE_STATE_RUNNING: "Battle in progress"
+  BATTLE_STATE_PAUSED: "Card selection"
+  BATTLE_STATE_MOVEMENT: "Movement phase"
+  BATTLE_STATE_WAVE_TRANSITION: "Wave transition"
+
+  # Corps info panel
+  UI_CORPS_INFO: "Corps Info"
+  UI_CORPS_SELECT_TARGET: "Select attack target"
+  UI_CORPS_SELECT_MOVE: "Select move destination"
+  UI_NO_TARGETS_IN_RANGE: "No targets in range!"
+  UI_TARGET_OUT_OF_RANGE: "Target out of range!"

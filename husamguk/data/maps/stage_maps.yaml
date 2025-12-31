@@ -1,0 +1,135 @@
+# Stage Battle Maps
+# 스테이지별 전투 맵 정의
+# Phase 5A: 전투 지형 시스템
+
+maps:
+  # Stage 1: 평야 전투 - 간단한 지형, 초보자용
+  - id: "stage_1_map"
+    name_key: "MAP_STAGE_1"
+    description_key: "MAP_STAGE_1_DESC"
+    size:
+      width: 16
+      height: 16
+    terrain_grid: |
+      PPPPPPPPPPPPPPPP
+      PPPPFFPPPPFFPPPP
+      PPFFFFFPPFFFFPPP
+      PPPFFPPPPPPFFPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PPPPFFPPPPFFPPPP
+      PPFFFFFPPFFFFPPP
+      PPPFFPPPPPPFFPPP
+      PPPPPPPPPPPPPPPP
+    ally_spawn_zones:
+      - { x: 3, y: 13 }
+      - { x: 5, y: 13 }
+      - { x: 7, y: 13 }
+      - { x: 9, y: 13 }
+      - { x: 11, y: 13 }
+      - { x: 3, y: 14 }
+      - { x: 5, y: 14 }
+      - { x: 7, y: 14 }
+      - { x: 9, y: 14 }
+      - { x: 11, y: 14 }
+    enemy_spawn_zones:
+      - { x: 3, y: 1 }
+      - { x: 5, y: 1 }
+      - { x: 7, y: 1 }
+      - { x: 9, y: 1 }
+      - { x: 11, y: 1 }
+      - { x: 3, y: 2 }
+      - { x: 5, y: 2 }
+      - { x: 7, y: 2 }
+      - { x: 9, y: 2 }
+      - { x: 11, y: 2 }
+
+  # Stage 2: 산악 전투 - 중앙 산악 지형, 방어 유리
+  - id: "stage_2_map"
+    name_key: "MAP_STAGE_2"
+    description_key: "MAP_STAGE_2_DESC"
+    size:
+      width: 16
+      height: 16
+    terrain_grid: |
+      PPPPPPPPPPPPPPPP
+      PPPFFFPPPPFFFPPP
+      PPFFFFFPPFFFFFPP
+      PPPPPPPPPPPPPPPP
+      PPPPPMMMMMMPPPPP
+      PPPPMMMMMMMMPPPP
+      PPPMMMMMMMMMPPPD
+      DDDPPMMMMMMPDDDD
+      DDDPPMMMMMMPDDDD
+      PPPMMMMMMMMMPPPD
+      PPPPMMMMMMMMPPPP
+      PPPPPMMMMMMPPPPP
+      PPPPPPPPPPPPPPPP
+      PPFFFFFPPFFFFFPP
+      PPPFFFPPPPFFFPPP
+      PPPPPPPPPPPPPPPP
+    ally_spawn_zones:
+      - { x: 2, y: 13 }
+      - { x: 4, y: 13 }
+      - { x: 6, y: 14 }
+      - { x: 8, y: 14 }
+      - { x: 10, y: 14 }
+      - { x: 12, y: 13 }
+      - { x: 14, y: 13 }
+    enemy_spawn_zones:
+      - { x: 2, y: 2 }
+      - { x: 4, y: 2 }
+      - { x: 6, y: 1 }
+      - { x: 8, y: 1 }
+      - { x: 10, y: 1 }
+      - { x: 12, y: 2 }
+      - { x: 14, y: 2 }
+
+  # Stage 3: 강 건너 전투 - 중앙 강, 양측 숲과 산
+  - id: "stage_3_map"
+    name_key: "MAP_STAGE_3"
+    description_key: "MAP_STAGE_3_DESC"
+    size:
+      width: 16
+      height: 16
+    terrain_grid: |
+      PPPPPPPPPPPPPPPP
+      PPMMPPFFFFPPMMPD
+      PMMMPFFFFFPMMMDD
+      PMMPPPFFPPPPMMPD
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      RRRRRRDDRRRRRRRR
+      RRRRRRDDRRRRRRRR
+      RRRRRRDDRRRRRRRR
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+      PMMPPPFFPPPPMMPD
+      PMMMPFFFFFPMMMDD
+      PPMMPPFFFFPPMMPD
+      PPPPPPPPPPPPPPPP
+      PPPPPPPPPPPPPPPP
+    ally_spawn_zones:
+      - { x: 2, y: 14 }
+      - { x: 4, y: 14 }
+      - { x: 6, y: 14 }
+      - { x: 8, y: 14 }
+      - { x: 10, y: 14 }
+      - { x: 12, y: 14 }
+      - { x: 2, y: 13 }
+      - { x: 12, y: 13 }
+    enemy_spawn_zones:
+      - { x: 2, y: 1 }
+      - { x: 4, y: 1 }
+      - { x: 6, y: 1 }
+      - { x: 8, y: 1 }
+      - { x: 10, y: 1 }
+      - { x: 12, y: 1 }
+      - { x: 2, y: 2 }
+      - { x: 12, y: 2 }

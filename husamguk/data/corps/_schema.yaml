@@ -1,0 +1,155 @@
+# Corps Template Schema
+# 군단 템플릿 정의
+# Phase 5B: 군단 시스템
+#
+# 군단은 장수가 지휘하는 병사 그룹.
+# 하나의 군단은 하나의 타일을 점유하며, 동일 병종 카테고리의 병사만 포함 가능.
+
+_schema:
+  version: "1.0.0"
+  description: "군단 템플릿 정의. 장수가 지휘하는 병사 그룹의 기본 설정."
+
+schema:
+  corps:
+    id:
+      type: string
+      required: true
+      description: "군단 템플릿 고유 ID"
+      example: "infantry_corps"
+
+    name_key:
+      type: string
+      required: true
+      description: "로컬라이제이션 키"
+      example: "CORPS_INFANTRY"
+
+    description_key:
+      type: string
+      required: false
+      description: "군단 설명 로컬라이제이션 키"
+
+    category:
+      type: string
+      required: true
+      enum: ["infantry", "cavalry", "archer"]
+      description: "병종 카테고리. 동일 카테고리 병사만 군단에 포함 가능."
+
+    base_soldier_count:
+      type: integer
+      required: true
+      range: [10, 100]
+      description: "기본 병사 수. 장수의 통솔력에 따라 보너스 추가."
+      default: 30
+
+    soldier_unit_id:
+      type: string
+      required: true
+      description: "병사 기본 유닛 ID (units 데이터 참조)"
+      example: "spearman"
+
+    base_stats:
+      type: object
+      required: true
+      description: "군단 기본 스탯"
+      properties:
+        hp_per_soldier:
+          type: integer
+          range: [5, 50]
+          description: "병사당 HP"
+          default: 10
+        attack_per_soldier:
+          type: integer
+          range: [1, 20]
+          description: "병사당 공격력"
+          default: 5
+        defense:
+          type: integer
+          range: [0, 50]
+          description: "군단 방어력"
+          default: 10
+        atb_speed:
+          type: number
+          range: [0.5, 2.0]
+          description: "ATB 기본 속도"
+          default: 1.0
+        movement_range:
+          type: integer
+          range: [1, 5]
+          description: "이동 범위 (타일 수)"
+          default: 2
+        attack_range:
+          type: integer
+          range: [1, 6]
+          description: "공격 사거리 (타일 수). 보병 1, 기병 2, 궁병 4."
+          default: 1
+
+    available_formations:
+      type: array
+      required: true
+      items:
+        type: string
+      description: "사용 가능한 진형 ID 목록"
+      example: ["default", "hakik", "bangwon"]
+
+    default_formation:
+      type: string
+      required: false
+      description: "기본 진형 ID"
+      default: "default"
+
+    traits:
+      type: array
+      required: false
+      items:
+        type: string
+      description: "군단 특성 ID 목록 (기존 trait 시스템 연동)"
+
+example:
+  corps:
+    - id: "infantry_corps"
+      name_key: "CORPS_INFANTRY"
+      description_key: "CORPS_INFANTRY_DESC"
+      category: "infantry"
+      base_soldier_count: 30
+      soldier_unit_id: "spearman"
+      base_stats:
+        hp_per_soldier: 12
+        attack_per_soldier: 6
+        defense: 15
+        atb_speed: 1.0
+        movement_range: 2
+        attack_range: 1  # 보병: 근접
+      available_formations: ["default", "hakik", "bangwon", "bongsi"]
+      default_formation: "default"
+
+    - id: "cavalry_corps"
+      name_key: "CORPS_CAVALRY"
+      description_key: "CORPS_CAVALRY_DESC"
+      category: "cavalry"
+      base_soldier_count: 20
+      soldier_unit_id: "light_cavalry"
+      base_stats:
+        hp_per_soldier: 15
+        attack_per_soldier: 8
+        defense: 10
+        atb_speed: 1.3
+        movement_range: 4
+        attack_range: 2  # 기병: 돌격 가능
+      available_formations: ["default", "bongsi", "hakik"]
+      default_formation: "default"
+
+    - id: "archer_corps"
+      name_key: "CORPS_ARCHER"
+      description_key: "CORPS_ARCHER_DESC"
+      category: "archer"
+      base_soldier_count: 25
+      soldier_unit_id: "archer"
+      base_stats:
+        hp_per_soldier: 8
+        attack_per_soldier: 7
+        defense: 5
+        atb_speed: 1.1
+        movement_range: 2
+        attack_range: 4  # 궁병: 원거리
+      available_formations: ["default", "bangwon"]
+      default_formation: "default"

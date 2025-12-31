@@ -25,7 +25,7 @@ godot project.godot
 - Press **F5** in Godot Editor to run the full game
 - Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 4 (Wave System) In Progress ✅
+## Current Status: Phase 5 (Corps & Grid System) In Progress ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -63,15 +63,31 @@ godot project.godot
 - ✅ 14 enhancements extended with theme tags
 - ✅ 216 localization strings per language (Korean/English)
 
-**Phase 4 (Wave System & Combat Improvements)** - In Progress:
+**Phase 4 (Wave System & Combat Improvements)** - Complete:
 - ✅ Wave-based battle system (3-4 waves per stage)
 - ✅ Battle data schema and YAML definitions
 - ✅ Wave rewards (HP recovery, global turn reset, buff extension)
 - ✅ Wave UI (counter, transition messages)
 - ✅ ATB speed optimization (4x faster: ~2.5s per action instead of 10s)
 - ✅ Dynamic enemy spawning per wave
+
+**Phase 5 (Corps & Grid System)** - In Progress:
+- ✅ Phase 5A: 16×16 tile-based terrain grid system
+  - 6 terrain types with stat modifiers (plain, mountain, forest, river, road, wall)
+  - 3 stage maps with spawn zones
+  - TileDisplay and TileGridUI components
+- ✅ Phase 5B: Corps system (generals commanding soldier groups)
+  - 6 corps templates (infantry, cavalry, archer variants)
+  - 5 formations with stat modifiers (학익진, 봉시진, 방원진, 장사진, 어린진)
+  - Corps positioning on grid (one corps per tile)
+  - Attack range by unit type (Infantry: 1, Cavalry: 2, Archer: 4-5)
+- ✅ Phase 5C: Enhanced ATB with command system
+  - 5 command types (ATTACK, DEFEND, EVADE, WATCH, MOVE)
+  - Movement phase during global turns
+  - CommandPanel UI and MovementOverlay
+  - CorpsDisplay component with HP/ATB bars
+- 🔲 Full integration with existing wave battle system
 - 🔲 Meta-progression system (save/load)
-- 🔲 Additional content balancing
 
 **What's Playable:**
 - Full roguelite run: Main Menu → 3 Battle Stages (with waves) → Victory/Defeat
@@ -86,10 +102,14 @@ godot project.godot
 - Run statistics tracking (stages cleared, battles won, choices made, enhancements gained)
 
 **Next Steps:**
+- Integrate Phase 5 corps/grid system with existing wave battles
 - Meta-progression system (permanent unlocks)
 - Save/load functionality
 - Additional content (more battles, events, cards)
 - Balance tuning based on playtesting
+
+**Test Scene:**
+- `scenes/corps_battle_test.tscn` - Test corps-based combat on grid (Phase 5 prototype)
 
 ## Documentation
 
@@ -125,7 +145,12 @@ husamguk/
 │   │   ├── general.gd               # Skill execution
 │   │   ├── card.gd                  # Card effects
 │   │   ├── buff.gd                  # Stat modifications
-│   │   └── run_state.gd             # Run-level state persistence
+│   │   ├── run_state.gd             # Run-level state persistence
+│   │   ├── terrain_tile.gd          # Terrain data (Phase 5A)
+│   │   ├── battle_map.gd            # 16×16 grid map (Phase 5A)
+│   │   ├── corps.gd                 # Corps (general + soldiers) (Phase 5B)
+│   │   ├── formation.gd             # Formation stat modifiers (Phase 5B)
+│   │   └── corps_command.gd         # Command system (Phase 5C)
 │   ├── systems/
 │   │   ├── battle/                  # BattleManager (dual-layer timing)
 │   │   └── internal_affairs/        # InternalAffairsManager (event system)
@@ -133,6 +158,12 @@ husamguk/
 │   │   └── battle_simulator.gd      # Headless battle simulator
 │   └── ui/
 │       ├── battle/                  # SkillBar, CardHand, UnitDisplay
+│       │   ├── tile_display.gd      # Single tile UI (Phase 5A)
+│       │   ├── tile_grid_ui.gd      # 16×16 grid UI (Phase 5A)
+│       │   ├── corps_display.gd     # Corps info overlay (Phase 5B)
+│       │   ├── command_panel.gd     # Command selection UI (Phase 5C)
+│       │   ├── movement_overlay.gd  # Movement range overlay (Phase 5C)
+│       │   └── corps_battle_ui.gd   # Corps battle integration (Phase 5C)
 │       ├── internal_affairs/        # ChoiceButton, InternalAffairsUI
 │       ├── enhancement/             # EnhancementCard (reused by Fateful Encounter)
 │       ├── fateful_encounter/       # NPCPortraitDisplay, FatefulEncounterUI
@@ -145,6 +176,7 @@ husamguk/
 │   ├── battle_simulator.tscn       # Battle simulator (headless)
 │   ├── internal_affairs.tscn       # Governance choices
 │   ├── fateful_encounter.tscn      # Fateful Encounter (Phase 3D)
+│   ├── corps_battle_test.tscn      # Corps battle test scene (Phase 5)
 │   ├── victory_screen.tscn         # Victory screen
 │   └── defeat_screen.tscn          # Defeat screen
 ├── data/
@@ -155,7 +187,11 @@ husamguk/
 │   ├── enhancements/               # 14 enhancements YAML (with theme tags)
 │   ├── npcs/                       # 5 NPCs YAML (Phase 3D)
 │   ├── battles/                    # 3 battle definitions YAML (Phase 4 - Wave system)
-│   └── localization/               # ko.yaml, en.yaml (216 strings each)
+│   ├── terrain/                    # 6 terrain types YAML (Phase 5A)
+│   ├── maps/                       # 3 stage maps YAML (Phase 5A)
+│   ├── corps/                      # 6 corps templates YAML (Phase 5B)
+│   ├── formations/                 # 5 formations YAML (Phase 5B)
+│   └── localization/               # ko.yaml, en.yaml (283 strings each)
 ├── addons/yaml/                    # godot-yaml parser addon
 ├── docs/                           # Design documents & guides
 │   └── BATTLE_SIMULATOR.md         # Battle simulator usage guide

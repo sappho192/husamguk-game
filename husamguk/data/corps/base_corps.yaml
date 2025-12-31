@@ -1,0 +1,118 @@
+# Base Corps Templates
+# 기본 군단 템플릿 정의
+# Phase 5B: 군단 시스템
+
+corps:
+  # === 보병 계열 군단 ===
+
+  # 창병 군단 - 기본 보병, 대기병 특화
+  - id: "spear_corps"
+    name_key: "CORPS_SPEAR"
+    description_key: "CORPS_SPEAR_DESC"
+    category: "infantry"
+    base_soldier_count: 30
+    soldier_unit_id: "spearman"
+    base_stats:
+      hp_per_soldier: 12
+      attack_per_soldier: 6
+      defense: 15
+      atb_speed: 1.0
+      movement_range: 2
+      attack_range: 1  # 보병: 근접 공격
+    available_formations: ["default", "hakik", "bangwon", "bongsi", "eorin"]
+    default_formation: "default"
+    traits: ["anti_cavalry"]
+
+  # 검병 군단 - 균형 보병
+  - id: "sword_corps"
+    name_key: "CORPS_SWORD"
+    description_key: "CORPS_SWORD_DESC"
+    category: "infantry"
+    base_soldier_count: 25
+    soldier_unit_id: "swordsman"
+    base_stats:
+      hp_per_soldier: 14
+      attack_per_soldier: 7
+      defense: 12
+      atb_speed: 1.1
+      movement_range: 2
+      attack_range: 1  # 보병: 근접 공격
+    available_formations: ["default", "hakik", "bangwon", "bongsi", "jangsa", "eorin"]
+    default_formation: "default"
+    traits: ["berserker"]
+
+  # === 기병 계열 군단 ===
+
+  # 경기병 군단 - 빠른 기동, 돌격 특화
+  - id: "light_cavalry_corps"
+    name_key: "CORPS_LIGHT_CAVALRY"
+    description_key: "CORPS_LIGHT_CAVALRY_DESC"
+    category: "cavalry"
+    base_soldier_count: 20
+    soldier_unit_id: "light_cavalry"
+    base_stats:
+      hp_per_soldier: 15
+      attack_per_soldier: 8
+      defense: 8
+      atb_speed: 1.4
+      movement_range: 4
+      attack_range: 2  # 기병: 돌격 사거리
+    available_formations: ["default", "bongsi", "hakik", "jangsa"]
+    default_formation: "default"
+    traits: ["charge"]
+
+  # 중기병 군단 - 강력한 돌파력
+  - id: "heavy_cavalry_corps"
+    name_key: "CORPS_HEAVY_CAVALRY"
+    description_key: "CORPS_HEAVY_CAVALRY_DESC"
+    category: "cavalry"
+    base_soldier_count: 15
+    soldier_unit_id: "heavy_cavalry"
+    base_stats:
+      hp_per_soldier: 20
+      attack_per_soldier: 10
+      defense: 18
+      atb_speed: 1.0
+      movement_range: 3
+      attack_range: 2  # 기병: 돌격 사거리
+    available_formations: ["default", "bongsi", "eorin"]
+    default_formation: "default"
+    traits: ["charge", "armored"]
+
+  # === 궁병 계열 군단 ===
+
+  # 궁병 군단 - 기본 원거리
+  - id: "archer_corps"
+    name_key: "CORPS_ARCHER"
+    description_key: "CORPS_ARCHER_DESC"
+    category: "archer"
+    base_soldier_count: 25
+    soldier_unit_id: "archer"
+    base_stats:
+      hp_per_soldier: 8
+      attack_per_soldier: 7
+      defense: 5
+      atb_speed: 1.1
+      movement_range: 2
+      attack_range: 4  # 궁병: 원거리 공격
+    available_formations: ["default", "bangwon", "jangsa"]
+    default_formation: "default"
+    traits: ["ranged"]
+
+  # 노병 군단 - 관통력 높은 원거리
+  - id: "crossbow_corps"
+    name_key: "CORPS_CROSSBOW"
+    description_key: "CORPS_CROSSBOW_DESC"
+    category: "archer"
+    base_soldier_count: 20
+    soldier_unit_id: "crossbowman"
+    base_stats:
+      hp_per_soldier: 10
+      attack_per_soldier: 9
+      defense: 6
+      atb_speed: 0.9
+      movement_range: 2
+      attack_range: 5  # 노병: 더 긴 사거리
+    available_formations: ["default", "bangwon"]
+    default_formation: "default"
+    traits: ["ranged", "armor_piercing"]

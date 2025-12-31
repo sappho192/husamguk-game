@@ -1,14 +1,23 @@
 class_name BattleManager
 extends Node
 
+const Corps = preload("res://src/core/corps.gd")
+const CorpsCommand = preload("res://src/core/corps_command.gd")
+const BattleMap = preload("res://src/core/battle_map.gd")
+const TerrainTile = preload("res://src/core/terrain_tile.gd")
+
 signal battle_started()
 signal unit_action_ready(unit: Unit)
 signal battle_ended(victory: bool)
 signal global_turn_ready()  # Phase 2: Global turn system
 signal wave_started(wave_number: int, total_waves: int)  # Phase 4: Wave system
 signal wave_complete(wave_number: int, has_next_wave: bool)  # Phase 4: Wave complete
+signal corps_action_ready(corps: Corps)  # Phase 5C: Corps ATB filled
+signal command_executed(command: CorpsCommand)  # Phase 5C: Command executed
+signal movement_phase_started()  # Phase 5C: Movement phase begins
+signal movement_phase_ended()  # Phase 5C: Movement phase ends
 
-enum BattleState { PREPARING, RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION, ENDED }  # Phase 4: Added WAVE_TRANSITION
+enum BattleState { PREPARING, RUNNING, PAUSED_FOR_CARD, WAVE_TRANSITION, MOVEMENT_PHASE, ENDED }  # Phase 5C: Added MOVEMENT_PHASE
 
 var state: BattleState = BattleState.PREPARING
 
@@ -26,6 +35,19 @@ var global_turn_count: int = 0
 var battle_data: Dictionary = {}  # Full battle definition
 var current_wave_index: int = 0   # 0-based wave index
 var total_waves: int = 0
+
+# Phase 5A: Terrain Grid
+var battle_map: BattleMap = null
+var corps_positions: Dictionary = {}  # Vector2i -> Corps (grid position to corps)
+
+# Phase 5B: Corps system
+var ally_corps: Array = []  # Array[Corps]
+var enemy_corps: Array = []  # Array[Corps]
+var corps_action_queue: Array = []  # Array[Corps] - Corps waiting to act
+
+# Phase 5C: Command system
+var pending_commands: Dictionary = {}  # Corps -> CorpsCommand
+var movement_commands: Array = []  # Array[CorpsCommand] - MOVE commands to execute during global turn
 
 func start_battle(ally_data: Array, enemy_data: Array) -> void:
 	print("BattleManager: Starting battle with ", ally_data.size(), " allies vs ", enemy_data.size(), " enemies")
@@ -254,8 +276,22 @@ func _execute_auto_attack(attacker: Unit) -> void:
 	unit_action_ready.emit(attacker)
 
 func _check_battle_end() -> void:
-	var allies_alive = ally_units.filter(func(u): return u.is_alive)
-	var enemies_alive = enemy_units.filter(func(u): return u.is_alive)
+	# Check both unit-based and corps-based battles
+	var allies_alive_units = ally_units.filter(func(u): return u.is_alive)
+	var enemies_alive_units = enemy_units.filter(func(u): return u.is_alive)
+	var allies_alive_corps = ally_corps.filter(func(c): return c.is_alive)
+	var enemies_alive_corps = enemy_corps.filter(func(c): return c.is_alive)
+
+	# Use units if available, otherwise use corps
+	var using_units = not ally_units.is_empty() or not enemy_units.is_empty()
+	var using_corps = not ally_corps.is_empty() or not enemy_corps.is_empty()
+
+	var allies_alive = allies_alive_units if using_units else allies_alive_corps
+	var enemies_alive = enemies_alive_units if using_units else enemies_alive_corps
+
+	# Don't check battle end if no units/corps are in battle yet
+	if allies_alive.is_empty() and enemies_alive.is_empty():
+		return
 
 	if enemies_alive.is_empty():
 		# Check if this is a wave-based battle
@@ -291,16 +327,30 @@ func _tick_global_turn_timer(delta: float) -> void:
 
 func _trigger_global_turn() -> void:
 	print("=== GLOBAL TURN ", global_turn_count, " ===")
+
+	# Phase 5C: Execute movement phase first (before card selection)
+	_execute_movement_phase()
+
 	state = BattleState.PAUSED_FOR_CARD
 
 	# Tick buff durations for all units (global turn based)
 	for unit in ally_units + enemy_units:
 		unit.tick_buff_durations()
 
+	# Phase 5B: Tick buff durations for all corps
+	for corps in ally_corps + enemy_corps:
+		if corps.is_alive:
+			corps.tick_buff_durations()
+
 	# Tick skill cooldowns for ally generals (if they have generals)
 	for unit in ally_units:
 		if unit.general:
 			unit.general.tick_cooldown()
+
+	# Phase 5B: Tick cooldowns for ally corps generals
+	for corps in ally_corps:
+		if corps.is_alive and corps.general:
+			corps.general.tick_cooldown()
 
 	global_turn_ready.emit()
 
@@ -397,3 +447,356 @@ func force_defeat() -> void:
 			unit.is_alive = false
 			unit.died.emit()
 	_check_battle_end()
+
+# ====================================
+# Phase 5A: Battle Map Integration
+# ====================================
+
+## 맵 설정
+func set_battle_map(map: BattleMap) -> void:
+	battle_map = map
+
+## 맵 반환
+func get_battle_map() -> BattleMap:
+	return battle_map
+
+## 위치에 군단이 있는지 확인
+func is_position_occupied(pos: Vector2i) -> bool:
+	return corps_positions.has(pos)
+
+## 위치의 군단 반환
+func get_corps_at_position(pos: Vector2i) -> Corps:
+	return corps_positions.get(pos, null)
+
+## 모든 점유 위치 반환 (MovementOverlay용)
+func get_all_occupied_positions() -> Dictionary:
+	return corps_positions.duplicate()
+
+# ====================================
+# Phase 5B: Corps System
+# ====================================
+
+## 군단 생성 및 추가
+func add_corps(corps: Corps, grid_pos: Vector2i) -> void:
+	if corps == null:
+		return
+
+	# 지형 타일 가져오기
+	var terrain: TerrainTile = null
+	if battle_map != null:
+		terrain = battle_map.get_terrain_at(grid_pos)
+
+	# 위치 설정
+	corps.set_grid_position(grid_pos, terrain)
+	corps_positions[grid_pos] = corps
+
+	# ATB 시그널 연결
+	corps.atb_filled.connect(_on_corps_atb_filled)
+	corps.destroyed.connect(_on_corps_destroyed.bind(corps))
+
+	# 아군/적군 배열에 추가
+	if corps.is_ally:
+		ally_corps.append(corps)
+	else:
+		enemy_corps.append(corps)
+
+	print("BattleManager: Added %s at %s" % [corps.get_display_name(), grid_pos])
+
+## 군단 제거
+func remove_corps(corps: Corps) -> void:
+	if corps == null:
+		return
+
+	# 위치에서 제거
+	corps_positions.erase(corps.grid_position)
+
+	# 배열에서 제거
+	if corps in ally_corps:
+		ally_corps.erase(corps)
+	elif corps in enemy_corps:
+		enemy_corps.erase(corps)
+
+	# 대기 중인 명령 제거
+	pending_commands.erase(corps)
+
+## 군단 ATB 채워짐 핸들러
+func _on_corps_atb_filled(corps: Corps) -> void:
+	if state == BattleState.RUNNING and not corps_action_queue.has(corps):
+		corps_action_queue.append(corps)
+		corps_action_ready.emit(corps)
+
+## 군단 파괴 핸들러
+func _on_corps_destroyed(corps: Corps) -> void:
+	print("BattleManager: %s destroyed!" % corps.get_display_name())
+	remove_corps(corps)
+	_check_corps_battle_end()
+
+## 군단 ATB 업데이트
+func _update_corps_atb(delta: float) -> void:
+	for corps in ally_corps + enemy_corps:
+		if corps.is_alive:
+			corps.tick_atb(delta)
+
+## 군단 전투 종료 확인
+func _check_corps_battle_end() -> void:
+	var allies_alive = ally_corps.filter(func(c): return c.is_alive)
+	var enemies_alive = enemy_corps.filter(func(c): return c.is_alive)
+
+	if enemies_alive.is_empty():
+		_end_battle(true)
+	elif allies_alive.is_empty():
+		_end_battle(false)
+
+# ====================================
+# Phase 5C: Command System
+# ====================================
+
+## 명령 설정
+func set_corps_command(corps: Corps, command: CorpsCommand) -> void:
+	if corps == null or command == null:
+		return
+
+	pending_commands[corps] = command
+
+	# 이동 명령은 별도로 저장 (글로벌 턴에 실행)
+	if command.type == CorpsCommand.CommandType.MOVE:
+		if command not in movement_commands:
+			movement_commands.append(command)
+		print("BattleManager: Movement command queued for %s to %s" % [
+			corps.get_display_name(), command.target_position
+		])
+
+## 명령 취소
+func cancel_corps_command(corps: Corps) -> void:
+	if corps in pending_commands:
+		var cmd = pending_commands[corps]
+		if cmd in movement_commands:
+			movement_commands.erase(cmd)
+		pending_commands.erase(corps)
+
+## 즉시 실행 가능한 명령 처리 (ATTACK, DEFEND, EVADE, WATCH)
+func process_immediate_command(corps: Corps) -> void:
+	if corps not in pending_commands:
+		# 기본 명령: 공격
+		_execute_auto_attack_corps(corps)
+		return
+
+	var command: CorpsCommand = pending_commands[corps]
+
+	match command.type:
+		CorpsCommand.CommandType.ATTACK:
+			_execute_attack_command(command)
+		CorpsCommand.CommandType.DEFEND:
+			_execute_defend_command(command)
+		CorpsCommand.CommandType.EVADE:
+			_execute_evade_command(command)
+		CorpsCommand.CommandType.WATCH:
+			_execute_watch_command(command)
+		CorpsCommand.CommandType.MOVE:
+			# 이동 명령은 글로벌 턴에 실행됨 - 여기서는 대기
+			print("BattleManager: %s waiting for movement phase" % corps.get_display_name())
+			corps.reset_atb()
+			return
+
+	# 명령 실행 후 ATB 리셋 및 명령 제거
+	corps.reset_atb()
+	pending_commands.erase(corps)
+	command_executed.emit(command)
+
+## 공격 명령 실행
+func _execute_attack_command(command: CorpsCommand) -> void:
+	var attacker = command.source_corps
+	var target = command.target_corps
+
+	if target == null or not target.is_alive:
+		# 대상이 없으면 사거리 내 자동 타겟 선택
+		target = _find_target_in_range(attacker)
+		if target == null:
+			print("BattleManager: %s has no targets in range (range: %d)" % [
+				attacker.get_display_name(), attacker.get_attack_range()
+			])
+			return
+
+	# 사거리 확인
+	if not attacker.is_target_in_range(target):
+		print("BattleManager: %s cannot attack %s - out of range (dist: %d, range: %d)" % [
+			attacker.get_display_name(), target.get_display_name(),
+			attacker.distance_to(target), attacker.get_attack_range()
+		])
+		return
+
+	var damage = attacker.attack_target(target)
+	print("BattleManager: %s attacks %s for %d damage (range: %d)" % [
+		attacker.get_display_name(), target.get_display_name(), damage, attacker.get_attack_range()
+	])
+
+## 방어 명령 실행
+func _execute_defend_command(command: CorpsCommand) -> void:
+	var corps = command.source_corps
+	# 방어 버프 적용 (방어력 +50%, 1턴)
+	var Buff = preload("res://src/core/buff.gd")
+	var defend_buff = Buff.new({
+		"id": "defend_command",
+		"type": "buff",
+		"stat": "defense",
+		"value": 50.0,
+		"value_type": "percent",
+		"duration": 1,
+		"source": "command"
+	})
+	corps.add_buff(defend_buff)
+	print("BattleManager: %s is defending (+50%% DEF for 1 turn)" % corps.get_display_name())
+
+## 회피 명령 실행
+func _execute_evade_command(command: CorpsCommand) -> void:
+	var corps = command.source_corps
+	# 회피 버프 적용 (ATB 속도 +0.3, 1턴)
+	var Buff = preload("res://src/core/buff.gd")
+	var evade_buff = Buff.new({
+		"id": "evade_command",
+		"type": "buff",
+		"stat": "atb_speed",
+		"value": 0.3,
+		"value_type": "flat",
+		"duration": 1,
+		"source": "command"
+	})
+	corps.add_buff(evade_buff)
+	print("BattleManager: %s is evading (+0.3 ATB speed for 1 turn)" % corps.get_display_name())
+
+## 경계 명령 실행
+func _execute_watch_command(command: CorpsCommand) -> void:
+	var corps = command.source_corps
+	# 경계 상태는 별도 플래그로 관리 (TODO: 반격 시스템 구현)
+	print("BattleManager: %s is watching (counterattack ready)" % corps.get_display_name())
+
+## 자동 공격 (군단 버전)
+func _execute_auto_attack_corps(attacker: Corps) -> void:
+	# 사거리 내 대상 찾기
+	var target = _find_target_in_range(attacker)
+
+	if target == null:
+		# 사거리 내 대상 없음 - ATB 리셋만 하고 대기
+		print("BattleManager: %s has no targets in range (range: %d) - skipping attack" % [
+			attacker.get_display_name(), attacker.get_attack_range()
+		])
+		attacker.reset_atb()
+		return
+
+	var damage = attacker.attack_target(target)
+	print("BattleManager: %s auto-attacks %s for %d damage (range: %d)" % [
+		attacker.get_display_name(), target.get_display_name(), damage, attacker.get_attack_range()
+	])
+	attacker.reset_atb()
+
+## 가장 가까운 군단 찾기
+func _find_closest_corps(from_corps: Corps, targets: Array) -> Corps:
+	if targets.is_empty():
+		return null
+
+	var closest = targets[0]
+	var closest_dist = _manhattan_distance(from_corps.grid_position, closest.grid_position)
+
+	for target in targets:
+		var dist = _manhattan_distance(from_corps.grid_position, target.grid_position)
+		if dist < closest_dist:
+			closest = target
+			closest_dist = dist
+
+	return closest
+
+
+## 사거리 내 대상 찾기 (가장 가까운 적 우선)
+func _find_target_in_range(attacker: Corps) -> Corps:
+	var targets = enemy_corps if attacker.is_ally else ally_corps
+	var alive_targets = targets.filter(func(c): return c.is_alive)
+
+	if alive_targets.is_empty():
+		return null
+
+	# 사거리 내 대상만 필터링
+	var in_range_targets = attacker.get_targets_in_range(alive_targets)
+
+	if in_range_targets.is_empty():
+		return null
+
+	# 사거리 내 가장 가까운 대상 반환
+	return _find_closest_corps(attacker, in_range_targets)
+
+
+## 아군/적군의 사거리 내 대상 목록 반환 (UI용)
+func get_attackable_targets(corps: Corps) -> Array:
+	if corps == null or not corps.is_alive:
+		return []
+
+	var targets = enemy_corps if corps.is_ally else ally_corps
+	var alive_targets = targets.filter(func(c): return c.is_alive)
+
+	return corps.get_targets_in_range(alive_targets)
+
+## 맨해튼 거리 계산
+func _manhattan_distance(a: Vector2i, b: Vector2i) -> int:
+	return abs(a.x - b.x) + abs(a.y - b.y)
+
+# ====================================
+# Phase 5C: Movement Phase
+# ====================================
+
+## 이동 페이즈 실행 (글로벌 턴에서 호출)
+func _execute_movement_phase() -> void:
+	if movement_commands.is_empty():
+		return
+
+	print("=== MOVEMENT PHASE START ===")
+	state = BattleState.MOVEMENT_PHASE
+	movement_phase_started.emit()
+
+	# 이동 명령들을 순차적으로 실행
+	var commands_to_execute = movement_commands.duplicate()
+	movement_commands.clear()
+
+	for command in commands_to_execute:
+		if command.is_valid():
+			_execute_move_command(command)
+			command.executed = true
+			command_executed.emit(command)
+		else:
+			print("BattleManager: Invalid move command skipped")
+
+	print("=== MOVEMENT PHASE END ===")
+	movement_phase_ended.emit()
+
+## 이동 명령 실행
+func _execute_move_command(command: CorpsCommand) -> void:
+	var corps = command.source_corps
+	var destination = command.target_position
+
+	if corps == null or not corps.is_alive:
+		return
+
+	# 목적지 유효성 확인
+	if battle_map != null and not battle_map.is_passable(destination):
+		print("BattleManager: Cannot move to impassable tile %s" % destination)
+		return
+
+	if is_position_occupied(destination):
+		print("BattleManager: Destination %s is occupied" % destination)
+		return
+
+	# 이동 실행
+	var old_pos = corps.grid_position
+	corps_positions.erase(old_pos)
+
+	var new_terrain: TerrainTile = null
+	if battle_map != null:
+		new_terrain = battle_map.get_terrain_at(destination)
+
+	corps.set_grid_position(destination, new_terrain)
+	corps_positions[destination] = corps
+
+	print("BattleManager: %s moved from %s to %s" % [
+		corps.get_display_name(), old_pos, destination
+	])
+
+	# 명령 제거
+	pending_commands.erase(corps)

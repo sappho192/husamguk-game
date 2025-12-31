@@ -1,0 +1,170 @@
+# Formation Schema
+# 진형 정의
+# Phase 5B: 군단 시스템
+#
+# 진형은 군단의 속성으로서, 스탯 수정자 역할을 함.
+# 진형에 따라 공격력, 방어력, ATB 속도, 이동 범위가 조정됨.
+
+_schema:
+  version: "1.0.0"
+  description: "진형 정의. 군단의 스탯을 수정하는 전술적 배치 방식."
+
+schema:
+  formation:
+    id:
+      type: string
+      required: true
+      description: "진형 고유 ID"
+      example: "hakik"
+
+    name_key:
+      type: string
+      required: true
+      description: "진형 이름 로컬라이제이션 키"
+      example: "FORMATION_HAKIK"
+
+    description_key:
+      type: string
+      required: true
+      description: "진형 설명 로컬라이제이션 키"
+
+    category_restriction:
+      type: array
+      required: false
+      items:
+        type: string
+        enum: ["infantry", "cavalry", "archer"]
+      description: "사용 가능 병종 제한. 비어있으면 전체 병종 가능."
+
+    stat_modifiers:
+      type: object
+      required: true
+      description: "스탯 수정치"
+      properties:
+        attack_modifier:
+          type: integer
+          range: [-50, 100]
+          description: "공격력 수정 (%)"
+          default: 0
+        defense_modifier:
+          type: integer
+          range: [-50, 100]
+          description: "방어력 수정 (%)"
+          default: 0
+        atb_modifier:
+          type: number
+          range: [-0.5, 0.5]
+          description: "ATB 속도 수정 (절대값)"
+          default: 0.0
+        movement_modifier:
+          type: integer
+          range: [-2, 2]
+          description: "이동 범위 수정 (타일)"
+          default: 0
+
+    special_effects:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          effect_id:
+            type: string
+            description: "특수 효과 ID"
+          value:
+            type: number
+            description: "효과 수치"
+          condition:
+            type: string
+            description: "발동 조건"
+      description: "진형 특수 효과 목록"
+
+    visual_hint:
+      type: string
+      required: false
+      description: "진형 시각적 힌트 (UI 표시용)"
+      example: "V자 형태"
+
+example:
+  formations:
+    # 기본 진형 - 수정치 없음
+    - id: "default"
+      name_key: "FORMATION_DEFAULT"
+      description_key: "FORMATION_DEFAULT_DESC"
+      stat_modifiers:
+        attack_modifier: 0
+        defense_modifier: 0
+        atb_modifier: 0.0
+        movement_modifier: 0
+
+    # 학익진 (鶴翼陣) - 공격적 포위 진형
+    - id: "hakik"
+      name_key: "FORMATION_HAKIK"
+      description_key: "FORMATION_HAKIK_DESC"
+      stat_modifiers:
+        attack_modifier: 30
+        defense_modifier: -10
+        atb_modifier: 0.1
+        movement_modifier: 0
+      special_effects:
+        - effect_id: "flank_bonus"
+          value: 20
+          condition: "target_flanked"
+      visual_hint: "학의 날개처럼 펼친 V자 형태"
+
+    # 봉시진 (鋒矢陣) - 돌격 진형
+    - id: "bongsi"
+      name_key: "FORMATION_BONGSI"
+      description_key: "FORMATION_BONGSI_DESC"
+      category_restriction: ["infantry", "cavalry"]
+      stat_modifiers:
+        attack_modifier: 50
+        defense_modifier: -30
+        atb_modifier: 0.2
+        movement_modifier: 1
+      special_effects:
+        - effect_id: "charge_damage"
+          value: 50
+          condition: "first_attack"
+      visual_hint: "화살촉 모양의 돌격 대형"
+
+    # 방원진 (方圓陣) - 방어 진형
+    - id: "bangwon"
+      name_key: "FORMATION_BANGWON"
+      description_key: "FORMATION_BANGWON_DESC"
+      stat_modifiers:
+        attack_modifier: -20
+        defense_modifier: 50
+        atb_modifier: -0.2
+        movement_modifier: -1
+      special_effects:
+        - effect_id: "ranged_resist"
+          value: 30
+          condition: "attacked_by_ranged"
+      visual_hint: "사방을 둘러싼 원형 방어 대형"
+
+    # 장사진 (長蛇陣) - 기동 진형
+    - id: "jangsa"
+      name_key: "FORMATION_JANGSA"
+      description_key: "FORMATION_JANGSA_DESC"
+      stat_modifiers:
+        attack_modifier: 0
+        defense_modifier: -15
+        atb_modifier: 0.15
+        movement_modifier: 2
+      special_effects:
+        - effect_id: "retreat_bonus"
+          value: 50
+          condition: "retreating"
+      visual_hint: "뱀처럼 길게 늘어선 기동 대형"
+
+    # 어린진 (魚鱗陣) - 균형 진형
+    - id: "eorin"
+      name_key: "FORMATION_EORIN"
+      description_key: "FORMATION_EORIN_DESC"
+      stat_modifiers:
+        attack_modifier: 15
+        defense_modifier: 15
+        atb_modifier: 0.0
+        movement_modifier: 0
+      visual_hint: "물고기 비늘처럼 겹겹이 배치한 대형"

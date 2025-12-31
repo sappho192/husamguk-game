@@ -1,0 +1,80 @@
+# Base Terrain Types
+# 기본 지형 타입 정의
+# Phase 5A: 전투 지형 시스템
+
+terrains:
+  # 평야 - 기본 지형, 수정치 없음
+  - id: "plain"
+    name_key: "TERRAIN_PLAIN"
+    description_key: "TERRAIN_PLAIN_DESC"
+    color: "#90EE90"
+    char_code: "P"
+    movement_cost: 1.0
+    defense_modifier: 0
+    attack_modifier: 0
+    atb_modifier: 0.0
+    passable: true
+
+  # 산악 - 방어 보너스, 이동 및 공격 페널티
+  - id: "mountain"
+    name_key: "TERRAIN_MOUNTAIN"
+    description_key: "TERRAIN_MOUNTAIN_DESC"
+    color: "#8B7355"
+    char_code: "M"
+    movement_cost: 2.5
+    defense_modifier: 30
+    attack_modifier: -10
+    atb_modifier: -0.1
+    passable: true
+
+  # 숲 - 방어 보너스, 약간의 ATB 페널티
+  - id: "forest"
+    name_key: "TERRAIN_FOREST"
+    description_key: "TERRAIN_FOREST_DESC"
+    color: "#228B22"
+    char_code: "F"
+    movement_cost: 1.5
+    defense_modifier: 20
+    attack_modifier: 0
+    atb_modifier: -0.05
+    passable: true
+
+  # 강 - 방어/공격 페널티, 높은 이동 비용
+  - id: "river"
+    name_key: "TERRAIN_RIVER"
+    description_key: "TERRAIN_RIVER_DESC"
+    color: "#4682B4"
+    char_code: "R"
+    movement_cost: 3.0
+    defense_modifier: -20
+    attack_modifier: -10
+    atb_modifier: -0.1
+    passable: true
+    special_effects:
+      - effect_id: "wet_debuff"
+        trigger: "on_enter"
+        value: 1
+
+  # 도로 - 빠른 이동, 방어 페널티
+  - id: "road"
+    name_key: "TERRAIN_ROAD"
+    description_key: "TERRAIN_ROAD_DESC"
+    color: "#D2B48C"
+    char_code: "D"
+    movement_cost: 0.5
+    defense_modifier: -10
+    attack_modifier: 0
+    atb_modifier: 0.05
+    passable: true
+
+  # 성벽/요새 - 높은 방어 보너스, 이동 불가
+  - id: "wall"
+    name_key: "TERRAIN_WALL"
+    description_key: "TERRAIN_WALL_DESC"
+    color: "#696969"
+    char_code: "W"
+    movement_cost: 999.0
+    defense_modifier: 0
+    attack_modifier: 0
+    atb_modifier: 0.0
+    passable: false

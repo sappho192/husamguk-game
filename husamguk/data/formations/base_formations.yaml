@@ -1,0 +1,95 @@
+# Base Formations
+# 기본 진형 정의
+# Phase 5B: 군단 시스템
+#
+# 진형은 군단의 스탯을 수정하는 전술적 배치 방식.
+# 각 진형은 공격력, 방어력, ATB 속도, 이동 범위에 영향을 줌.
+
+formations:
+  # 기본 진형 - 수정치 없음
+  - id: "default"
+    name_key: "FORMATION_DEFAULT"
+    description_key: "FORMATION_DEFAULT_DESC"
+    stat_modifiers:
+      attack_modifier: 0
+      defense_modifier: 0
+      atb_modifier: 0.0
+      movement_modifier: 0
+    visual_hint: "일반 대형"
+
+  # 학익진 (鶴翼陣) - 공격적 포위 진형
+  # 학이 날개를 펼친 모양. 양 날개로 적을 포위하여 공격.
+  - id: "hakik"
+    name_key: "FORMATION_HAKIK"
+    description_key: "FORMATION_HAKIK_DESC"
+    stat_modifiers:
+      attack_modifier: 30
+      defense_modifier: -10
+      atb_modifier: 0.1
+      movement_modifier: 0
+    special_effects:
+      - effect_id: "flank_bonus"
+        value: 20
+        condition: "target_flanked"
+    visual_hint: "V자 형태"
+
+  # 봉시진 (鋒矢陣) - 돌격 진형
+  # 화살촉 모양. 선봉이 뾰족하게 돌출하여 적진을 돌파.
+  - id: "bongsi"
+    name_key: "FORMATION_BONGSI"
+    description_key: "FORMATION_BONGSI_DESC"
+    category_restriction: ["infantry", "cavalry"]
+    stat_modifiers:
+      attack_modifier: 50
+      defense_modifier: -30
+      atb_modifier: 0.2
+      movement_modifier: 1
+    special_effects:
+      - effect_id: "charge_damage"
+        value: 50
+        condition: "first_attack"
+    visual_hint: "화살촉 형태"
+
+  # 방원진 (方圓陣) - 방어 진형
+  # 사방을 둘러싼 원형. 전방위 방어에 유리.
+  - id: "bangwon"
+    name_key: "FORMATION_BANGWON"
+    description_key: "FORMATION_BANGWON_DESC"
+    stat_modifiers:
+      attack_modifier: -20
+      defense_modifier: 50
+      atb_modifier: -0.2
+      movement_modifier: -1
+    special_effects:
+      - effect_id: "ranged_resist"
+        value: 30
+        condition: "attacked_by_ranged"
+    visual_hint: "원형 대형"
+
+  # 장사진 (長蛇陣) - 기동 진형
+  # 뱀처럼 길게 늘어선 대형. 빠른 기동과 퇴각에 유리.
+  - id: "jangsa"
+    name_key: "FORMATION_JANGSA"
+    description_key: "FORMATION_JANGSA_DESC"
+    stat_modifiers:
+      attack_modifier: 0
+      defense_modifier: -15
+      atb_modifier: 0.15
+      movement_modifier: 2
+    special_effects:
+      - effect_id: "retreat_bonus"
+        value: 50
+        condition: "retreating"
+    visual_hint: "긴 줄 형태"
+
+  # 어린진 (魚鱗陣) - 균형 진형
+  # 물고기 비늘처럼 겹겹이 배치. 공격과 방어의 균형.
+  - id: "eorin"
+    name_key: "FORMATION_EORIN"
+    description_key: "FORMATION_EORIN_DESC"
+    stat_modifiers:
+      attack_modifier: 15
+      defense_modifier: 15
+      atb_modifier: 0.0
+      movement_modifier: 0
+    visual_hint: "비늘 형태"

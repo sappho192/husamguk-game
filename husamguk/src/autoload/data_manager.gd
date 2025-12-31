@@ -4,6 +4,10 @@ extends Node
 const Unit = preload("res://src/core/unit.gd")
 const General = preload("res://src/core/general.gd")
 const Card = preload("res://src/core/card.gd")
+const BattleMap = preload("res://src/core/battle_map.gd")
+const TerrainTile = preload("res://src/core/terrain_tile.gd")
+const Corps = preload("res://src/core/corps.gd")
+const Formation = preload("res://src/core/formation.gd")
 
 # Data storage
 var generals: Dictionary = {}      # id → general_data
@@ -13,6 +17,10 @@ var events: Dictionary = {}         # id → event_data (Phase 3)
 var enhancements: Dictionary = {}   # id → enhancement_data (Phase 3)
 var npcs: Dictionary = {}           # id → npc_data (Phase 3D - Fateful Encounter)
 var battles: Dictionary = {}        # id → battle_data (Phase 4 - Wave system)
+var terrains: Dictionary = {}       # id → terrain_data (Phase 5A - Terrain system)
+var maps: Dictionary = {}           # id → map_data (Phase 5A - Terrain system)
+var corps_templates: Dictionary = {} # id → corps_data (Phase 5B - Corps system)
+var formations: Dictionary = {}     # id → formation_data (Phase 5B - Corps system)
 var localization: Dictionary = {}   # locale → (key → string)
 
 func _ready() -> void:
@@ -20,6 +28,10 @@ func _ready() -> void:
 
 func _load_all_data() -> void:
 	print("DataManager: Loading game data...")
+	_load_terrains()  # Phase 5A: Load terrains first (needed by maps)
+	_load_maps()      # Phase 5A: Load battle maps
+	_load_formations()  # Phase 5B: Load formations before corps
+	_load_corps()       # Phase 5B: Load corps templates
 	_load_generals()
 	_load_units()
 	_load_cards()
@@ -29,6 +41,10 @@ func _load_all_data() -> void:
 	_load_battles()
 	_load_localization()
 	print("DataManager: Data loading complete")
+	print("  - Terrains loaded: ", terrains.size())
+	print("  - Maps loaded: ", maps.size())
+	print("  - Formations loaded: ", formations.size())
+	print("  - Corps templates loaded: ", corps_templates.size())
 	print("  - Generals loaded: ", generals.size())
 	print("  - Units loaded: ", units.size())
 	print("  - Cards loaded: ", cards.size())
@@ -37,6 +53,34 @@ func _load_all_data() -> void:
 	print("  - NPCs loaded: ", npcs.size())
 	print("  - Battles loaded: ", battles.size())
 	print("  - Localization locales: ", localization.keys())
+
+func _load_terrains() -> void:
+	# Phase 5A: Load terrain data
+	var terrain_files = ["base_terrain.yaml"]
+	for file_name in terrain_files:
+		var path = "res://data/terrain/" + file_name
+		_load_yaml_list(path, "terrains", terrains)
+
+func _load_maps() -> void:
+	# Phase 5A: Load battle map data
+	var map_files = ["stage_maps.yaml"]
+	for file_name in map_files:
+		var path = "res://data/maps/" + file_name
+		_load_yaml_list(path, "maps", maps)
+
+func _load_formations() -> void:
+	# Phase 5B: Load formation data
+	var formation_files = ["base_formations.yaml"]
+	for file_name in formation_files:
+		var path = "res://data/formations/" + file_name
+		_load_yaml_list(path, "formations", formations)
+
+func _load_corps() -> void:
+	# Phase 5B: Load corps template data
+	var corps_files = ["base_corps.yaml"]
+	for file_name in corps_files:
+		var path = "res://data/corps/" + file_name
+		_load_yaml_list(path, "corps", corps_templates)
 
 func _load_generals() -> void:
 	var general_files = ["hubaekje.yaml", "taebong.yaml", "silla.yaml"]
@@ -204,6 +248,50 @@ func get_battle(id: String) -> Dictionary:
 	# Phase 4: Get battle definition by ID
 	return battles.get(id, {})
 
+# Phase 5A: Terrain and Map API
+
+func get_terrain(id: String) -> Dictionary:
+	# Get terrain data by ID
+	return terrains.get(id, {})
+
+func get_all_terrains() -> Dictionary:
+	# Return all terrain data (for building char_code map)
+	return terrains
+
+func get_map(id: String) -> Dictionary:
+	# Get battle map data by ID
+	return maps.get(id, {})
+
+func get_all_maps() -> Dictionary:
+	# Return all map data
+	return maps
+
+# Phase 5B: Corps and Formation API
+
+func get_formation(id: String) -> Dictionary:
+	# Get formation data by ID
+	return formations.get(id, {})
+
+func get_all_formations() -> Dictionary:
+	# Return all formation data
+	return formations
+
+func get_corps_template(id: String) -> Dictionary:
+	# Get corps template data by ID
+	return corps_templates.get(id, {})
+
+func get_all_corps_templates() -> Dictionary:
+	# Return all corps template data
+	return corps_templates
+
+func get_corps_templates_by_category(category: String) -> Array[Dictionary]:
+	# Get all corps templates for a specific category
+	var result: Array[Dictionary] = []
+	for template in corps_templates.values():
+		if template.get("category", "") == category:
+			result.append(template.duplicate(true))
+	return result
+
 func get_localized(key: String) -> String:
 	var locale = TranslationServer.get_locale().substr(0, 2)  # "ko", "en"
 	var strings = localization.get(locale, {})
@@ -262,3 +350,45 @@ func create_card_instance(card_id: String) -> Card:
 	data_copy["description_key"] = get_localized(data_copy.get("description_key", ""))
 
 	return Card.new(data_copy)
+
+# Factory method to create terrain tile instances (Phase 5A)
+func create_terrain_instance(terrain_id: String) -> TerrainTile:
+	var terrain_data = get_terrain(terrain_id)
+	if terrain_data.is_empty():
+		push_error("DataManager: Terrain not found: " + terrain_id)
+		return null
+
+	var data_copy = terrain_data.duplicate(true)
+	return TerrainTile.new(data_copy)
+
+# Factory method to create battle map instances (Phase 5A)
+func create_battle_map(map_id: String) -> BattleMap:
+	var map_data = get_map(map_id)
+	if map_data.is_empty():
+		push_error("DataManager: Map not found: " + map_id)
+		return null
+
+	var data_copy = map_data.duplicate(true)
+	return BattleMap.new(data_copy)
+
+# Factory method to create formation instances (Phase 5B)
+func create_formation_instance(formation_id: String) -> Formation:
+	var formation_data = get_formation(formation_id)
+	if formation_data.is_empty():
+		push_error("DataManager: Formation not found: " + formation_id)
+		return null
+
+	var data_copy = formation_data.duplicate(true)
+	return Formation.new(data_copy)
+
+# Factory method to create corps instances (Phase 5B)
+func create_corps_instance(corps_template_id: String, is_ally: bool, assigned_general: General = null) -> Corps:
+	var corps_data = get_corps_template(corps_template_id)
+	if corps_data.is_empty():
+		push_error("DataManager: Corps template not found: " + corps_template_id)
+		return null
+
+	var data_copy = corps_data.duplicate(true)
+	var corps = Corps.new(data_copy, assigned_general)
+	corps.is_ally = is_ally
+	return corps
