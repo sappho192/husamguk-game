@@ -106,10 +106,9 @@ godot project.godot
 
 **Development Roadmap:**
 - Phase 6: Integration of corps/grid system with wave battles (replace unit-based with corps-based combat)
-- Phase 7: Meta-progression system (permanent unlocks, save/load)
-- Phase 8: Content expansion (more battles, events, cards, enhancements)
-- Phase 9: Balance tuning and polish based on playtesting
-- Phase 10: MOD system full implementation
+- Phase 7: Meta-progression system (permanent unlocks, save/load) and content expansion (more battles, events, cards, enhancements)
+- Post-Phase-7: Balance tuning and polish based on playtesting
+- Long-term: MOD system full implementation
 
 **Test Scenes:**
 - `scenes/battle.tscn` - Unit-based wave battle system (Phases 1-4, currently active)

@@ -27,7 +27,7 @@ husamguk/                         # Godot 프로젝트 루트
 │   ├── autoload/                 # 싱글톤
 │   │   ├── data_manager.gd       # ✅ YAML 로딩, 로컬라이제이션, 팩토리, 지형/맵/부대 로딩
 │   │   ├── game_manager.gd       # ✅ 런 오케스트레이션, 씬 전환, 웨이브 전투
-│   │   └── save_manager.gd       # ✅ 스텁 (Phase 7 구현 예정)
+│   │   └── save_manager.gd       # ✅ 스텁 (Phase 7: 메타 프로그레션용)
 │   │
 │   ├── core/                     # 핵심 데이터 클래스
 │   │   ├── general.gd            # ✅ 장수, 스킬 실행, 쿨다운
@@ -668,8 +668,8 @@ terrain:
 - `movement_cost`: 이동 비용 승수 (1.0 = 기본)
 - `defense_modifier`: 방어력 % 수정 (타일에 있을 때)
 - `attack_modifier`: 공격력 % 수정 (타일에서 공격 시)
-- `atb_modifier`: ATB 속도 평탄 수정 (타일에 있을 때)
-
+- `atb_modifier`: ATB 속도 평탄(고정값) 수정 (타일에 있을 때, %가 아닌 고정값)
+- ※ `attack_modifier`는 "해당 타일에서 공격을 시작할 때" 적용되며, `defense_modifier`와 `atb_modifier`는 "해당 타일 위에 서 있을 때" 적용된다는 차이가 있다.
 ### 4.10 맵 (maps/*.yaml) - Phase 5A
 
 ```yaml
@@ -759,7 +759,7 @@ corps:
 
 **부대 특징:**
 - 부대 총 HP = `hp_per_soldier × (soldier_count + 장수 통솔력 보너스)`
-- 부대 총 공격 = `attack_per_soldier × 병사 수 + 방어/진형 수정자`
+- 부대 총 공격 = `attack_per_soldier × 병사 수 + 지형/진형 수정자`
 - `attack_range`: 공격 가능 거리 (보병 1, 기병 2, 궁병 4-5)
 - 장수 통솔력: +1 병사/10 통솔력
 
@@ -775,8 +775,8 @@ formations:
     modifiers:
       attack_modifier: 0     # % 수정
       defense_modifier: 0    # % 수정
-      atb_modifier: 0.0      # 평탄 수정
-      movement_modifier: 0   # 평탄 수정 (타일)
+      atb_modifier: 0.0      # 평탄 ATB 수정
+      movement_modifier: 0   # 평탄 이동 타일 수 수정
 
     category: ["infantry", "cavalry", "archer"]  # 모든 유닛 사용 가능
 
