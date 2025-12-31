@@ -240,6 +240,14 @@ func hide_command_indicator() -> void:
 	_command_indicator.visible = false
 
 
+## 마우스 입력 활성화/비활성화 (이동 선택 시 타일 클릭을 위해)
+func set_mouse_input_enabled(enabled: bool) -> void:
+	if enabled:
+		mouse_filter = Control.MOUSE_FILTER_STOP
+	else:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
 ## 피해 시 콜백
 func _on_corps_damaged(_casualties: int, remaining: int) -> void:
 	_soldier_label.text = str(remaining)

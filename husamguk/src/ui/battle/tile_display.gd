@@ -55,6 +55,7 @@ func _create_visuals() -> void:
 	background_rect = ColorRect.new()
 	background_rect.size = Vector2(TILE_SIZE, TILE_SIZE)
 	background_rect.color = Color.LIGHT_GREEN
+	background_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background_rect)
 
 	# 하이라이트 오버레이
@@ -62,6 +63,7 @@ func _create_visuals() -> void:
 	highlight_rect.size = Vector2(TILE_SIZE, TILE_SIZE)
 	highlight_rect.color = Color.TRANSPARENT
 	highlight_rect.visible = false
+	highlight_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(highlight_rect)
 
 	# 테두리

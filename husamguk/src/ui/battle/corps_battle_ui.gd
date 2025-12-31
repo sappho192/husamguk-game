@@ -298,6 +298,11 @@ func _on_corps_clicked(corps: Corps) -> void:
 	if selection_state == SelectionState.SELECTING_TARGET:
 		if not corps.is_ally:
 			_execute_attack_on_target(corps)
+		else:
+			# 아군 클릭 시 공격 선택 취소하고 새로운 군단 선택
+			tile_grid.clear_all_highlights()
+			selection_state = SelectionState.NONE
+			_select_corps(corps)
 		return
 
 	# 아군 클릭 시 선택
@@ -326,8 +331,11 @@ func _select_corps(corps: Corps) -> void:
 
 
 func _on_tile_clicked(grid_pos: Vector2i) -> void:
+	print("CorpsBattleUI: Tile clicked at %s, selection_state=%d" % [grid_pos, selection_state])
+
 	# 이동 선택 중이면 MovementOverlay에서 처리
 	if selection_state == SelectionState.SELECTING_MOVE:
+		print("CorpsBattleUI: In SELECTING_MOVE state, letting MovementOverlay handle it")
 		return
 
 	# 타일에 군단이 있으면 군단 선택
@@ -372,9 +380,13 @@ func _on_command_selected(command_type: CorpsCommand.CommandType) -> void:
 
 		CorpsCommand.CommandType.MOVE:
 			# 이동 위치 선택 모드
+			print("CorpsBattleUI: Starting MOVE selection for %s" % selected_corps.get_display_name())
 			selection_state = SelectionState.SELECTING_MOVE
+			# 군단 표시의 마우스 입력 비활성화 (타일 클릭을 위해)
+			_set_all_corps_displays_mouse_input(false)
 			movement_overlay.set_occupied_positions(battle_manager.get_all_occupied_positions())
 			movement_overlay.start_selection(selected_corps)
+			movement_overlay.debug_print_reachable_tiles()
 			command_panel.hide_panel()
 
 		CorpsCommand.CommandType.DEFEND, CorpsCommand.CommandType.EVADE, CorpsCommand.CommandType.WATCH:
@@ -440,10 +452,14 @@ func _on_movement_selected(destination: Vector2i) -> void:
 	if selected_corps in corps_displays:
 		corps_displays[selected_corps].show_command_indicator(CorpsCommand.CommandType.MOVE)
 
+	# 군단 표시의 마우스 입력 재활성화
+	_set_all_corps_displays_mouse_input(true)
 	_deselect_corps()
 
 
 func _on_movement_cancelled() -> void:
+	# 군단 표시의 마우스 입력 재활성화
+	_set_all_corps_displays_mouse_input(true)
 	selection_state = SelectionState.NONE
 	if selected_corps != null:
 		command_panel.show_for_corps(selected_corps)
@@ -554,3 +570,9 @@ func _on_force_defeat() -> void:
 		corps.is_alive = false
 		corps.destroyed.emit()
 	battle_manager._check_corps_battle_end()
+
+
+## 모든 군단 표시의 마우스 입력 활성화/비활성화
+func _set_all_corps_displays_mouse_input(enabled: bool) -> void:
+	for display in corps_displays.values():
+		display.set_mouse_input_enabled(enabled)

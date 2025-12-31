@@ -26,8 +26,8 @@ var battle_map: BattleMap = null
 ## 현재 이동 선택 중인 군단
 var selecting_corps: Corps = null
 
-## 이동 가능한 타일 목록
-var reachable_tiles: Array[Vector2i] = []
+## 이동 가능한 타일 목록 (빠른 검색을 위해 Dictionary 사용)
+var reachable_tiles: Dictionary = {}  # Vector2i -> bool
 
 ## 점유된 위치 (다른 군단들의 위치)
 var occupied_positions: Dictionary = {}  # Vector2i -> Corps
@@ -76,12 +76,14 @@ func start_selection(corps: Corps) -> void:
 
 	reachable_tiles.clear()
 	var raw_tiles = battle_map.get_reachable_tiles(start_pos, movement_range, occupied_positions)
+	var tile_positions: Array[Vector2i] = []
 	for tile in raw_tiles:
-		reachable_tiles.append(tile)
+		reachable_tiles[tile] = true
+		tile_positions.append(tile)
 
 	# 타일 하이라이트
 	tile_grid.clear_all_highlights()
-	tile_grid.highlight_movement_tiles(reachable_tiles)
+	tile_grid.highlight_movement_tiles(tile_positions)
 
 	# 현재 위치 선택 표시
 	tile_grid.select_tile(start_pos)
@@ -109,25 +111,34 @@ func cancel_selection() -> void:
 
 ## 특정 타일이 이동 가능한지 확인
 func is_tile_reachable(pos: Vector2i) -> bool:
-	return pos in reachable_tiles
+	return reachable_tiles.has(pos)
 
 
 ## 타일 클릭 핸들러
 func _on_tile_clicked(grid_pos: Vector2i) -> void:
+	print("MovementOverlay: Tile clicked at %s, is_active=%s" % [grid_pos, is_active])
+
 	if not is_active:
 		return
 
 	if selecting_corps == null:
+		print("MovementOverlay: No selecting corps, cancelling")
 		cancel_selection()
 		return
 
 	# 현재 위치 클릭 시 취소
 	if grid_pos == selecting_corps.grid_position:
+		print("MovementOverlay: Clicked current position, cancelling")
 		cancel_selection()
 		return
 
 	# 이동 가능한 타일인지 확인
-	if not is_tile_reachable(grid_pos):
+	var is_reachable = is_tile_reachable(grid_pos)
+	print("MovementOverlay: Tile %s is reachable: %s (total reachable: %d)" % [
+		grid_pos, is_reachable, reachable_tiles.size()
+	])
+
+	if not is_reachable:
 		print("MovementOverlay: Tile %s is not reachable" % grid_pos)
 		return
 
@@ -164,6 +175,13 @@ func preview_path_to(target_pos: Vector2i) -> Array[Vector2i]:
 	path.append(selecting_corps.grid_position)
 	path.append(target_pos)
 	return path
+
+
+## 디버그: 현재 도달 가능한 타일 목록 출력
+func debug_print_reachable_tiles() -> void:
+	print("MovementOverlay: Reachable tiles (%d):" % reachable_tiles.size())
+	for pos in reachable_tiles.keys():
+		print("  - %s" % pos)
 
 
 ## 현재 선택 중인 군단 반환
