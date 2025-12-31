@@ -39,6 +39,7 @@ var total_waves: int = 0
 # Phase 5A: Terrain Grid
 var battle_map: BattleMap = null
 var corps_positions: Dictionary = {}  # Vector2i -> Corps (grid position to corps)
+var ally_initial_positions: Dictionary = {}  # Corps -> Vector2i (initial spawn positions for wave reset)
 
 # Phase 5B: Corps system
 var ally_corps: Array = []  # Array[Corps]
@@ -99,6 +100,7 @@ func start_battle_with_generals(ally_data: Array, enemy_data: Array) -> void:
 	battle_started.emit()
 
 # Phase 4: Start battle from battle data (Wave system)
+# Phase 5: Extended to support both unit-based and corps-based battles
 func start_battle_from_data(battle_id: String, ally_data: Array) -> void:
 	print("BattleManager: Starting battle from data: ", battle_id)
 
@@ -130,6 +132,42 @@ func start_battle_from_data(battle_id: String, ally_data: Array) -> void:
 	# Start first wave
 	_spawn_wave(0)
 	state = BattleState.RUNNING
+	battle_started.emit()
+
+# Phase 5: Start corps-based battle with wave system
+func start_corps_battle_from_data(battle_id: String, ally_corps_data: Array, map: BattleMap) -> void:
+	print("BattleManager: Starting corps battle from data: ", battle_id)
+
+	battle_data = DataManager.get_battle(battle_id)
+	if battle_data.is_empty():
+		push_error("BattleManager: Battle not found: " + battle_id)
+		return
+
+	var waves = battle_data.get("waves", [])
+	if waves.is_empty():
+		push_error("BattleManager: No waves defined for battle: " + battle_id)
+		return
+
+	total_waves = waves.size()
+	current_wave_index = 0
+
+	set_battle_map(map)
+
+	var ally_spawns = map.ally_spawn_zones
+	for i in range(ally_corps_data.size()):
+		var corps_config = ally_corps_data[i]
+		var template_id = corps_config.get("template_id", "")
+		var general = corps_config.get("general", null)
+		var corps = DataManager.create_corps_instance(template_id, true, general)
+		if corps and i < ally_spawns.size():
+			var spawn_pos = ally_spawns[i]
+			add_corps(corps, spawn_pos)
+			ally_initial_positions[corps] = spawn_pos
+			var general_name = general.display_name if general else "None"
+			print("  Ally Corps: ", corps.get_display_name(), " (General: ", general_name, ")")
+
+	_spawn_wave_corps(0)
+	state = BattleState.PREPARING
 	battle_started.emit()
 
 func _spawn_wave(wave_index: int) -> void:
@@ -167,6 +205,68 @@ func _spawn_wave(wave_index: int) -> void:
 	current_wave_index = wave_index
 	wave_started.emit(wave_index + 1, total_waves)
 
+## Reset ally corps to initial spawn positions (called between waves)
+func _reset_ally_corps_positions() -> void:
+	print("BattleManager: Resetting ally corps to initial positions")
+	
+	for corps in ally_corps:
+		if not corps.is_alive:
+			continue
+			
+		var initial_pos = ally_initial_positions.get(corps)
+		if initial_pos == null:
+			continue
+		
+		var current_pos = corps.grid_position
+		if current_pos == initial_pos:
+			continue
+		
+		corps_positions.erase(current_pos)
+		
+		var terrain: TerrainTile = null
+		if battle_map != null:
+			terrain = battle_map.get_terrain_at(initial_pos)
+		
+		corps.set_grid_position(initial_pos, terrain)
+		corps_positions[initial_pos] = corps
+		
+		print("  Reset %s: %s -> %s" % [corps.get_display_name(), current_pos, initial_pos])
+
+# Phase 5: Spawn wave for corps-based battles
+func _spawn_wave_corps(wave_index: int) -> void:
+	print("=== SPAWNING CORPS WAVE ", wave_index + 1, " / ", total_waves, " ===")
+
+	var waves = battle_data.get("waves", [])
+	if wave_index >= waves.size():
+		push_error("BattleManager: Wave index out of bounds: ", wave_index)
+		return
+
+	var wave_data = waves[wave_index]
+	var enemies_data = wave_data.get("enemies", [])
+
+	# Clear existing enemy corps from previous wave
+	for enemy in enemy_corps.duplicate():
+		remove_corps(enemy)
+
+	# Create enemy corps for this wave (spawn on enemy spawn zones)
+	var enemy_spawns = battle_map.enemy_spawn_zones if battle_map else []
+	for i in range(enemies_data.size()):
+		var enemy_config = enemies_data[i]
+		var template_id = enemy_config.get("template_id", "")
+		var general_id = enemy_config.get("general", null)
+		var general = null
+		if general_id:
+			general = DataManager.create_general_instance(general_id)
+
+		var corps = DataManager.create_corps_instance(template_id, false, general)
+		if corps and i < enemy_spawns.size():
+			add_corps(corps, enemy_spawns[i])
+			var general_name = general.display_name if general else "None"
+			print("  Enemy Corps: ", corps.get_display_name(), " (General: ", general_name, ")")
+
+	current_wave_index = wave_index
+	wave_started.emit(wave_index + 1, total_waves)
+
 func _on_wave_complete() -> void:
 	print("=== WAVE ", current_wave_index + 1, " COMPLETE ===")
 
@@ -174,22 +274,29 @@ func _on_wave_complete() -> void:
 	wave_complete.emit(current_wave_index + 1, has_next_wave)
 
 	if has_next_wave:
-		# Apply wave rewards
 		var waves = battle_data.get("waves", [])
 		var wave_data = waves[current_wave_index]
 		_apply_wave_rewards(wave_data)
 
-		# Transition to next wave
 		state = BattleState.WAVE_TRANSITION
-		await get_tree().create_timer(2.0).timeout  # 2 second pause
+		
+		if not is_inside_tree():
+			return
+			
+		await get_tree().create_timer(2.0).timeout
 
 		if not is_inside_tree():
-			return  # Scene was changed during wait
+			return
 
-		_spawn_wave(current_wave_index + 1)
-		state = BattleState.RUNNING
+		var is_corps_battle = not ally_corps.is_empty()
+		if is_corps_battle:
+			_reset_ally_corps_positions()
+			_spawn_wave_corps(current_wave_index + 1)
+			state = BattleState.PREPARING
+		else:
+			_spawn_wave(current_wave_index + 1)
+			state = BattleState.RUNNING
 	else:
-		# Battle victory
 		_end_battle(true)
 
 func _apply_wave_rewards(wave_data: Dictionary) -> void:
@@ -202,25 +309,40 @@ func _apply_wave_rewards(wave_data: Dictionary) -> void:
 	# HP recovery
 	var hp_recovery_pct = rewards.get("hp_recovery_percent", 0)
 	if hp_recovery_pct > 0:
+		# Apply to units
 		for unit in ally_units:
 			if unit.is_alive:
 				var recovery = int(unit.max_hp * hp_recovery_pct / 100.0)
 				unit.current_hp = mini(unit.current_hp + recovery, unit.max_hp)
 				print("  ", unit.display_name, " recovered ", recovery, " HP")
+		
+		# Apply to corps
+		for corps in ally_corps:
+			if corps.is_alive:
+				var recovery = int(corps.max_hp * hp_recovery_pct / 100.0)
+				corps.current_hp = mini(corps.current_hp + recovery, corps.max_hp)
+				print("  ", corps.get_display_name(), " recovered ", recovery, " HP")
 
 	# Global turn reset
 	var global_turn_reset = rewards.get("global_turn_reset", false)
 	if global_turn_reset:
-		global_turn_timer = GLOBAL_TURN_INTERVAL  # Trigger immediately
+		global_turn_timer = GLOBAL_TURN_INTERVAL
 		print("  Global turn reset - card draw ready")
 
 	# Buff duration extension
 	var buff_extension = rewards.get("buff_duration_extension", 0)
 	if buff_extension > 0:
+		# Apply to units
 		for unit in ally_units:
 			for buff in unit.active_buffs:
 				buff.duration += buff_extension
 				print("  ", unit.display_name, " buffs extended by ", buff_extension, " turns")
+		
+		# Apply to corps
+		for corps in ally_corps:
+			for buff in corps.active_buffs:
+				buff.duration += buff_extension
+				print("  ", corps.get_display_name(), " buffs extended by ", buff_extension, " turns")
 
 func _process(delta: float) -> void:
 	match state:
@@ -616,23 +738,12 @@ func _on_corps_atb_filled(corps: Corps) -> void:
 func _on_corps_destroyed(corps: Corps) -> void:
 	print("BattleManager: %s destroyed!" % corps.get_display_name())
 	remove_corps(corps)
-	_check_corps_battle_end()
 
 ## 군단 ATB 업데이트
 func _update_corps_atb(delta: float) -> void:
 	for corps in ally_corps + enemy_corps:
 		if corps.is_alive:
 			corps.tick_atb(delta)
-
-## 군단 전투 종료 확인
-func _check_corps_battle_end() -> void:
-	var allies_alive = ally_corps.filter(func(c): return c.is_alive)
-	var enemies_alive = enemy_corps.filter(func(c): return c.is_alive)
-
-	if enemies_alive.is_empty():
-		_end_battle(true)
-	elif allies_alive.is_empty():
-		_end_battle(false)
 
 # ====================================
 # Phase 5C: Command System

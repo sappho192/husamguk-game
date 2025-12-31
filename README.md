@@ -25,7 +25,7 @@ godot project.godot
 - Press **F5** in Godot Editor to run the full game
 - Main scene: `scenes/main_menu.tscn` (complete run loop)
 
-## Current Status: Phase 5 (Corps & Grid System) In Progress ✅
+## Current Status: Phase 6 (Wave System Integration) In Progress ✅
 
 **Phase 1 (Battle Core)** - Complete:
 - ✅ ATB combat system with individual unit gauges
@@ -88,9 +88,20 @@ godot project.godot
   - CorpsDisplay component with HP/ATB bars
   - 283 localization strings per language (Korean/English)
 
-**Next Steps:**
-- 🔲 Full integration with existing wave battle system (Phase 6)
+**Phase 6 (Wave System Integration)** - In Progress:
+- ✅ Battle schema extended to support both unit and corps battles (template_id field)
+- ✅ 3 corps-based wave battle definitions (stage_1/2/3_corps_battle)
+- ✅ BattleManager extended with corps wave spawning and rewards
+- ✅ CorpsBattleUI wave UI integration (counter, transition messages)
+- ✅ Ally corps position reset between waves
+- ✅ Direct attack command (click ally → click enemy shortcut)
+- ✅ GameManager configured to use corps battles as main battle mode
 - 🔲 Meta-progression system (save/load)
+
+**Next Steps:**
+- 🔲 Full run testing and balance tuning
+- 🔲 Meta-progression system (permanent unlocks)
+- 🔲 Content expansion (more battles, events, enhancements)
 
 **What's Playable:**
 - Full roguelite run: Main Menu → 3 Battle Stages (with waves) → Victory/Defeat

@@ -47,7 +47,9 @@ var selection_state: SelectionState = SelectionState.NONE
 var info_panel: PanelContainer
 var info_label: Label
 var state_label: Label
-var resume_battle_button: Button  # Phase 5C: 전투 개시 버튼
+var resume_battle_button: Button
+var wave_counter_label: Label
+var wave_transition_label: Label
 
 ## 결과 레이블
 var result_label: Label
@@ -123,11 +125,34 @@ func _create_ui() -> void:
 	# 정보 패널 (오른쪽)
 	_create_info_panel()
 
-	# 상태 레이블 (상단)
+	# Wave counter label (top center, above state label)
+	wave_counter_label = Label.new()
+	wave_counter_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	wave_counter_label.offset_top = 10
+	wave_counter_label.offset_bottom = 40
+	wave_counter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wave_counter_label.add_theme_font_size_override("font_size", 24)
+	wave_counter_label.visible = false
+	add_child(wave_counter_label)
+
+	# Wave transition label (center screen)
+	wave_transition_label = Label.new()
+	wave_transition_label.set_anchors_preset(Control.PRESET_CENTER)
+	wave_transition_label.offset_left = -300
+	wave_transition_label.offset_right = 300
+	wave_transition_label.offset_top = -50
+	wave_transition_label.offset_bottom = 50
+	wave_transition_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wave_transition_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	wave_transition_label.add_theme_font_size_override("font_size", 36)
+	wave_transition_label.visible = false
+	add_child(wave_transition_label)
+
+	# 상태 레이블 (상단 - below wave counter)
 	state_label = Label.new()
 	state_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	state_label.offset_top = 10
-	state_label.offset_bottom = 40
+	state_label.offset_top = 45
+	state_label.offset_bottom = 75
 	state_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	state_label.add_theme_font_size_override("font_size", 18)
 	state_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
@@ -324,128 +349,79 @@ func _setup_battle_manager() -> void:
 	battle_manager.movement_phase_started.connect(_on_movement_phase_started)
 	battle_manager.movement_phase_ended.connect(_on_movement_phase_ended)
 	battle_manager.global_turn_ready.connect(_on_global_turn_ready)
+	battle_manager.wave_started.connect(_on_wave_started)
+	battle_manager.wave_complete.connect(_on_wave_complete)
 
 
 func _start_battle() -> void:
-	# Phase 5: Check if GameManager has battle config (run-based battle)
-	if GameManager.current_run and GameManager.next_battle_config.has("map_id"):
-		var map_id = GameManager.next_battle_config["map_id"]
+	if GameManager.current_run and GameManager.next_battle_config.has("battle_id"):
+		var battle_id = GameManager.next_battle_config["battle_id"]
+		var map_id = GameManager.next_battle_config.get("map_id", "stage_1_map")
 		var ally_corps_data = GameManager.next_battle_config.get("ally_corps", [])
 
-		print("CorpsBattleUI: Starting run-based battle: ", map_id)
-		_start_run_battle(map_id, ally_corps_data)
+		print("CorpsBattleUI: Starting run-based wave battle: ", battle_id)
+		_start_wave_battle(battle_id, map_id, ally_corps_data)
 	else:
-		# Standalone test battle (no run active)
-		print("CorpsBattleUI: Starting standalone test battle")
-		_start_standalone_battle()
+		print("CorpsBattleUI: Starting standalone test wave battle")
+		_start_standalone_wave_battle()
 
-func _start_run_battle(map_id: String, ally_corps_data: Array) -> void:
-	# 맵 로드
+func _start_wave_battle(battle_id: String, map_id: String, ally_corps_data: Array) -> void:
 	var battle_map = DataManager.create_battle_map(map_id)
 	if battle_map == null:
 		push_error("CorpsBattleUI: Failed to load battle map: " + map_id)
 		return
 
-	battle_manager.set_battle_map(battle_map)
 	tile_grid.setup(battle_map)
 	movement_overlay.set_battle_map(battle_map)
 
-	# 아군 군단 생성 (GameManager config 사용)
-	var ally_spawns = battle_map.ally_spawn_zones
-	for i in range(ally_corps_data.size()):
-		var corps_config = ally_corps_data[i]
-		var template_id = corps_config.get("template_id", "")
-		var general = corps_config.get("general", null)
+	battle_manager.start_corps_battle_from_data(battle_id, ally_corps_data, battle_map)
 
-		var corps = DataManager.create_corps_instance(template_id, true, general)
-		if corps and i < ally_spawns.size():
-			battle_manager.add_corps(corps, ally_spawns[i])
-
-	# 적군 군단 생성 (고정 - 추후 맵 데이터에서 로드 가능)
-	var enemy_spawns = battle_map.enemy_spawn_zones
-	var enemy_templates = ["sword_corps", "archer_corps", "heavy_cavalry_corps"]
-	for i in range(mini(enemy_templates.size(), enemy_spawns.size())):
-		var enemy = DataManager.create_corps_instance(enemy_templates[i], false, null)
-		if enemy:
-			battle_manager.add_corps(enemy, enemy_spawns[i])
-
-	# 전투 시작 - 전투 준비 모드로 시작 (Phase 5C)
-	battle_manager.state = BattleManager.BattleState.PREPARING
-	battle_manager.battle_started.emit()
-
-func _start_standalone_battle() -> void:
-	# Standalone test battle (same as before)
+func _start_standalone_wave_battle() -> void:
 	var battle_map = DataManager.create_battle_map("stage_1_map")
 	if battle_map == null:
-		push_error("Failed to load battle map!")
+		push_error("CorpsBattleUI: Failed to load battle map!")
 		return
 
-	battle_manager.set_battle_map(battle_map)
 	tile_grid.setup(battle_map)
 	movement_overlay.set_battle_map(battle_map)
 
-	# 아군 군단 생성
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
 	var wanggeon = DataManager.create_general_instance("wanggeon")
 	var singeom = DataManager.create_general_instance("singeom")
 
-	var ally_spear = DataManager.create_corps_instance("spear_corps", true, gyeonhwon)
-	var ally_archer = DataManager.create_corps_instance("archer_corps", true, wanggeon)
-	var ally_cavalry = DataManager.create_corps_instance("light_cavalry_corps", true, singeom)
+	var ally_corps_data = [
+		{"template_id": "spear_corps", "general": gyeonhwon},
+		{"template_id": "archer_corps", "general": wanggeon},
+		{"template_id": "light_cavalry_corps", "general": singeom}
+	]
 
-	# 아군 스폰 위치
-	var ally_spawns = battle_map.ally_spawn_zones
-	if ally_spawns.size() >= 3:
-		battle_manager.add_corps(ally_spear, ally_spawns[0])
-		battle_manager.add_corps(ally_archer, ally_spawns[1])
-		battle_manager.add_corps(ally_cavalry, ally_spawns[2])
-
-	# 적군 군단 생성
-	var enemy1 = DataManager.create_corps_instance("sword_corps", false, null)
-	var enemy2 = DataManager.create_corps_instance("archer_corps", false, null)
-	var enemy3 = DataManager.create_corps_instance("heavy_cavalry_corps", false, null)
-
-	# 적군 스폰 위치
-	var enemy_spawns = battle_map.enemy_spawn_zones
-	if enemy_spawns.size() >= 3:
-		battle_manager.add_corps(enemy1, enemy_spawns[0])
-		battle_manager.add_corps(enemy2, enemy_spawns[1])
-		battle_manager.add_corps(enemy3, enemy_spawns[2])
-
-	# 전투 시작 - 전투 준비 모드로 시작 (Phase 5C)
-	battle_manager.state = BattleManager.BattleState.PREPARING
-	battle_manager.battle_started.emit()
+	battle_manager.start_corps_battle_from_data("stage_1_corps_battle", ally_corps_data, battle_map)
 
 
 func _on_battle_started() -> void:
 	print("CorpsBattleUI: Battle started in PREPARING mode!")
 	_update_state_label()
 
-	# 군단 표시 생성
-	for corps in battle_manager.ally_corps + battle_manager.enemy_corps:
+	# Create displays for ally corps only (enemies will be created in _on_wave_started)
+	for corps in battle_manager.ally_corps:
 		_create_corps_display(corps)
 
-	# Phase 5: Notify GameManager battle is ready (for run state restoration)
 	if GameManager.current_run:
 		GameManager.on_battle_ready(battle_manager, battle_manager.ally_corps)
 
-	# Phase 5D: Setup skill bar with ally corps
 	var ally_corps_with_generals: Array = []
 	for corps in battle_manager.ally_corps:
 		if corps.general:
 			ally_corps_with_generals.append(corps)
 
-	# Phase 5D: SkillBar now supports Corps
 	skill_bar.setup(ally_corps_with_generals)
 
-	# 스폰 존 하이라이트 (잠시 후 해제)
 	tile_grid.show_ally_spawn_zones()
 	tile_grid.show_enemy_spawn_zones()
 	await get_tree().create_timer(1.5).timeout
 	if is_inside_tree():
 		tile_grid.clear_all_highlights()
 
-		# Phase 5C: 전투 시작 시 전투 개시 버튼 표시
 		if battle_manager.state == BattleManager.BattleState.PREPARING:
 			resume_battle_button.visible = true
 
@@ -503,20 +479,21 @@ func _on_corps_destroyed_ui(corps: Corps) -> void:
 func _on_corps_clicked(corps: Corps) -> void:
 	print("CorpsBattleUI: Corps clicked: %s" % corps.get_display_name())
 
-	# 적군 클릭 시 공격 대상 선택
 	if selection_state == SelectionState.SELECTING_TARGET:
 		if not corps.is_ally:
 			_execute_attack_on_target(corps)
 		else:
-			# 아군 클릭 시 공격 선택 취소하고 새로운 군단 선택
 			tile_grid.clear_all_highlights()
 			selection_state = SelectionState.NONE
 			_select_corps(corps)
 		return
 
-	# 아군 클릭 시 선택
 	if corps.is_ally:
 		_select_corps(corps)
+	else:
+		if selected_corps != null and battle_manager.state == BattleManager.BattleState.PREPARING:
+			_execute_attack_on_target(corps)
+			command_panel.hide_panel()
 
 
 func _select_corps(corps: Corps) -> void:
@@ -840,7 +817,6 @@ func _on_force_victory() -> void:
 		corps.current_hp = 0
 		corps.is_alive = false
 		corps.destroyed.emit()
-	battle_manager._check_corps_battle_end()
 
 
 func _on_force_defeat() -> void:
@@ -848,7 +824,6 @@ func _on_force_defeat() -> void:
 		corps.current_hp = 0
 		corps.is_alive = false
 		corps.destroyed.emit()
-	battle_manager._check_corps_battle_end()
 
 
 ## 전투 개시 버튼 클릭 (Phase 5C)
@@ -1018,13 +993,55 @@ func _on_card_selected(card: Card) -> void:
 
 
 func _on_card_hand_toggle() -> void:
-	# Toggle card hand visibility
 	card_hand.visible = !card_hand.visible
 
-	# Update button text based on visibility
 	if card_hand.visible:
 		card_toggle_button.text = "맵 확인"
 	else:
 		card_toggle_button.text = "카드 선택"
 
 	print("CorpsBattleUI: Card hand toggled - visible: ", card_hand.visible)
+
+# ====================================
+# Wave System Handlers
+# ====================================
+
+func _on_wave_started(wave_number: int, total_waves: int) -> void:
+	print("CorpsBattleUI: Wave ", wave_number, " / ", total_waves, " started")
+
+	wave_counter_label.text = "Wave %d / %d" % [wave_number, total_waves]
+	wave_counter_label.visible = true
+
+	for corps in battle_manager.enemy_corps.duplicate():
+		if corps in corps_displays:
+			var display = corps_displays[corps]
+			if display:
+				display.queue_free()
+			corps_displays.erase(corps)
+
+	for corps in battle_manager.enemy_corps:
+		_create_corps_display(corps)
+
+	if wave_number > 1:
+		wave_transition_label.text = "Wave %d" % wave_number
+		wave_transition_label.visible = true
+		
+		if not is_inside_tree():
+			return
+			
+		await get_tree().create_timer(1.5).timeout
+		
+		if not is_inside_tree():
+			return
+			
+		wave_transition_label.visible = false
+
+		if battle_manager.state == BattleManager.BattleState.PREPARING:
+			resume_battle_button.visible = true
+
+func _on_wave_complete(wave_number: int, has_next_wave: bool) -> void:
+	print("CorpsBattleUI: Wave ", wave_number, " complete. Next wave: ", has_next_wave)
+
+	if has_next_wave and is_inside_tree():
+		wave_transition_label.text = "Wave %d Complete!" % wave_number
+		wave_transition_label.visible = true

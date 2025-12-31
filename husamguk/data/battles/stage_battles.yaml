@@ -1,6 +1,6 @@
 battles:
   # ============================================================
-  # Stage 1 Battle - 튜토리얼 난이도
+  # Stage 1 Battle - 튜토리얼 난이도 (Unit-based)
   # ============================================================
   - id: "stage_1_battle"
     stage: 1
@@ -105,6 +105,108 @@ battles:
           - id: "light_cavalry"
           - id: "swordsman"
           - id: "crossbowman"
+        wave_rewards:
+          hp_recovery_percent: 20
+          global_turn_reset: true
+          buff_duration_extension: 2
+
+  # ============================================================
+  # Stage 1 Corps Battle - 튜토리얼 난이도 (Corps-based)
+  # ============================================================
+  - id: "stage_1_corps_battle"
+    stage: 1
+    battle_number: 1
+    waves:
+      - enemies:
+          - template_id: "spear_corps"
+          - template_id: "archer_corps"
+        wave_rewards: null
+
+      - enemies:
+          - template_id: "sword_corps"
+          - template_id: "spear_corps"
+          - template_id: "archer_corps"
+        wave_rewards:
+          hp_recovery_percent: 20
+          global_turn_reset: false
+          buff_duration_extension: 0
+
+      - enemies:
+          - template_id: "light_cavalry_corps"
+            general: "wanggeon"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
+          - template_id: "spear_corps"
+        wave_rewards:
+          hp_recovery_percent: 10
+          global_turn_reset: true
+          buff_duration_extension: 1
+
+  # ============================================================
+  # Stage 2 Corps Battle - 중간 난이도 (Corps-based)
+  # ============================================================
+  - id: "stage_2_corps_battle"
+    stage: 2
+    battle_number: 1
+    waves:
+      - enemies:
+          - template_id: "sword_corps"
+          - template_id: "light_cavalry_corps"
+          - template_id: "archer_corps"
+        wave_rewards: null
+
+      - enemies:
+          - template_id: "heavy_cavalry_corps"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
+        wave_rewards:
+          hp_recovery_percent: 15
+          global_turn_reset: false
+          buff_duration_extension: 0
+
+      - enemies:
+          - template_id: "heavy_cavalry_corps"
+            general: "gyeonhwon"
+          - template_id: "light_cavalry_corps"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
+        wave_rewards:
+          hp_recovery_percent: 10
+          global_turn_reset: true
+          buff_duration_extension: 2
+
+  # ============================================================
+  # Stage 3 Corps Battle - 최종 보스 전투 (Corps-based)
+  # ============================================================
+  - id: "stage_3_corps_battle"
+    stage: 3
+    battle_number: 1
+    waves:
+      - enemies:
+          - template_id: "heavy_cavalry_corps"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
+        wave_rewards: null
+
+      - enemies:
+          - template_id: "heavy_cavalry_corps"
+            general: "gungsye"
+          - template_id: "light_cavalry_corps"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
+        wave_rewards:
+          hp_recovery_percent: 15
+          global_turn_reset: false
+          buff_duration_extension: 1
+
+      - enemies:
+          - template_id: "heavy_cavalry_corps"
+            general: "gyeonhwon"
+          - template_id: "heavy_cavalry_corps"
+            general: "wanggeon"
+          - template_id: "light_cavalry_corps"
+          - template_id: "sword_corps"
+          - template_id: "archer_corps"
         wave_rewards:
           hp_recovery_percent: 20
           global_turn_reset: true

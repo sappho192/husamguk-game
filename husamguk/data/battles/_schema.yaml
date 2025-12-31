@@ -35,17 +35,23 @@ schema:
           enemies:
             type: array
             required: true
-            description: "적 유닛 ID 배열"
+            description: "적 유닛/군단 ID 배열"
             items:
               type: object
               properties:
                 id:
                   type: string
-                  description: "유닛 ID (units 데이터 참조)"
+                  nullable: true
+                  description: "유닛 ID (units 데이터 참조) - unit-based 전투용"
+                template_id:
+                  type: string
+                  nullable: true
+                  description: "군단 템플릿 ID (corps 데이터 참조) - corps-based 전투용"
                 general:
                   type: string
                   nullable: true
                   description: "장수 ID (generals 데이터 참조, 선택사항)"
+              note: "id와 template_id 중 하나는 반드시 필요 (둘 다 있으면 template_id 우선)"
 
           wave_rewards:
             type: object
@@ -66,7 +72,7 @@ schema:
 
 example:
   battles:
-    # Stage 1 - 튜토리얼 난이도
+    # Stage 1 - 튜토리얼 난이도 (Unit-based)
     - id: "stage_1_battle_1"
       stage: 1
       battle_number: 1
@@ -89,25 +95,26 @@ example:
             hp_recovery_percent: 10
             global_turn_reset: true
 
-    # Stage 2 - 중간 난이도
-    - id: "stage_2_battle_1"
-      stage: 2
+    # Stage 1 - 튜토리얼 난이도 (Corps-based)
+    - id: "stage_1_corps_battle"
+      stage: 1
       battle_number: 1
       waves:
         - enemies:
-            - id: "swordsman"
-            - id: "swordsman"
-            - id: "crossbowman"
+            - template_id: "spear_corps"
+            - template_id: "archer_corps"
         - enemies:
-            - id: "heavy_cavalry"
-            - id: "light_cavalry"
-            - id: "archer"
-            - id: "archer"
+            - template_id: "sword_corps"
+            - template_id: "spear_corps"
+            - template_id: "archer_corps"
           wave_rewards:
-            hp_recovery_percent: 15
+            hp_recovery_percent: 20
         - enemies:
-            - id: "heavy_cavalry"
-              general: "gyeonhwon"  # 보스
-            - id: "swordsman"
-            - id: "crossbowman"
-            - id: "crossbowman"
+            - template_id: "light_cavalry_corps"
+              general: "wanggeon"  # 보스 wave
+            - template_id: "heavy_cavalry_corps"
+            - template_id: "archer_corps"
+          wave_rewards:
+            hp_recovery_percent: 10
+            global_turn_reset: true
+            buff_duration_extension: 1

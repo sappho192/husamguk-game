@@ -323,11 +323,9 @@ func _on_force_defeat() -> void:
 func _on_wave_started(wave_number: int, total_waves: int) -> void:
 	print("BattleUI: Wave ", wave_number, " / ", total_waves, " started")
 
-	# Update wave counter
 	wave_counter_label.text = "Wave %d / %d" % [wave_number, total_waves]
 	wave_counter_label.visible = true
 
-	# Update enemy container (clear and rebuild)
 	for child in enemy_container.get_children():
 		child.queue_free()
 
@@ -335,19 +333,23 @@ func _on_wave_started(wave_number: int, total_waves: int) -> void:
 		var display = _create_unit_display(unit)
 		enemy_container.add_child(display)
 
-	# Show wave start message briefly
 	if wave_number > 1:
 		wave_transition_label.text = "Wave %d" % wave_number
 		wave_transition_label.visible = true
+		
+		if not is_inside_tree():
+			return
+			
 		await get_tree().create_timer(1.5).timeout
-		if is_inside_tree():
-			wave_transition_label.visible = false
+		
+		if not is_inside_tree():
+			return
+			
+		wave_transition_label.visible = false
 
 func _on_wave_complete(wave_number: int, has_next_wave: bool) -> void:
 	print("BattleUI: Wave ", wave_number, " complete. Next wave: ", has_next_wave)
 
-	if has_next_wave:
-		# Show wave complete message
+	if has_next_wave and is_inside_tree():
 		wave_transition_label.text = "Wave %d Complete!" % wave_number
 		wave_transition_label.visible = true
-		# Will be hidden by _on_wave_started

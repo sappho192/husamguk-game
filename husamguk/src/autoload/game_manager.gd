@@ -15,9 +15,9 @@ var current_run: RunState = null
 var next_battle_config: Dictionary = {}  # map_id, ally_corps, stage
 
 # Scene paths
-const BATTLE_SCENE = "res://scenes/battle.tscn"
+const BATTLE_SCENE = "res://scenes/corps_battle_test.tscn"
 const INTERNAL_AFFAIRS_SCENE = "res://scenes/internal_affairs.tscn"
-const ENHANCEMENT_SCENE = "res://scenes/fateful_encounter.tscn"  # Phase 3D: Changed to Fateful Encounter
+const ENHANCEMENT_SCENE = "res://scenes/fateful_encounter.tscn"
 const MAIN_MENU_SCENE = "res://scenes/main_menu.tscn"
 const VICTORY_SCENE = "res://scenes/victory_screen.tscn"
 const DEFEAT_SCENE = "res://scenes/defeat_screen.tscn"
@@ -31,7 +31,6 @@ func start_new_run() -> void:
 	current_run = RunState.new()
 	_prepare_stage_1()
 
-# Prepare stage 1 battle - Phase 5: Corps system
 func _prepare_stage_1() -> void:
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
 	var wanggeon = DataManager.create_general_instance("wanggeon")
@@ -39,7 +38,8 @@ func _prepare_stage_1() -> void:
 
 	next_battle_config = {
 		"stage": 1,
-		"map_id": "stage_1_map",  # Phase 5: Map ID for grid-based battle
+		"battle_id": "stage_1_corps_battle",
+		"map_id": "stage_1_map",
 		"ally_corps": [
 			{"template_id": "spear_corps", "general": gyeonhwon},
 			{"template_id": "archer_corps", "general": wanggeon},
@@ -116,18 +116,18 @@ func on_enhancement_selected(enhancement: Dictionary) -> void:
 	current_run.current_stage += 1
 	_prepare_next_stage()
 
-# Prepare next stage battle - Phase 5: Corps system
 func _prepare_next_stage() -> void:
 	print("GameManager: Preparing Stage ", current_run.current_stage)
 
-	# Recreate generals with fresh cooldowns (cooldown doesn't persist between stages)
 	var gyeonhwon = DataManager.create_general_instance("gyeonhwon")
 	var wanggeon = DataManager.create_general_instance("wanggeon")
 	var singeom = DataManager.create_general_instance("singeom")
 
-	# Phase 5: Use map based on current stage
+	var battle_id = "stage_%d_corps_battle" % current_run.current_stage
 	var map_id = "stage_%d_map" % current_run.current_stage
+	
 	next_battle_config["stage"] = current_run.current_stage
+	next_battle_config["battle_id"] = battle_id
 	next_battle_config["map_id"] = map_id
 	next_battle_config["ally_corps"] = [
 		{"template_id": "spear_corps", "general": gyeonhwon},
